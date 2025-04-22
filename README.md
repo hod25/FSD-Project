@@ -4,28 +4,25 @@ A real-time monitoring system for detecting workers without helmets on construct
 
 ---
 
+---
+
 ## 🚀 Getting Started
 
 ### 1. Start the Frontend (Next.js)
 
+```bash
 cd client
-npm install # First-time setup
-npm run dev # Starts the frontend at http://localhost:3000
+npm install      # First-time setup
+npm run dev      # Starts the frontend at http://localhost:3000
 
 cd detection-service
 
-# Activate virtual environment
-
-.\env\Scripts\activate # Windows PowerShell
-
-# Install Python dependencies (only once)
+.\env\Scripts\activate       # Windows PowerShell
 
 pip install -r requirements.txt
 
-# Run the FastAPI server
-
-uvicorn main:app --reload # Available at http://localhost:8000
+uvicorn main:app --reload    # Available at http://localhost:8000
 
 cd server
-
 # Node.js backend setup will be added here soon.
+```
