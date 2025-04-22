@@ -14,15 +14,19 @@ A real-time monitoring system for detecting workers without helmets on construct
 cd client
 npm install      # First-time setup
 npm run dev      # Starts the frontend at http://localhost:3000
+```
 
+### 2. Start the Detection Service (FastAPI + YOLOv5)
+
+```bash
 cd detection-service
-
 .\env\Scripts\activate       # Windows PowerShell
-
 pip install -r requirements.txt
-
 uvicorn main:app --reload    # Available at http://localhost:8000
+```
 
+### 3. Start the Backend (Node.js) – Coming Soon
+
+```bash
 cd server
-# Node.js backend setup will be added here soon.
 ```
