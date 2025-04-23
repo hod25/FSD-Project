@@ -20,6 +20,7 @@ npm run dev      # Starts the frontend at http://localhost:3000
 
 ```bash
 cd detection-service
+python -m venv env           # Create a virtual environment named 'env' to isolate project dependencies
 .\env\Scripts\activate       # Windows PowerShell
 pip install -r requirements.txt
 uvicorn main:app --reload    # Available at http://localhost:8000
