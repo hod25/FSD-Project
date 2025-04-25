@@ -25,8 +25,11 @@ pip install -r requirements.txt
 uvicorn main:app --reload    # Available at http://localhost:8000
 ```
 
-### 3. Start the Backend (Node.js) – Coming Soon
+### 3. Start the Backend (Node.js)
 
 ```bash
 cd server
+npm install           # First-time setup
+npm run dev           # Starts the backend at http://localhost:5000
+
 ```
