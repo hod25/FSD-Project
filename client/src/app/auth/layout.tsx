@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { selectIsLoggedIn } from '@/store/slices/userSlice';
 import { useRouter } from 'next/navigation';
+import { selectIsLoggedIn } from '@/store/slices/userSlice';
 
 export default function UnauthenticatedLayout({ children }: { children: React.ReactNode }) {
   const isLoggedIn = useSelector(selectIsLoggedIn);
@@ -22,13 +22,15 @@ export default function UnauthenticatedLayout({ children }: { children: React.Re
     return (
       <div
         style={{
-          minHeight: '100vh',
+          height: '100vh',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
+          fontSize: '18px',
+          color: '#555',
         }}
       >
-        <p>Loading...</p>
+        Loading...
       </div>
     );
   }

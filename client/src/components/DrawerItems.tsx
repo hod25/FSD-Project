@@ -48,7 +48,7 @@ export default function DrawerItems({ isCollapsed, onToggleCollapse }: DrawerIte
         {!isCollapsed && (
           <ButtonBase component="a" href="/" disableRipple>
             <Box>
-              <Image src="/logo.svg" alt="Logo" height={45} width={100} />
+              <Image src="/prosafe-black-logo.png" alt="Logo" height={70} width={210} />
             </Box>
           </ButtonBase>
         )}

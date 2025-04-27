@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import './globals.css';
 import { ReduxProvider } from '@/components/ReduxProvider';
+import './globals.css';
 
+// Load fonts
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
@@ -15,19 +16,21 @@ const geistMono = Geist_Mono({
   display: 'swap',
 });
 
+// SEO Metadata
 export const metadata: Metadata = {
-  title: 'ProSafe – Live Detection',
+  title: 'ProSafe',
   description: 'Live helmet detection powered by YOLO & FastAPI',
 };
 
+// Root layout
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body>
         <ReduxProvider>{children}</ReduxProvider>
       </body>
     </html>

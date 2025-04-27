@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import styles from "./page.module.css";
+import styles from './page.module.css';
 
-export default function Home() {
+export default function page() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>

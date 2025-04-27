@@ -1,18 +1,24 @@
 'use client';
 
-import { Dashboard, Feed, AddBox, Person, RateReview } from '@mui/icons-material';
+import { Home, CameraAlt, Assessment, Event, Business, Person } from '@mui/icons-material';
 
 export interface MenuItem {
   id: string;
   label: string;
   path: string;
-  icon: React.ComponentType; // Notice: Now type is a COMPONENT, not a ReactNode
+  icon: React.ComponentType;
 }
 
 export const menuItems: MenuItem[] = [
-  { id: 'dashboard', label: 'Dashboard', path: '/connected/dashboard', icon: Dashboard },
-  { id: 'feed', label: 'Feed', path: '/connected/feed', icon: Feed },
-  { id: 'addpost', label: 'Add Post', path: '/connected/addpost', icon: AddBox },
-  { id: 'myprofile', label: 'My Profile', path: '/connected/myprofile', icon: Person },
-  { id: 'myreviews', label: 'My Reviews', path: '/connected/myreviews', icon: RateReview },
+  { id: 'home', label: 'Home', path: '/connected/home', icon: Home },
+  { id: 'live-camera', label: 'Live Camera', path: '/connected/live-camera', icon: CameraAlt },
+  { id: 'reports', label: 'Reports', path: '/connected/reports', icon: Assessment },
+  { id: 'events', label: 'Events', path: '/connected/events', icon: Event },
+  {
+    id: 'site-management',
+    label: 'Site Management',
+    path: '/connected/site-management',
+    icon: Business,
+  },
+  { id: 'profile', label: 'Profile', path: '/connected/profile', icon: Person },
 ];
