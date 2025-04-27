@@ -20,8 +20,13 @@ def generate_frames():
         if not success:
             break
 
-        # שולח את התמונה ל-GPU
-        frame_tensor = torch.from_numpy(frame).to(device)
+        # שינוי גודל התמונה ל-640x640 לפני שליחתה למודל
+        frame_resized = cv2.resize(frame, (640, 640))
+
+        # המרת התמונה לתצורת BCHW
+        # הוספת ממד של batch (1) לפני התמונה, כך שהתמונה תהיה בגודל (1, 3, 640, 640)
+        frame_resized = np.transpose(frame_resized, (2, 0, 1))  # שינוי הממדים ל-(3, 640, 640)
+        frame_tensor = torch.from_numpy(frame_resized).unsqueeze(0).to(device).float()  # הוספת ממד batch
 
         # מבצע חיזוי עם המודל ב-GPU
         results = model(frame_tensor)
