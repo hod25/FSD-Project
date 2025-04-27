@@ -3,3 +3,4 @@ uvicorn
 opencv-python
 yolov5
 numpy
+ultralytics
