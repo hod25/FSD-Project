@@ -12,6 +12,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import DrawerListItem from './DrawerListItem';
 import { menuItems } from '../app/routes/paths';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation'; // ✅ שימוש נכון ב-router
 
 interface DrawerItemsProps {
   isCollapsed: boolean;
@@ -19,95 +20,109 @@ interface DrawerItemsProps {
 }
 
 export default function DrawerItems({ isCollapsed, onToggleCollapse }: DrawerItemsProps) {
+  const router = useRouter(); // ✅ מוכן לניווט חלק
+
   const handleLogout = () => {
+    // מחיקת מידע מהדפדפן
     localStorage.clear();
     sessionStorage.clear();
     document.cookie.split(';').forEach((cookie) => {
       const [name] = cookie.split('=');
       document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
     });
-    window.location.href = '/signin';
+
+    router.push('/signin'); // ✅ מעבר חלק בלי לרענן את הדף
   };
 
   return (
-    <>
-      {/* Sidebar header (logo + collapse button) */}
-      <Stack
-        pt={1.5}
-        pb={1.5}
-        px={2}
-        position="sticky"
-        bgcolor="info.light"
-        alignItems="center"
-        justifyContent="space-between"
-        direction="row"
-        borderBottom={1}
-        borderColor="info.main"
-        zIndex={1000}
-      >
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: '#f8f9fb',
+        borderRight: '1px solid #e0e0e0',
+      }}
+    >
+      {/* Sidebar Header */}
+      <Stack direction="row" alignItems="center" justifyContent="space-between" px={2} py={2}>
         {!isCollapsed && (
-          <ButtonBase component="a" href="/" disableRipple>
-            <Box>
-              <Image src="/prosafe-black-logo.png" alt="Logo" height={70} width={210} />
-            </Box>
+          <ButtonBase component="a" href="/" sx={{ display: 'flex', alignItems: 'center' }}>
+            <Image src="/prosafe-black-logo.png" alt="ProSafe Logo" width={200} height={75} />
           </ButtonBase>
         )}
 
         <IconButton
           onClick={onToggleCollapse}
           sx={{
+            backgroundColor: '#e0e0e0',
             width: 36,
             height: 36,
-            padding: 0,
-            borderRadius: 1,
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
-            },
-            transition: 'all 0.2s ease-in-out',
+            '&:hover': { backgroundColor: '#d5d5d5' },
+            transition: 'all 0.3s ease',
           }}
         >
           {isCollapsed ? <MenuIcon fontSize="small" /> : <CloseIcon fontSize="small" />}
         </IconButton>
       </Stack>
 
-      {/* Sidebar menu list */}
-      <List
-        component="nav"
+      {/* Sidebar Menu List */}
+      <Box sx={{ flexGrow: 1, overflowY: 'auto', mt: 2 }}>
+        <List
+          component="nav"
+          sx={{
+            px: isCollapsed ? 1 : 3,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 1,
+          }}
+        >
+          {menuItems.map((item) => (
+            <DrawerListItem key={item.id} {...item} isCollapsed={isCollapsed} />
+          ))}
+        </List>
+      </Box>
+
+      {/* Sidebar Footer */}
+      <Box
         sx={{
-          mt: 2.5,
-          mb: 10,
-          px: isCollapsed ? 1 : 4.5, // Smaller padding when collapsed
+          p: isCollapsed ? 1 : 3,
+          pb: 4,
+          mt: 'auto',
         }}
       >
-        {menuItems.map((item) => (
-          <DrawerListItem key={item.id} {...item} isCollapsed={isCollapsed} />
-        ))}
-      </List>
-
-      {/* Sidebar footer (logout button) */}
-      {!isCollapsed && (
-        <Box mt="auto" px={4.5} pb={6}>
+        {!isCollapsed ? (
           <Button
-            variant="text"
             fullWidth
+            variant="outlined"
             onClick={handleLogout}
-            startIcon={<LogoutIcon sx={{ fontSize: 20, color: 'text.secondary' }} />}
+            startIcon={<LogoutIcon />}
             sx={{
-              py: 1.5,
-              color: 'text.secondary',
+              color: 'text.primary',
+              borderColor: '#d0d0d0',
               textTransform: 'none',
-              fontSize: '0.875rem',
+              fontSize: '14px',
               '&:hover': {
-                bgcolor: 'action.hover',
-                color: 'text.primary',
+                backgroundColor: '#f5f5f5',
+                borderColor: '#c0c0c0',
               },
             }}
           >
             Log Out
           </Button>
-        </Box>
-      )}
-    </>
+        ) : (
+          <IconButton
+            onClick={handleLogout}
+            sx={{
+              width: '100%',
+              color: 'text.secondary',
+              justifyContent: 'center',
+            }}
+          >
+            <LogoutIcon />
+          </IconButton>
+        )}
+      </Box>
+    </Box>
   );
 }

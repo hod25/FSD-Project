@@ -1,35 +1,82 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
 import { AlertCircle } from 'lucide-react';
 
+const SOCKET_SERVER_URL = 'http://localhost:5000';
+
+interface Alert {
+  message: string;
+  timestamp: string;
+}
+
 export default function LiveCameraPage() {
-  // ********************************
-  const isStreamAvailable = true; // בדיקות זמינות סטרים בהמשך
-  // ********************************
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [isStreamAvailable] = useState(true);
+
+  useEffect(() => {
+    const socket = io(SOCKET_SERVER_URL, {
+      transports: ['websocket'],
+      withCredentials: true,
+    });
+
+    socket.on('connect', () => {
+      console.log('🔌 Connected to socket server');
+    });
+
+    socket.on('alert', (data: Alert) => {
+      console.log('🚨 New alert received:', data);
+      setAlerts((prev) => [data, ...prev]);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('❌ Disconnected from socket server');
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  const clearAlerts = () => {
+    setAlerts([]);
+  };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', backgroundColor: '#f4f6f8', padding: '24px' }}>
-      {/* Left: Camera Streaming Area */}
+    <div
+      style={{
+        display: 'flex',
+        height: '100vh',
+        backgroundColor: '#f0f2f5',
+        padding: '20px',
+        gap: '20px',
+      }}
+    >
+      {/* Left: Live Camera Stream */}
       <div
         style={{
           flex: 3,
+          backgroundColor: '#fff',
+          borderRadius: '16px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+          overflow: 'hidden',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          paddingRight: '12px',
+          padding: '10px',
         }}
       >
         <div
           style={{
             width: '100%',
-            maxWidth: '900px',
-            aspectRatio: '16/9',
-            backgroundColor: '#111',
-            borderRadius: '16px',
+            maxWidth: '1000px',
+            aspectRatio: '16 / 9',
+            backgroundColor: '#000',
+            borderRadius: '12px',
             overflow: 'hidden',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
             position: 'relative',
-            border: '2px solid #e0e0e0',
+            border: '2px solid #ddd',
           }}
         >
           {isStreamAvailable ? (
@@ -41,13 +88,15 @@ export default function LiveCameraPage() {
                 style={{
                   width: '100%',
                   height: '100%',
-                  objectFit: 'cover',
+                  objectFit: 'contain',
+                  backgroundColor: '#000',
                 }}
               />
             </>
           ) : (
             <div
               style={{
+                width: '100%',
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
@@ -57,8 +106,10 @@ export default function LiveCameraPage() {
               }}
             >
               <AlertCircle size={64} color="#ff4d4f" />
-              <h2 style={{ marginTop: '16px', fontSize: '24px' }}>Stream Not Available</h2>
-              <p style={{ marginTop: '8px', fontSize: '16px', color: '#999' }}>
+              <h2 style={{ marginTop: '16px', fontSize: '22px', color: '#333' }}>
+                Stream Not Available
+              </h2>
+              <p style={{ marginTop: '8px', fontSize: '16px', color: '#888' }}>
                 Unable to load live camera feed.
               </p>
             </div>
@@ -70,78 +121,83 @@ export default function LiveCameraPage() {
       <div
         style={{
           flex: 1,
-          backgroundColor: '#ffffff',
+          backgroundColor: '#fff',
           borderRadius: '16px',
-          padding: '24px',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+          padding: '20px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
           overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
         }}
       >
-        <h2
-          style={{
-            fontSize: '22px',
-            fontWeight: 700,
-            marginBottom: '24px',
-            textAlign: 'center',
-            color: '#333',
-          }}
-        >
-          Live Alerts
-        </h2>
+        {/* Header */}
+        <div style={{ marginBottom: '16px', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#333' }}>Live Alerts</h2>
+          <p style={{ fontSize: '14px', color: '#777' }}>{alerts.length} alerts</p>
+          {alerts.length > 0 && (
+            <button
+              onClick={clearAlerts}
+              style={{
+                marginTop: '10px',
+                backgroundColor: '#ff4d4f',
+                color: '#fff',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '14px',
+              }}
+            >
+              Clear All
+            </button>
+          )}
+        </div>
 
-        {[1, 2, 3].map((event) => (
-          <div
-            key={event}
-            style={{
-              background: '#fafafa',
-              padding: '16px',
-              marginBottom: '20px',
-              borderRadius: '12px',
-              border: '1px solid #e0e0e0',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-              <span style={{ color: '#ff4d4f', fontSize: '18px', marginRight: '8px' }}>🔴</span>
-              <strong style={{ fontSize: '16px' }}>Event ID: EV-00{event}</strong>
-            </div>
-
-            <div style={{ fontSize: '14px', color: '#555', marginBottom: '12px' }}>
-              <div>Location: Zone {event}</div>
-              <div>Time: 2024-12-21 10:4{event} AM</div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button
-                style={{
-                  flex: 1,
-                  padding: '8px',
-                  fontSize: '14px',
-                  backgroundColor: '#f0f0f0',
-                  border: '1px solid #ccc',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                }}
-              >
-                Photo
-              </button>
-              <button
-                style={{
-                  flex: 1,
-                  padding: '8px',
-                  fontSize: '14px',
-                  backgroundColor: '#0070f3',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                }}
-              >
-                View Details
-              </button>
-            </div>
+        {/* Alerts List */}
+        {alerts.length === 0 ? (
+          <div style={{ textAlign: 'center', color: '#aaa', fontSize: '16px', marginTop: '50px' }}>
+            No alerts yet.
           </div>
-        ))}
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {alerts.map((alert, index) => (
+              <div
+                key={index}
+                style={{
+                  backgroundColor: '#fafafa',
+                  padding: '16px',
+                  borderRadius: '12px',
+                  border: '1px solid #e0e0e0',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  animation: 'fadeIn 0.5s ease',
+                }}
+              >
+                <div style={{ fontWeight: 600, color: '#ff4d4f', fontSize: '16px' }}>
+                  🔴 {alert.message}
+                </div>
+                <div style={{ fontSize: '14px', color: '#666' }}>{alert.timestamp}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Animation keyframes */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 }
