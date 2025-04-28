@@ -1,9 +1,12 @@
 'use client';
 
-import { AppBar, Toolbar, Stack, Avatar, Typography, IconButton } from '@mui/material';
+import { AppBar, Toolbar, Stack, IconButton, Typography, Tooltip } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-// import { keyframes } from '@emotion/react';
-import styled from '@emotion/styled';
+import PersonIcon from '@mui/icons-material/Person';
+import SettingsIcon from '@mui/icons-material/Settings';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import HomeIcon from '@mui/icons-material/Home';
+import { usePathname } from 'next/navigation';
 
 interface NavbarProps {
   isClosing: boolean;
@@ -11,55 +14,77 @@ interface NavbarProps {
   setMobileOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-// const pulse = keyframes`
-//   0% { box-shadow: 0 0 0 0 rgba(142, 55, 215, 0.4); }
-//   70% { box-shadow: 0 0 0 10px rgba(142, 55, 215, 0); }
-//   100% { box-shadow: 0 0 0 0 rgba(142, 55, 215, 0); }
-// `;
-
-const WelcomeText = styled(Typography)`
-  background: linear-gradient(135deg, #6b8dd6 0%, #8e37d7 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 600;
-`;
-
-export default function Navbar({ /*mobileOpen,*/ setMobileOpen }: NavbarProps) {
+export default function Navbar({ setMobileOpen }: NavbarProps) {
   const handleDrawerToggle = () => {
-    setMobileOpen((prev) => !prev); // 🛠️ No more isClosing check!
+    setMobileOpen((prev) => !prev);
   };
 
+  const pathname = usePathname();
+
+  // להוציא את החלק האחרון בנתיב
+  const lastPathSegment = pathname?.split('/').filter(Boolean).pop() || 'Dashboard';
+  const formattedPath = lastPathSegment.charAt(0).toUpperCase() + lastPathSegment.slice(1);
+
   return (
-    <AppBar position="static" elevation={0} sx={{ bgcolor: 'transparent', py: 1 }}>
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
-        <Stack direction="row" alignItems="center" spacing={2}>
+    <AppBar
+      position="sticky"
+      elevation={0}
+      sx={{
+        bgcolor: '#f9fafc', // רקע אפור מאוד בהיר
+        boxShadow: 'none',
+        borderBottom: '1px solid #e0e0e0',
+        height: 56, // גובה דק ועדין
+        justifyContent: 'center',
+      }}
+    >
+      <Toolbar
+        sx={{
+          minHeight: '56px !important',
+          px: 2,
+          display: 'flex',
+          justifyContent: 'space-between',
+        }}
+      >
+        {/* צד שמאל - מיקום נוכחי */}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          {/* כפתור תפריט מופיע רק במסכים קטנים */}
           <IconButton
             color="inherit"
             onClick={handleDrawerToggle}
             sx={{ display: { xs: 'flex', lg: 'none' } }}
           >
-            <MenuIcon />
+            <MenuIcon fontSize="small" />
           </IconButton>
-          <Typography variant="h6" color="textPrimary" sx={{ fontWeight: 600 }}>
-            ProSafe
+
+          <HomeIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+          <Typography
+            variant="subtitle2"
+            color="text.secondary"
+            sx={{ fontWeight: 500, fontSize: '14px' }}
+          >
+            / {formattedPath}
           </Typography>
         </Stack>
 
-        <Stack direction="row" alignItems="center" spacing={2}>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Avatar
-              sx={{
-                width: 32,
-                height: 32,
-                bgcolor: 'primary.main',
-                border: '2px solid white',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              }}
-            >
-              G
-            </Avatar>
-            <WelcomeText variant="subtitle1">Guest</WelcomeText>
-          </Stack>
+        {/* צד ימין - אייקונים */}
+        <Stack direction="row" alignItems="center" spacing={1.5}>
+          <Tooltip title="Profile">
+            <IconButton size="small" sx={{ color: 'text.secondary' }}>
+              <PersonIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Settings">
+            <IconButton size="small" sx={{ color: 'text.secondary' }}>
+              <SettingsIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Notifications">
+            <IconButton size="small" sx={{ color: 'text.secondary' }}>
+              <NotificationsIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
         </Stack>
       </Toolbar>
     </AppBar>
