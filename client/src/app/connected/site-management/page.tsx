@@ -58,6 +58,62 @@ export default function Page() {
         </Stack>
 
 
+        {/* חלוקת משמרות */}
+        <Stack spacing={1}>
+          <Typography variant="subtitle2" color="text.secondary" fontWeight="bold" mt={1}>
+            SHIFT TIMINGS
+          </Typography>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+            <TextField
+              size="small"
+              type="time"
+              label="Shift Start"
+              fullWidth
+              defaultValue="08:00"
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              size="small"
+              type="time"
+              label="Shift End"
+              fullWidth
+              defaultValue="17:00"
+              InputLabelProps={{ shrink: true }}
+            />
+          </Stack>
+        </Stack>
+
+        {/* זמן הפרה */}
+        <Stack spacing={1}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <AlarmIcon color="error" />
+            <Typography variant="subtitle2" color="text.secondary">
+              Violation Time (seconds)
+            </Typography>
+          </Stack>
+          <TextField
+            size="small"
+            fullWidth
+            type="number"
+            placeholder="5"
+            InputProps={{ inputProps: { min: 1 } }}
+          />
+        </Stack>
+
+        {/* אפשרות התראות */}
+        <Stack direction="row" alignItems="center" justifyContent="space-between" mt={2}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <NotificationsActiveIcon color="action" />
+            <Typography variant="subtitle2" color="text.secondary">
+              Enable Alerts
+            </Typography>
+          </Stack>
+          <Switch
+            checked={enableAlerts}
+            onChange={(e) => setEnableAlerts(e.target.checked)}
+            color="primary"
+          />
+        </Stack>
         <Divider sx={{ my: 2 }} />
 
         {/* כפתור שמירה */}
