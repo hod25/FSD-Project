@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { connectToDB } from "./config/db";
 import { sendAlert } from "./socket/socket";
+import authRoutes from './routes/auth';
 
 dotenv.config();
 
@@ -17,6 +18,8 @@ app.use(
   })
 );
 app.use(express.json());
+console.log(typeof authRoutes);
+app.use("/auth", authRoutes);
 
 // ===== Connect Database =====
 connectToDB();
