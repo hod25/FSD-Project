@@ -47,10 +47,13 @@ export default function LiveCameraPage() {
     <div
       style={{
         display: 'flex',
-        height: '100vh',
-        backgroundColor: '#f0f2f5',
+        height: 'calc(100vh - 56px)',
+        backgroundColor: '#ffffff',
         padding: '20px',
         gap: '20px',
+        boxSizing: 'border-box',
+        overflow: 'hidden',
+        position: 'relative',
       }}
     >
       {/* Left: Live Camera Stream */}
@@ -65,6 +68,7 @@ export default function LiveCameraPage() {
           justifyContent: 'center',
           alignItems: 'center',
           padding: '10px',
+          height: '100%', // שומר על גובה קבוע
         }}
       >
         <div
@@ -125,10 +129,12 @@ export default function LiveCameraPage() {
           borderRadius: '16px',
           padding: '20px',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-          overflowY: 'auto',
+          overflowY: 'auto', // מאפשר גלילה רק בתוך האזור הזה
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
+          height: '100%', // שומר על גובה קבוע
+          boxSizing: 'border-box', // מונע התרחבות
         }}
       >
         {/* Header */}

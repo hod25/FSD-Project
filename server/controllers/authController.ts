@@ -12,16 +12,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
   try {
     const { email, password } = req.body;
-    console.log(email);
-    console.log(password)
 
     const user = await userModel.findOne({ email });
-    console.log(user)
     if (!user) {
       res.status(400).json({ message: 'Wrong email or password' });
       return;
     }
-    console.log(user.password)
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       res.status(400).json({ message: 'Wrong email or password' });

@@ -45,20 +45,28 @@ export default function DrawerItems({ isCollapsed, onToggleCollapse }: DrawerIte
       }}
     >
       {/* Sidebar Header */}
-      <Stack direction="row" alignItems="center" justifyContent="space-between" px={2} py={2}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" px={2} py={1.5}>
         {!isCollapsed && (
-          <ButtonBase component="a" href="/" sx={{ display: 'flex', alignItems: 'center' }}>
-            <Image src="/prosafe-black-logo.png" alt="ProSafe Logo" width={200} height={75} />
+          <ButtonBase
+            component="a"
+            href="/"
+            sx={{ display: 'flex', alignItems: 'center', ml: 4, mt: 2 }}
+          >
+            <Image src="/ProSafe_Logo.svg" alt="ProSafe Logo" width={160} height={45} priority />
           </ButtonBase>
         )}
 
         <IconButton
           onClick={onToggleCollapse}
           sx={{
-            backgroundColor: '#e0e0e0',
+            backgroundColor: 'rgba(255, 180, 0, 0.05)',
             width: 36,
             height: 36,
-            '&:hover': { backgroundColor: '#d5d5d5' },
+            color: '#e09500', // Darker shade of yellow
+            '&:hover': {
+              backgroundColor: 'rgba(255, 180, 0, 0.1)',
+              color: '#cc8800', // Even darker when hovering
+            },
             transition: 'all 0.3s ease',
           }}
         >
@@ -98,14 +106,18 @@ export default function DrawerItems({ isCollapsed, onToggleCollapse }: DrawerIte
             onClick={handleLogout}
             startIcon={<LogoutIcon />}
             sx={{
-              color: 'text.primary',
-              borderColor: '#d0d0d0',
+              color: '#d18700',
+              borderColor: 'rgba(209, 135, 0, 0.5)',
+              backgroundColor: 'transparent',
               textTransform: 'none',
               fontSize: '14px',
+              borderRadius: '6px',
+              padding: '8px 0',
               '&:hover': {
-                backgroundColor: '#f5f5f5',
-                borderColor: '#c0c0c0',
+                backgroundColor: 'rgba(209, 135, 0, 0.04)',
+                borderColor: '#d18700',
               },
+              transition: 'all 0.2s ease',
             }}
           >
             Log Out
@@ -114,12 +126,20 @@ export default function DrawerItems({ isCollapsed, onToggleCollapse }: DrawerIte
           <IconButton
             onClick={handleLogout}
             sx={{
-              width: '100%',
-              color: 'text.secondary',
+              width: '36px',
+              height: '36px',
+              color: '#d18700',
+              backgroundColor: 'transparent',
+              border: '1px solid rgba(209, 135, 0, 0.5)',
               justifyContent: 'center',
+              '&:hover': {
+                backgroundColor: 'rgba(209, 135, 0, 0.04)',
+                borderColor: '#d18700',
+              },
+              transition: 'all 0.2s ease',
             }}
           >
-            <LogoutIcon />
+            <LogoutIcon fontSize="small" />
           </IconButton>
         )}
       </Box>
