@@ -1,4 +1,5 @@
 'use client';
+import { useRouter } from "next/navigation";
 
 import { useState } from "react";
 import styles from "./page.module.css";
@@ -12,18 +13,38 @@ export default function Login() {
   const [error, setError] = useState("");
   const [showInfo, setShowInfo] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
+  
     if (!email || !password) {
       setError("All fields must be filled.");
       return;
     }
-
-    console.log("Logging in with:", { email, password });
+  
+    try {
+      const res = await fetch("http://localhost:5000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const data = await res.json();
+  
+      if (!res.ok) {
+        setError(data.message || "Login failed");
+        return;
+      }
+  
+      console.log("Login successful", data);
+      router.push("/connected/home");
+    } catch (err) {
+      setError("An error occurred. Try again.");
+    }
   };
+  
 
   return (
     <div className={styles.loginContainer}>
