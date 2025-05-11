@@ -45,10 +45,14 @@ export default function DrawerItems({ isCollapsed, onToggleCollapse }: DrawerIte
       }}
     >
       {/* Sidebar Header */}
-      <Stack direction="row" alignItems="center" justifyContent="space-between" px={2} py={2}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" px={2} py={1.5}>
         {!isCollapsed && (
-          <ButtonBase component="a" href="/" sx={{ display: 'flex', alignItems: 'center' }}>
-            <Image src="/ProSafe_Logo.svg" alt="ProSafe Logo" width={210} height={60} priority />
+          <ButtonBase
+            component="a"
+            href="/"
+            sx={{ display: 'flex', alignItems: 'center', ml: 4, mt: 2 }}
+          >
+            <Image src="/ProSafe_Logo.svg" alt="ProSafe Logo" width={160} height={45} priority />
           </ButtonBase>
         )}
 

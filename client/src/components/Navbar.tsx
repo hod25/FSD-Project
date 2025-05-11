@@ -15,7 +15,7 @@ import {
 import MenuIcon from '@mui/icons-material/Menu';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+// import NotificationsIcon from '@mui/icons-material/Notifications'; // הסרנו את הייבוא של אייקון ההתראות המקורי
 import HomeIcon from '@mui/icons-material/Home';
 import BusinessIcon from '@mui/icons-material/Business';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -23,6 +23,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import LiveAlertBadge from './LiveAlertBadge'; // ייבוא של קומפוננטת ההתראות החדשה
 
 interface NavbarProps {
   isClosing: boolean;
@@ -72,10 +73,10 @@ export default function Navbar({ setMobileOpen }: NavbarProps) {
       position="sticky"
       elevation={0}
       sx={{
-        bgcolor: '#f9fafc', // רקע אפור מאוד בהיר
+        bgcolor: '#f9fafc',
         boxShadow: 'none',
         borderBottom: '1px solid #e0e0e0',
-        height: 56, // גובה דק ועדין
+        height: 56,
         justifyContent: 'center',
       }}
     >
@@ -314,20 +315,8 @@ export default function Navbar({ setMobileOpen }: NavbarProps) {
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="Notifications">
-            <IconButton
-              size="small"
-              sx={{
-                color: '#707070',
-                '&:hover': {
-                  bgcolor: 'rgba(255, 180, 0, 0.08)',
-                  color: '#ffb400',
-                },
-              }}
-            >
-              <NotificationsIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          {/* החלפת אייקון ההתראות המקורי בקומפוננטת LiveAlertBadge */}
+          <LiveAlertBadge />
         </Stack>
       </Toolbar>
     </AppBar>
