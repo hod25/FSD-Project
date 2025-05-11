@@ -1,13 +1,12 @@
-import { Request, Response } from 'express';
-import userModel from '../models/User';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import { Request, Response } from "express";
+import userModel from "../models/User";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 type tTokens = {
   accessToken: string;
   refreshToken: string;
 };
-
 
 const generateToken = (userId: string): tTokens | null => {
   if (!process.env.TOKEN_SECRET) return null;
@@ -30,28 +29,27 @@ const generateToken = (userId: string): tTokens | null => {
 };
 
 export const login = async (req: Request, res: Response): Promise<void> => {
-
   try {
     const { email, password } = req.body;
     console.log(email);
-    console.log(password)
+    console.log(password);
 
     const user = await userModel.findOne({ email });
-    console.log(user)
+    console.log(user);
     if (!user) {
-      res.status(400).json({ message: 'Wrong email or password' });
+      res.status(400).json({ message: "Wrong email or password" });
       return;
     }
-    console.log(user.password)
+    console.log(user.password);
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      res.status(400).json({ message: 'Wrong email or password' });
+      res.status(400).json({ message: "Wrong email or password" });
       return;
     }
 
     const tokens = generateToken(user._id);
     if (!tokens) {
-      res.status(500).json({ message: 'Token generation failed' });
+      res.status(500).json({ message: "Token generation failed" });
       return;
     }
 
@@ -67,13 +65,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         username: user.username,
         email: user.email,
         profileImage: user.profileImage,
-      }
+      },
     });
   } catch (err) {
     console.error("Login error:", err);
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 export default {
-    login,
+  login,
 };
