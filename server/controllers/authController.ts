@@ -8,27 +8,6 @@ type tTokens = {
   refreshToken: string;
 };
 
-
-const generateToken = (userId: string): tTokens | null => {
-  if (!process.env.TOKEN_SECRET) return null;
-
-  const random = Math.random().toString();
-
-  const accessToken = jwt.sign(
-    { _id: userId, random },
-    process.env.TOKEN_SECRET,
-    { expiresIn: 5000 }
-  );
-
-  const refreshToken = jwt.sign(
-    { _id: userId, random },
-    process.env.TOKEN_SECRET,
-    { expiresIn: 1000 }
-  );
-
-  return { accessToken, refreshToken };
-};
-
 export const login = async (req: Request, res: Response): Promise<void> => {
 
   try {
@@ -48,27 +27,19 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       res.status(400).json({ message: 'Wrong email or password' });
       return;
     }
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET as string, {
+        expiresIn: "12h",
+      });
+      res.cookie("token", token, {
+        httpOnly: true,
+        maxAge: 12 * 60 * 60 * 1000,
+        sameSite: "lax",            
+        secure: false, 
+      });
+    
+       res.json({ message: "Login successful" });
 
-    const tokens = generateToken(user._id);
-    if (!tokens) {
-      res.status(500).json({ message: 'Token generation failed' });
-      return;
-    }
-
-    user.refreshToken = user.refreshToken || [];
-    user.refreshToken.push(tokens.refreshToken);
-    await user.save();
-
-    res.status(200).json({
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-      user: {
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        profileImage: user.profileImage,
-      }
-    });
+   
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: 'Internal Server Error' });
