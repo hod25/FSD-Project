@@ -25,27 +25,38 @@ export default function DrawerListItem({
     <ListItemButton
       component={Link}
       href={path}
-      selected={isActive} // 🧠 highlight if active
+      selected={isActive}
       sx={{
         mb: 2.5,
         borderRadius: 1,
         minHeight: 48,
         justifyContent: isCollapsed ? 'center' : 'initial',
         '&:hover': {
-          bgcolor: 'grey.100',
+          bgcolor: 'rgba(224, 149, 0, 0.05)',
+          color: '#e09500',
+          '& .MuiListItemIcon-root': {
+            color: '#e09500',
+          },
         },
         ...(isActive && {
-          bgcolor: 'primary.light', // 🧠 Different background for selected item
-          color: 'primary.main',
+          bgcolor: 'rgba(224, 149, 0, 0.1)', // More subtle background
+          color: '#e09500', // Darker yellow
           fontWeight: 600,
           '& .MuiListItemIcon-root': {
-            color: 'primary.main',
+            color: '#e09500',
           },
         }),
       }}
     >
       {Icon && (
-        <ListItemIcon sx={{ minWidth: isCollapsed ? 0 : 48, justifyContent: 'center' }}>
+        <ListItemIcon
+          sx={{
+            minWidth: isCollapsed ? 0 : 48,
+            justifyContent: 'center',
+            transition: 'color 0.2s ease',
+            color: isActive ? '#e09500' : 'inherit',
+          }}
+        >
           <Icon />
         </ListItemIcon>
       )}

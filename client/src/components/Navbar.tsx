@@ -51,37 +51,73 @@ export default function Navbar({ setMobileOpen }: NavbarProps) {
           <IconButton
             color="inherit"
             onClick={handleDrawerToggle}
-            sx={{ display: { xs: 'flex', lg: 'none' } }}
+            sx={{
+              display: { xs: 'flex', lg: 'none' },
+              color: 'text.secondary', // Return to original gray
+              '&:hover': {
+                bgcolor: 'rgba(0, 0, 0, 0.04)',
+              },
+            }}
           >
             <MenuIcon fontSize="small" />
           </IconButton>
-
-          <HomeIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+          <HomeIcon sx={{ fontSize: 18, color: 'text.secondary' }} />{' '}
+          {/* Return to original gray */}
           <Typography
             variant="subtitle2"
-            color="text.secondary"
-            sx={{ fontWeight: 500, fontSize: '14px' }}
+            sx={{
+              fontWeight: 500,
+              fontSize: '14px',
+              color: 'text.secondary', // Return to original gray
+            }}
           >
-            / {formattedPath}
+            / {formattedPath} {/* Return to original format without span */}
           </Typography>
         </Stack>
 
         {/* צד ימין - אייקונים */}
         <Stack direction="row" alignItems="center" spacing={1.5}>
           <Tooltip title="Profile">
-            <IconButton size="small" sx={{ color: 'text.secondary' }}>
+            <IconButton
+              size="small"
+              sx={{
+                color: '#707070',
+                '&:hover': {
+                  bgcolor: 'rgba(209, 135, 0, 0.05)',
+                  color: '#d18700',
+                },
+              }}
+            >
               <PersonIcon fontSize="small" />
             </IconButton>
           </Tooltip>
 
           <Tooltip title="Settings">
-            <IconButton size="small" sx={{ color: 'text.secondary' }}>
+            <IconButton
+              size="small"
+              sx={{
+                color: '#707070',
+                '&:hover': {
+                  bgcolor: 'rgba(255, 180, 0, 0.08)',
+                  color: '#ffb400',
+                },
+              }}
+            >
               <SettingsIcon fontSize="small" />
             </IconButton>
           </Tooltip>
 
           <Tooltip title="Notifications">
-            <IconButton size="small" sx={{ color: 'text.secondary' }}>
+            <IconButton
+              size="small"
+              sx={{
+                color: '#707070',
+                '&:hover': {
+                  bgcolor: 'rgba(255, 180, 0, 0.08)',
+                  color: '#ffb400',
+                },
+              }}
+            >
               <NotificationsIcon fontSize="small" />
             </IconButton>
           </Tooltip>
