@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, RotateCcw, Bell } from 'lucide-react';
 
 const SOCKET_SERVER_URL = 'http://localhost:5000';
 
@@ -13,7 +13,8 @@ interface Alert {
 
 export default function LiveCameraPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [isStreamAvailable] = useState(true);
+  const [isStreamAvailable, setIsStreamAvailable] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const socket = io(SOCKET_SERVER_URL, {
@@ -39,6 +40,34 @@ export default function LiveCameraPage() {
     };
   }, []);
 
+  useEffect(() => {
+    // Check if stream is available
+    const img = new Image();
+    img.onload = () => {
+      setIsStreamAvailable(true);
+      setIsLoading(false);
+    };
+    img.onerror = () => {
+      setIsStreamAvailable(false);
+      setIsLoading(false);
+    };
+    img.src = 'http://localhost:8000/video';
+
+    // Set a timeout to handle very slow connections
+    const timeoutId = setTimeout(() => {
+      if (isLoading) {
+        setIsStreamAvailable(false);
+        setIsLoading(false);
+      }
+    }, 10000); // 10 seconds timeout
+
+    return () => clearTimeout(timeoutId);
+  }, [isLoading]);
+
+  const handleRetryConnection = () => {
+    setIsLoading(true);
+  };
+
   const clearAlerts = () => {
     setAlerts([]);
   };
@@ -47,153 +76,484 @@ export default function LiveCameraPage() {
     <div
       style={{
         display: 'flex',
+        flexDirection: 'column',
         height: 'calc(100vh - 56px)',
         backgroundColor: '#ffffff',
-        padding: '20px',
-        gap: '20px',
+        padding: '24px',
+        gap: '24px',
         boxSizing: 'border-box',
         overflow: 'hidden',
         position: 'relative',
       }}
     >
-      {/* Left: Live Camera Stream */}
+      {/* Main Content - made to take full height */}
       <div
         style={{
-          flex: 3,
-          backgroundColor: '#fff',
-          borderRadius: '16px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-          overflow: 'hidden',
           display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '10px',
-          height: '100%', // שומר על גובה קבוע
+          gap: '24px',
+          flexGrow: 1,
+          height: '100%', // Changed from calc(100% - 80px) to 100% since header is removed
         }}
       >
+        {/* Left: Live Camera Stream */}
         <div
           style={{
-            width: '100%',
-            maxWidth: '1000px',
-            aspectRatio: '16 / 9',
-            backgroundColor: '#000',
-            borderRadius: '12px',
+            flex: 3,
+            backgroundColor: '#fff',
+            borderRadius: '16px',
+            boxShadow: '0 2px 12px rgba(0, 0, 0, 0.06)',
             overflow: 'hidden',
-            position: 'relative',
-            border: '2px solid #ddd',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            border: '1px solid #f0f0f0',
           }}
         >
-          {isStreamAvailable ? (
-            <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="http://localhost:8000/video"
-                alt="Live Camera Stream"
+          {/* Stream Header */}
+          <div
+            style={{
+              padding: '16px 20px',
+              borderBottom: '1px solid #f0f0f0',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <h2
+              style={{
+                fontSize: '18px',
+                margin: 0,
+                fontWeight: 600,
+                color: '#333',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              <div
                 style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'contain',
-                  backgroundColor: '#000',
+                  width: '10px',
+                  height: '10px',
+                  backgroundColor: '#4CAF50',
+                  borderRadius: '50%',
+                  boxShadow: '0 0 0 2px rgba(76, 175, 80, 0.2)',
                 }}
               />
-            </>
-          ) : (
+              Main Entrance Camera
+            </h2>
+            <div
+              style={{
+                fontSize: '13px',
+                color: '#888',
+                backgroundColor: 'rgba(0,0,0,0.03)',
+                padding: '4px 10px',
+                borderRadius: '12px',
+              }}
+            >
+              Live Feed
+            </div>
+          </div>
+
+          {/* Camera Feed */}
+          <div
+            style={{
+              padding: '16px',
+              flexGrow: 1,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: '#fff',
+            }}
+          >
             <div
               style={{
                 width: '100%',
                 height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: '#fff',
+                maxHeight: '600px',
+                backgroundColor: '#000',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                position: 'relative',
+                border: '1px solid #eee',
+                boxShadow: 'inset 0 0 20px rgba(0,0,0,0.1)',
               }}
             >
-              <AlertCircle size={64} color="#ff4d4f" />
-              <h2 style={{ marginTop: '16px', fontSize: '22px', color: '#333' }}>
-                Stream Not Available
-              </h2>
-              <p style={{ marginTop: '8px', fontSize: '16px', color: '#888' }}>
-                Unable to load live camera feed.
-              </p>
+              {isLoading ? (
+                <div
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: '#111',
+                    color: '#fff',
+                  }}
+                >
+                  <div className="loading-spinner"></div>
+                  <h3 style={{ marginTop: '20px', fontSize: '18px', fontWeight: 500 }}>
+                    Connecting to camera...
+                  </h3>
+                  <p style={{ marginTop: '8px', fontSize: '14px', color: '#aaa' }}>
+                    Please wait while we establish a connection
+                  </p>
+                </div>
+              ) : isStreamAvailable ? (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="http://localhost:8000/video"
+                    alt="Live Camera Stream"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                      backgroundColor: '#000',
+                    }}
+                    onError={() => setIsStreamAvailable(false)}
+                  />
+
+                  {/* Status indicator */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '15px',
+                      left: '15px',
+                      backgroundColor: 'rgba(0,0,0,0.6)',
+                      color: '#fff',
+                      padding: '6px 12px',
+                      borderRadius: '20px',
+                      fontSize: '13px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        backgroundColor: '#ff4d4f',
+                        borderRadius: '50%',
+                        animation: 'pulse 1.5s infinite',
+                      }}
+                    />
+                    AI Monitoring Active
+                  </div>
+                </>
+              ) : (
+                <div
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: '#111',
+                    color: '#fff',
+                    padding: '20px',
+                  }}
+                >
+                  <AlertCircle size={64} color="#ff4d4f" />
+                  <h2 style={{ marginTop: '16px', fontSize: '22px', color: '#fff' }}>
+                    Video Stream Unavailable
+                  </h2>
+                  <p
+                    style={{
+                      marginTop: '8px',
+                      fontSize: '16px',
+                      color: '#aaa',
+                      textAlign: 'center',
+                      maxWidth: '400px',
+                    }}
+                  >
+                    Cannot connect to the camera feed. Check the camera server status and network
+                    connection.
+                  </p>
+                  <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
+                    <button
+                      onClick={handleRetryConnection}
+                      style={{
+                        backgroundColor: '#ff4d4f',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '10px 16px',
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontWeight: 500,
+                      }}
+                    >
+                      <RotateCcw size={16} />
+                      Retry Connection
+                    </button>
+                  </div>
+                  <div
+                    style={{
+                      marginTop: '20px',
+                      padding: '12px 16px',
+                      backgroundColor: 'rgba(255, 77, 79, 0.15)',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      color: '#ff9999',
+                      maxWidth: '400px',
+                      textAlign: 'center',
+                    }}
+                  >
+                    Error: Unable to access video stream at
+                    <br />
+                    <span style={{ fontFamily: 'monospace', color: '#ffb8b8' }}>
+                      http://localhost:8000/video
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
-      </div>
 
-      {/* Right: Live Alerts */}
-      <div
-        style={{
-          flex: 1,
-          backgroundColor: '#fff',
-          borderRadius: '16px',
-          padding: '20px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-          overflowY: 'auto', // מאפשר גלילה רק בתוך האזור הזה
-          display: 'flex',
-          flexDirection: 'column',
-          position: 'relative',
-          height: '100%', // שומר על גובה קבוע
-          boxSizing: 'border-box', // מונע התרחבות
-        }}
-      >
-        {/* Header */}
-        <div style={{ marginBottom: '16px', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#333' }}>Live Alerts</h2>
-          <p style={{ fontSize: '14px', color: '#777' }}>{alerts.length} alerts</p>
-          {alerts.length > 0 && (
-            <button
-              onClick={clearAlerts}
+        {/* Right: Live Alerts - refined to match camera card style */}
+        <div
+          style={{
+            flex: 1,
+            backgroundColor: '#fff',
+            borderRadius: '16px',
+            boxShadow: '0 2px 12px rgba(0, 0, 0, 0.06)',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            overflow: 'hidden',
+            border: '1px solid #f0f0f0',
+            minWidth: '340px',
+          }}
+        >
+          {/* Alerts Header - matching camera card header style */}
+          <div
+            style={{
+              padding: '16px 20px',
+              borderBottom: '1px solid #f0f0f0',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              backgroundColor: '#fff',
+            }}
+          >
+            <h2
               style={{
-                marginTop: '10px',
-                backgroundColor: '#ff4d4f',
-                color: '#fff',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: '18px',
+                margin: 0,
+                fontWeight: 600,
+                color: '#333',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
               }}
             >
-              Clear All
-            </button>
-          )}
-        </div>
-
-        {/* Alerts List */}
-        {alerts.length === 0 ? (
-          <div style={{ textAlign: 'center', color: '#aaa', fontSize: '16px', marginTop: '50px' }}>
-            No alerts yet.
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {alerts.map((alert, index) => (
               <div
-                key={index}
                 style={{
-                  backgroundColor: '#fafafa',
-                  padding: '16px',
+                  width: '10px',
+                  height: '10px',
+                  backgroundColor: '#ff4d4f',
+                  borderRadius: '50%',
+                  boxShadow: '0 0 0 2px rgba(255, 77, 79, 0.2)',
+                }}
+              />
+              Threat Alerts
+            </h2>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {/* Alert count label - same style as Live Feed label */}
+              <div
+                style={{
+                  fontSize: '13px',
+                  color: alerts.length ? '#ff4d4f' : '#888',
+                  backgroundColor: alerts.length ? 'rgba(255, 77, 79, 0.08)' : 'rgba(0,0,0,0.03)',
+                  padding: '4px 10px',
                   borderRadius: '12px',
-                  border: '1px solid #e0e0e0',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '8px',
-                  animation: 'fadeIn 0.5s ease',
+                  fontWeight: alerts.length ? 500 : 400,
                 }}
               >
-                <div style={{ fontWeight: 600, color: '#ff4d4f', fontSize: '16px' }}>
-                  🔴 {alert.message}
-                </div>
-                <div style={{ fontSize: '14px', color: '#666' }}>{alert.timestamp}</div>
+                {alerts.length} {alerts.length === 1 ? 'Alert' : 'Alerts'}
               </div>
-            ))}
+
+              {/* Clear Alerts button - subtle design */}
+              {alerts.length > 0 && (
+                <button
+                  onClick={clearAlerts}
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#666',
+                    border: 'none',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    fontWeight: 400,
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.04)';
+                    e.currentTarget.style.color = '#333';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#666';
+                  }}
+                >
+                  <RotateCcw size={14} />
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
-        )}
+
+          {/* Alerts List - matching camera content style */}
+          <div
+            style={{
+              padding: '16px',
+              overflowY: 'auto',
+              flexGrow: 1,
+              backgroundColor: '#fff',
+            }}
+          >
+            {alerts.length === 0 ? (
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                  padding: '24px',
+                  textAlign: 'center',
+                  color: '#888',
+                }}
+              >
+                <Bell size={32} color="#ddd" />
+                <h3
+                  style={{
+                    color: '#666',
+                    fontWeight: 500,
+                    marginTop: '16px',
+                    marginBottom: '4px',
+                    fontSize: '15px',
+                  }}
+                >
+                  No Alerts Detected
+                </h3>
+                <p
+                  style={{
+                    fontSize: '13px',
+                    color: '#999',
+                    maxWidth: '240px',
+                  }}
+                >
+                  When hazards are detected, they will appear here
+                </p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {alerts.map((alert, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      backgroundColor: '#fafafa',
+                      padding: '14px 16px',
+                      borderRadius: '12px',
+                      border: '1px solid #eee',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
+                      animation: 'slideIn 0.3s ease',
+                      transition: 'all 0.2s ease',
+                      position: 'relative',
+                      overflow: 'hidden',
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f7f7f7';
+                      e.currentTarget.style.borderColor = '#e5e5e5';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.backgroundColor = '#fafafa';
+                      e.currentTarget.style.borderColor = '#eee';
+                    }}
+                  >
+                    {/* Alert priority indicator - subtle design */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        bottom: 0,
+                        width: '4px',
+                        backgroundColor: '#ff4d4f',
+                        borderRadius: '2px 0 0 2px',
+                      }}
+                    />
+
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                        paddingLeft: '12px',
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontWeight: 600,
+                          color: '#333',
+                          fontSize: '14px',
+                          lineHeight: '1.4',
+                          flex: '1 1 auto',
+                        }}
+                      >
+                        {alert.message}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: '12px',
+                          color: '#ff4d4f',
+                          backgroundColor: 'rgba(255, 77, 79, 0.08)',
+                          padding: '3px 8px',
+                          borderRadius: '4px',
+                          fontWeight: 500,
+                          marginLeft: '8px',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        Critical
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize: '12px',
+                        color: '#888',
+                        paddingLeft: '12px',
+                      }}
+                    >
+                      {alert.timestamp}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Animation keyframes */}
       <style jsx>{`
-        @keyframes fadeIn {
+        @keyframes slideIn {
           from {
             opacity: 0;
             transform: translateY(10px);
@@ -201,6 +561,33 @@ export default function LiveCameraPage() {
           to {
             opacity: 1;
             transform: translateY(0);
+          }
+        }
+
+        @keyframes pulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(255, 77, 79, 0.7);
+          }
+          70% {
+            box-shadow: 0 0 0 6px rgba(255, 77, 79, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(255, 77, 79, 0);
+          }
+        }
+
+        .loading-spinner {
+          width: 48px;
+          height: 48px;
+          border: 4px solid rgba(255, 255, 255, 0.1);
+          border-left: 4px solid #ff4d4f;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
           }
         }
       `}</style>

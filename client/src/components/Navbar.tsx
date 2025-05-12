@@ -42,30 +42,33 @@ export default function Navbar({ setMobileOpen }: NavbarProps) {
   const lastPathSegment = pathname?.split('/').filter(Boolean).pop() || 'Dashboard';
   const formattedPath = lastPathSegment.charAt(0).toUpperCase() + lastPathSegment.slice(1);
 
-  // Sites data - would come from API/context in a real app
-  const sites = [
-    { id: 1, name: 'Construction Site A' },
-    { id: 2, name: 'Industrial Zone B' },
-    { id: 3, name: 'Downtown Project' },
-    { id: 4, name: 'Highway Extension' },
+  // Current site name
+  const currentSiteName = 'Highway Project TLV'; // Would come from context/API in a real app
+
+  // Areas data - would come from API/context in a real app
+  const areas = [
+    { id: 1, name: 'North Section' },
+    { id: 2, name: 'Central Zone' },
+    { id: 3, name: 'South Entrance' },
+    { id: 4, name: 'Eastern Wing' },
   ];
 
-  // Site selector state
-  const [currentSite, setCurrentSite] = useState(sites[0].name);
+  // Area selector state
+  const [currentArea, setCurrentArea] = useState(areas[0].name);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  const handleSiteMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleAreaMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleSiteMenuClose = () => {
+  const handleAreaMenuClose = () => {
     setAnchorEl(null);
   };
 
-  const handleSiteChange = (siteName: string) => {
-    setCurrentSite(siteName);
-    handleSiteMenuClose();
+  const handleAreaChange = (areaName: string) => {
+    setCurrentArea(areaName);
+    handleAreaMenuClose();
   };
 
   return (
@@ -86,17 +89,18 @@ export default function Navbar({ setMobileOpen }: NavbarProps) {
           px: 2,
           display: 'flex',
           justifyContent: 'space-between',
+          position: 'relative', // For proper absolute positioning of center element
         }}
       >
         {/* צד שמאל - מיקום נוכחי */}
-        <Stack direction="row" alignItems="center" spacing={1}>
+        <Stack direction="row" alignItems="center" spacing={1} sx={{ minWidth: '180px' }}>
           {/* כפתור תפריט מופיע רק במסכים קטנים */}
           <IconButton
             color="inherit"
             onClick={handleDrawerToggle}
             sx={{
               display: { xs: 'flex', lg: 'none' },
-              color: 'text.secondary', // Return to original gray
+              color: 'text.secondary',
               '&:hover': {
                 bgcolor: 'rgba(0, 0, 0, 0.04)',
               },
@@ -104,29 +108,72 @@ export default function Navbar({ setMobileOpen }: NavbarProps) {
           >
             <MenuIcon fontSize="small" />
           </IconButton>
-          <HomeIcon sx={{ fontSize: 18, color: 'text.secondary' }} />{' '}
-          {/* Return to original gray */}
+          <HomeIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
           <Typography
             variant="subtitle2"
             sx={{
               fontWeight: 500,
               fontSize: '14px',
-              color: 'text.secondary', // Return to original gray
+              color: 'text.secondary',
             }}
           >
-            / {formattedPath} {/* Return to original format without span */}
+            / {formattedPath}
           </Typography>
         </Stack>
 
-        {/* צד ימין - אייקונים */}
-        <Stack direction="row" alignItems="center" spacing={1.5}>
-          {/* Site Selector with Dropdown */}
+        {/* מרכז - שם האתר */}
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1}
+          sx={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: 'rgba(255, 180, 0, 0.07)',
+            px: 2,
+            py: 0.7,
+            zIndex: 1,
+            borderRadius: '20px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid rgba(255, 180, 0, 0.2)',
+          }}
+        >
+          <BusinessIcon
+            sx={{
+              fontSize: 18,
+              color: '#d18700',
+            }}
+          />
+          <Typography
+            variant="subtitle1"
+            sx={{
+              fontWeight: 600,
+              fontSize: '15px',
+              color: '#444444',
+              fontFamily: '"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            }}
+          >
+            {currentSiteName}
+          </Typography>
+        </Stack>
+
+        {/* צד ימין - אייקונים ובחירת אזור */}
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1.5}
+          sx={{ minWidth: '180px', justifyContent: 'flex-end' }}
+        >
+          {/* Area Selector with Dropdown */}
           <Button
             variant="outlined"
             endIcon={<KeyboardArrowDownIcon />}
             size="small"
-            onClick={handleSiteMenuClick}
-            aria-controls={open ? 'site-menu' : undefined}
+            onClick={handleAreaMenuClick}
+            aria-controls={open ? 'area-menu' : undefined}
             aria-haspopup="true"
             aria-expanded={open ? 'true' : undefined}
             sx={{
@@ -163,19 +210,19 @@ export default function Navbar({ setMobileOpen }: NavbarProps) {
                   fontSize: '14px',
                 }}
               >
-                {currentSite}
+                {currentArea}
               </Typography>
             </Stack>
           </Button>
 
-          {/* Sites Dropdown Menu */}
+          {/* Areas Dropdown Menu */}
           <Menu
-            id="site-menu"
+            id="area-menu"
             anchorEl={anchorEl}
             open={open}
-            onClose={handleSiteMenuClose}
+            onClose={handleAreaMenuClose}
             MenuListProps={{
-              'aria-labelledby': 'site-selector-button',
+              'aria-labelledby': 'area-selector-button',
             }}
             PaperProps={{
               elevation: 3,
@@ -191,7 +238,7 @@ export default function Navbar({ setMobileOpen }: NavbarProps) {
             }}
           >
             <MenuItem
-              onClick={() => handleSiteChange('All Sites')}
+              onClick={() => handleAreaChange('All Areas')}
               sx={{
                 py: 1,
                 px: 2,
@@ -213,7 +260,7 @@ export default function Navbar({ setMobileOpen }: NavbarProps) {
                     color: '#707070',
                   }}
                 >
-                  All Sites
+                  All Areas
                 </Typography>
                 <Typography
                   variant="caption"
@@ -245,14 +292,14 @@ export default function Navbar({ setMobileOpen }: NavbarProps) {
                 fontWeight: 500,
               }}
             >
-              Select a site
+              Select an area
             </Typography>
 
-            {sites.map((site) => (
+            {areas.map((area) => (
               <MenuItem
-                key={site.id}
-                onClick={() => handleSiteChange(site.name)}
-                selected={currentSite === site.name}
+                key={area.id}
+                onClick={() => handleAreaChange(area.name)}
+                selected={currentArea === area.name}
                 sx={{
                   py: 1,
                   px: 2,
@@ -270,15 +317,15 @@ export default function Navbar({ setMobileOpen }: NavbarProps) {
                 }}
               >
                 <Stack direction="row" alignItems="center" spacing={1.5}>
-                  <BusinessIcon sx={{ color: '#707070', fontSize: 18 }} />
+                  <LocationOnIcon sx={{ color: '#707070', fontSize: 18 }} />
                   <Typography
                     variant="body2"
                     sx={{
-                      fontWeight: currentSite === site.name ? 600 : 400,
+                      fontWeight: currentArea === area.name ? 600 : 400,
                       fontSize: '14px',
                     }}
                   >
-                    {site.name}
+                    {area.name}
                   </Typography>
                 </Stack>
               </MenuItem>
