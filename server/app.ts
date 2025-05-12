@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { connectToDB } from "./config/db";
 import { sendAlert } from "./socket/socket";
-import authRoutes from './routes/auth';
+import authRoutes from "./routes/auth";
 
 dotenv.config();
 
@@ -12,17 +12,18 @@ const app = express();
 // ===== Middleware =====
 app.use(
   cors({
-    origin: "http://localhost:3000", // הפרונט!
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
     credentials: true,
   })
 );
 app.use(express.json());
-console.log(typeof authRoutes);
 app.use("/auth", authRoutes);
 
 // ===== Connect Database =====
-connectToDB();
+connectToDB().then(() => {
+  console.log("🚀 ProSafe server is ready");
+});
 
 // ===== Routes =====
 app.get("/", (req, res) => {
@@ -31,11 +32,8 @@ app.get("/", (req, res) => {
 
 app.post("/api/alert", (req, res) => {
   const { message, timestamp } = req.body;
-
   console.log("🚨 Alert Received:", message, timestamp);
-
   sendAlert({ message, timestamp });
-
   res.status(200).json({ success: true });
 });
 
