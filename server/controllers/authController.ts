@@ -3,68 +3,101 @@ import userModel from "../models/User";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-type tTokens = {
-  accessToken: string;
-  refreshToken: string;
-};
-
-const generateToken = (userId: string): tTokens | null => {
+const generateToken = (userId: string): string | null => {
   if (!process.env.TOKEN_SECRET) return null;
 
-  const random = Math.random().toString();
+  const token = jwt.sign({ _id: userId }, process.env.TOKEN_SECRET, {
+    expiresIn: "12h",
+  });
 
-  const accessToken = jwt.sign(
-    { _id: userId, random },
-    process.env.TOKEN_SECRET,
-    { expiresIn: 5000 }
-  );
+  return token;
+};
 
-  const refreshToken = jwt.sign(
-    { _id: userId, random },
-    process.env.TOKEN_SECRET,
-    { expiresIn: 1000 }
-  );
+export const register = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { name, email, password, phone, site_location } = req.body;
 
-  return { accessToken, refreshToken };
+    const existingUser = await userModel.findOne({ email });
+    if (existingUser) {
+      res.status(400).json({ message: "Email already in use" });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await userModel.create({
+      name,
+      email,
+      password: hashedPassword,
+      phone,
+      site_location,
+      access_level: "viewer",
+    });
+
+    const token = generateToken(newUser._id.toString());
+    if (!token) {
+      res.status(500).json({ message: "Token generation failed" });
+      return;
+    }
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 12 * 60 * 60 * 1000,
+    });
+
+    res.status(201).json({
+      user: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        access_level: newUser.access_level,
+        site_location: newUser.site_location,
+      },
+    });
+  } catch (err) {
+    console.error("Register error:", err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
-    console.log(email);
-    console.log(password);
 
     const user = await userModel.findOne({ email });
-    console.log(user);
     if (!user) {
       res.status(400).json({ message: "Wrong email or password" });
       return;
     }
-    console.log(user.password);
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       res.status(400).json({ message: "Wrong email or password" });
       return;
     }
 
-    const tokens = generateToken(user._id);
-    if (!tokens) {
+    const token = generateToken(user._id.toString());
+    if (!token) {
       res.status(500).json({ message: "Token generation failed" });
       return;
     }
 
-    user.refreshToken = user.refreshToken || [];
-    user.refreshToken.push(tokens.refreshToken);
-    await user.save();
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 12 * 60 * 60 * 1000,
+    });
 
     res.status(200).json({
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
       user: {
         _id: user._id,
-        username: user.username,
+        name: user.name,
         email: user.email,
-        profileImage: user.profileImage,
+        access_level: user.access_level,
+        site_location: user.site_location,
       },
     });
   } catch (err) {
@@ -72,6 +105,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 export default {
   login,
+  register,
 };
