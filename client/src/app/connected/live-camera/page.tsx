@@ -3,6 +3,14 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { AlertCircle, RotateCcw, Bell } from 'lucide-react';
+import { useSelector } from 'react-redux';
+
+// Define the minimal RootState type needed for this component
+interface RootState {
+  area?: {
+    currentAreaUrl?: string;
+  };
+}
 
 const SOCKET_SERVER_URL = 'http://localhost:5000';
 
@@ -15,6 +23,11 @@ export default function LiveCameraPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isStreamAvailable, setIsStreamAvailable] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Get the current camera URL from Redux
+  const currentCameraUrl = useSelector((state: RootState) => state.area?.currentAreaUrl);
+  // Fallback URL in case the Redux state doesn't have the URL
+  const videoStreamUrl = currentCameraUrl || '';
 
   useEffect(() => {
     const socket = io(SOCKET_SERVER_URL, {
@@ -40,6 +53,13 @@ export default function LiveCameraPage() {
     };
   }, []);
 
+  // Add a new useEffect to handle URL changes
+  useEffect(() => {
+    // When the URL changes from Redux, trigger a refresh of the stream
+    setIsLoading(true);
+    console.log('Camera URL changed, refreshing stream:', videoStreamUrl);
+  }, [currentCameraUrl, videoStreamUrl]);
+
   useEffect(() => {
     // Check if stream is available
     const img = new Image();
@@ -51,7 +71,7 @@ export default function LiveCameraPage() {
       setIsStreamAvailable(false);
       setIsLoading(false);
     };
-    img.src = 'http://localhost:8000/video';
+    img.src = videoStreamUrl;
 
     // Set a timeout to handle very slow connections
     const timeoutId = setTimeout(() => {
@@ -62,7 +82,7 @@ export default function LiveCameraPage() {
     }, 10000); // 10 seconds timeout
 
     return () => clearTimeout(timeoutId);
-  }, [isLoading]);
+  }, [isLoading, videoStreamUrl]); // Include videoStreamUrl in dependencies
 
   const handleRetryConnection = () => {
     setIsLoading(true);
@@ -203,7 +223,7 @@ export default function LiveCameraPage() {
                 <>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="http://localhost:8000/video"
+                    src={videoStreamUrl}
                     alt="Live Camera Stream"
                     style={{
                       width: '100%',
@@ -308,7 +328,7 @@ export default function LiveCameraPage() {
                     Error: Unable to access video stream at
                     <br />
                     <span style={{ fontFamily: 'monospace', color: '#ffb8b8' }}>
-                      http://localhost:8000/video
+                      {videoStreamUrl}
                     </span>
                   </div>
                 </div>
@@ -565,26 +585,26 @@ export default function LiveCameraPage() {
         }
 
         @keyframes pulse {
-          0% {
-            box-shadow: 0 0 0 0 rgba(255, 77, 79, 0.7);
+          0% {00% {
+            box-shadow: 0 0 0 0 rgba(255, 77, 79, 0.7);shadow: 0 0 0 0 rgba(255, 77, 79, 0);
           }
           70% {
             box-shadow: 0 0 0 6px rgba(255, 77, 79, 0);
-          }
+          }        .loading-spinner {
           100% {
-            box-shadow: 0 0 0 0 rgba(255, 77, 79, 0);
-          }
+            box-shadow: 0 0 0 0 rgba(255, 77, 79, 0);;
+          }olid rgba(255, 255, 255, 0.1);
         }
 
-        .loading-spinner {
+        .loading-spinner {linear infinite;
           width: 48px;
           height: 48px;
-          border: 4px solid rgba(255, 255, 255, 0.1);
+          border: 4px solid rgba(255, 255, 255, 0.1);        @keyframes spin {
           border-left: 4px solid #ff4d4f;
-          border-radius: 50%;
+          border-radius: 50%;ansform: rotate(360deg);
           animation: spin 1s linear infinite;
         }
-
+/style>
         @keyframes spin {
           to {
             transform: rotate(360deg);

@@ -1,10 +1,12 @@
 'use client';
-import { useRouter } from 'next/navigation';
 
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { loginUserAsync } from '@/store/slices/userSlice';
+import { AppDispatch } from '@/store/store';
 import styles from './page.module.css';
 import Image from 'next/image';
-import { FaChevronDown, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FiLogIn } from 'react-icons/fi';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -12,38 +14,41 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [showInfo, setShowInfo] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setError('');
 
     if (!email || !password) {
-      setError('All fields must be filled.');
+      setError('Please enter both email and password.');
       return;
     }
 
+    setLoading(true);
+
     try {
-      const res = await fetch('http://localhost:5000/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      // Dispatch login action which will also fetch location and areas
+      const resultAction = await dispatch(loginUserAsync({ email, password }));
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || 'Login failed');
-        return;
+      if (loginUserAsync.rejected.match(resultAction)) {
+        // Handle login failure
+        throw new Error(resultAction.payload as string);
       }
 
-      console.log('Login successful', data);
-      router.push('/connected/home');
-    } catch (error) {
-      console.error('Login error:', error);
-      setError('An error occurred. Try again.');
+      // Login successful - the location and areas will be fetched automatically
+      console.log('Login successful');
+
+      // No navigation here - just update the Redux state
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      setError(err.message || 'Login failed. Please try again.');
+      console.error('Login failed:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -68,6 +73,7 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 dir="ltr"
                 placeholder="your@email.com"
+                disabled={loading}
               />
             </div>
           </div>
@@ -87,6 +93,7 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 dir="ltr"
                 placeholder="••••••••"
+                disabled={loading}
               />
               <span onClick={() => setShowPassword(!showPassword)} className={styles.eyeIcon}>
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -96,28 +103,11 @@ export default function Login() {
 
           {error && <p className={styles.loginError}>{error}</p>}
 
-          <button type="submit" className={styles.loginButton}>
+          <button type="submit" className={styles.loginButton} disabled={loading}>
             <FiLogIn className={styles.loginIcon} />
-            Sign In
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
-
-        <div className={styles.infoToggleContainer}>
-          <button className={styles.infoToggleButton} onClick={() => setShowInfo(!showInfo)}>
-            About ProSafe <FaChevronDown className={showInfo ? styles.chevronUp : ''} />
-          </button>
-        </div>
-
-        {showInfo && (
-          <div className={styles.infoBox}>
-            <p>
-              ProSafe uses advanced computer vision and real-time video analysis to detect workers
-              not wearing essential safety gear like helmets. With ProSafe, organizations can take a
-              proactive step toward preventing accidents and ensuring compliance efficiently,
-              accurately, and at scale.
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );

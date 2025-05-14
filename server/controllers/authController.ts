@@ -3,14 +3,22 @@ import userModel from "../models/User";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const generateToken = (userId: string): string | null => {
-  if (!process.env.TOKEN_SECRET) return null;
+const generateToken = (userId: string): string => {
+  if (!process.env.TOKEN_SECRET) {
+    console.error(
+      "WARNING: TOKEN_SECRET is not defined in environment variables!"
+    );
+    // For development only - use a default secret
+    // In production, this should be properly configured with a secure secret
+    const defaultSecret = "devDefaultSecretForTokenGeneration1234567890";
+    return jwt.sign({ _id: userId }, defaultSecret, {
+      expiresIn: "12h",
+    });
+  }
 
-  const token = jwt.sign({ _id: userId }, process.env.TOKEN_SECRET, {
+  return jwt.sign({ _id: userId }, process.env.TOKEN_SECRET, {
     expiresIn: "12h",
   });
-
-  return token;
 };
 
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -106,7 +114,19 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  try {
+    // Clear the cookie
+    res.clearCookie("token");
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (err) {
+    console.error("Logout error:", err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 export default {
   login,
   register,
+  logout,
 };
