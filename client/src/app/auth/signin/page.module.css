@@ -157,6 +157,12 @@
   transform: translateY(1px);
 }
 
+.loginButton:disabled {
+  background-color: #cca05c;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .loginIcon {
   font-size: 18px;
 }

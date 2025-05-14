@@ -1,5 +1,7 @@
 'use client';
 
+import { useDispatch } from 'react-redux';
+import { logoutUser } from '@/store/slices/userSlice';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import List from '@mui/material/List';
@@ -12,7 +14,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import DrawerListItem from './DrawerListItem';
 import { menuItems } from '../app/routes/paths';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation'; // ✅ שימוש נכון ב-router
+import { useRouter } from 'next/navigation';
 
 interface DrawerItemsProps {
   isCollapsed: boolean;
@@ -20,18 +22,31 @@ interface DrawerItemsProps {
 }
 
 export default function DrawerItems({ isCollapsed, onToggleCollapse }: DrawerItemsProps) {
-  const router = useRouter(); // ✅ מוכן לניווט חלק
+  const router = useRouter();
+  const dispatch = useDispatch();
 
-  const handleLogout = () => {
-    // מחיקת מידע מהדפדפן
-    localStorage.clear();
-    sessionStorage.clear();
+  const handleLogout = async () => {
+    try {
+      // Call logout API if needed
+      await fetch('http://localhost:5000/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Logout API error:', error);
+    }
+
+    // Clear cookies
     document.cookie.split(';').forEach((cookie) => {
       const [name] = cookie.split('=');
       document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
     });
 
-    router.push('/auth/signin'); // ✅ מעבר חלק בלי לרענן את הדף
+    // Clear Redux state
+    dispatch(logoutUser());
+
+    // Navigate to login page
+    router.push('/auth/signin');
   };
 
   return (

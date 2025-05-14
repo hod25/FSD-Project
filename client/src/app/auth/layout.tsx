@@ -8,41 +8,22 @@ import { selectIsLoggedIn } from '@/store/slices/userSlice';
 export default function UnauthenticatedLayout({ children }: { children: React.ReactNode }) {
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const router = useRouter();
-  const [checking, setChecking] = useState(true);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
     if (isLoggedIn) {
-      router.replace('/connected/dashboard');
+      router.replace('/connected/home');
     } else {
-      setChecking(false);
+      setCheckingAuth(false);
     }
   }, [isLoggedIn, router]);
 
-  if (checking) {
+  if (checkingAuth) {
     return (
-      <div
-        style={{
-          height: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          fontSize: '18px',
-          color: '#555',
-          background: 'linear-gradient(135deg, #f8f9fb 0%, #f0f2f5 100%)',
-        }}
-      >
-        <div
-          style={{
-            width: '50px',
-            height: '50px',
-            border: '3px solid rgba(209, 135, 0, 0.1)',
-            borderRadius: '50%',
-            borderTop: '3px solid #d18700',
-            animation: 'spin 1s linear infinite',
-            marginBottom: '15px',
-          }}
-        />
+      <div style={styles.container}>
+        <div style={styles.spinner} />
+        <p style={styles.text}>Loading...</p>
+
         <style jsx>{`
           @keyframes spin {
             0% {
@@ -53,10 +34,34 @@ export default function UnauthenticatedLayout({ children }: { children: React.Re
             }
           }
         `}</style>
-        Loading...
       </div>
     );
   }
 
   return <>{children}</>;
 }
+
+// ===== Inline Styles =====
+const styles = {
+  container: {
+    height: '100vh',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    justifyContent: 'center',
+    alignItems: 'center',
+    background: 'linear-gradient(135deg, #f8f9fb 0%, #f0f2f5 100%)',
+  },
+  spinner: {
+    width: '50px',
+    height: '50px',
+    border: '3px solid rgba(209, 135, 0, 0.2)',
+    borderRadius: '50%',
+    borderTop: '3px solid #d18700',
+    animation: 'spin 1s linear infinite',
+    marginBottom: '12px',
+  },
+  text: {
+    fontSize: '16px',
+    color: '#666',
+  },
+};

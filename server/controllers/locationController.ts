@@ -68,7 +68,63 @@ export const addAreaToLocation = async (
   }
 };
 
+// ✅ פונקציה שמחזירה שם location לפי ID
+export const getLocationNameById = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { locationId } = req.params;
+
+    if (!locationId) {
+      res.status(400).json({ message: "Missing locationId parameter" });
+      return;
+    }
+
+    const location = await LocationModel.findById(locationId);
+
+    if (!location) {
+      res.status(404).json({ message: "Location not found" });
+      return;
+    }
+
+    res.status(200).json({ name: location.name });
+  } catch (error) {
+    console.error("Error fetching location name:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// פונקציה שמחזירה את כל האזורים ששייכים ללוקיישן לפי ID (עם כל הפרטים)
+export const getAreaNamesByLocationId = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { locationId } = req.params;
+
+    if (!locationId) {
+      res.status(400).json({ message: "Missing locationId parameter" });
+      return;
+    }
+
+    const location = await LocationModel.findById(locationId).populate("areas");
+
+    if (!location) {
+      res.status(404).json({ message: "Location not found" });
+      return;
+    }
+
+    res.status(200).json({ areas: location.areas });
+  } catch (error) {
+    console.error("Error fetching areas for location:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 export default {
   createLocation,
   addAreaToLocation,
+  getLocationNameById,
+  getAreaNamesByLocationId,
 };
