@@ -67,7 +67,9 @@ async function start() {
 
     server = https.createServer(sslOptions, app);
     server.listen(port, () => {
-      console.log(`🔒 HTTPS server running at https://your-domain.com`);
+      console.log(
+        `🔒 HTTPS server running at https://pro-safe.cs.colman.ac.il/`
+      );
     });
   }
 
