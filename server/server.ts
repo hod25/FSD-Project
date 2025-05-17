@@ -1,5 +1,7 @@
 import express from "express";
 import http from "http";
+import https from "https";
+import fs from "fs";
 import next from "next";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -11,23 +13,23 @@ import authRoutes from "./routes/auth";
 
 dotenv.config();
 
-const port = parseInt(process.env.PORT || "5000");
+const port = parseInt(
+  process.env.PORT || (process.env.NODE_ENV === "production" ? "443" : "5000")
+);
 const dev = process.env.NODE_ENV !== "production";
-const nextApp = next({ dev, dir: "../client" }); // 👈 point to Next.js project
+const nextApp = next({ dev, dir: "../client" });
 const handle = nextApp.getRequestHandler();
 
 async function start() {
-  await nextApp.prepare(); // Wait for Next.js to be ready
+  await nextApp.prepare();
+  await connectToDB();
+  console.log("🚀 Connected to MongoDB");
 
   const app = express();
 
   // ===== Middleware =====
-  app.use(cors()); // Allow all origins - to be changed later
+  app.use(cors());
   app.use(express.json());
-
-  // ===== Connect Database =====
-  await connectToDB();
-  console.log("🚀 Connected to MongoDB");
 
   // ===== API Routes =====
   app.use("/api/auth", authRoutes);
@@ -45,17 +47,32 @@ async function start() {
   });
 
   // ===== Next.js Handler =====
-  app.all("*", (req, res) => {
-    return handle(req, res);
-  });
+  app.all("*", (req, res) => handle(req, res));
 
-  // ===== HTTP + WebSocket Server =====
-  const server = http.createServer(app);
+  // ===== HTTP or HTTPS Server =====
+  let server: http.Server | https.Server;
+
+  if (dev) {
+    // Development uses HTTP
+    server = http.createServer(app);
+    server.listen(port, () => {
+      console.log(`✅ Dev server running at http://localhost:${port}`);
+    });
+  } else {
+    // Production uses HTTPS
+    const sslOptions = {
+      key: fs.readFileSync("./myserver.key"),
+      cert: fs.readFileSync("./CSB.crt"),
+    };
+
+    server = https.createServer(sslOptions, app);
+    server.listen(port, () => {
+      console.log(`🔒 HTTPS server running at https://your-domain.com`);
+    });
+  }
+
+  // ===== WebSocket Initialization =====
   initSocket(server);
-
-  server.listen(port, () => {
-    console.log(`✅ Server running on http://localhost:${port}`);
-  });
 }
 
 start().catch((err) => {
