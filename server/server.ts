@@ -1,24 +1,80 @@
+import express from "express";
 import http from "http";
-import app from "./app";
-import { initSocket } from "./socket/socket";
+import https from "https";
+import fs from "fs";
+import next from "next";
 import dotenv from "dotenv";
+import cors from "cors";
+
+import { initSocket, sendAlert } from "./socket/socket";
+import { connectToDB } from "./config/db";
 import locationRoutes from "./routes/locations";
+import authRoutes from "./routes/auth";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 5000;
+const port = parseInt(
+  process.env.PORT || (process.env.NODE_ENV === "production" ? "443" : "5000")
+);
+const dev = process.env.NODE_ENV !== "production";
+const nextApp = next({ dev, dir: "../client" });
+const handle = nextApp.getRequestHandler();
 
-const server = http.createServer(app);
+async function start() {
+  await nextApp.prepare();
+  await connectToDB();
+  console.log("🚀 Connected to MongoDB");
 
-// ===== Initialize WebSocket =====
-initSocket(server);
+  const app = express();
 
-// Add the locations routes
-app.use("/api/locations", locationRoutes);
+  // ===== Middleware =====
+  app.use(cors());
+  app.use(express.json());
 
-// ===== Start Server =====
-server.listen(PORT, () => {
-  console.log(
-    `🚀 ProSafe server + WebSocket running at http://localhost:${PORT}`
-  );
+  // ===== API Routes =====
+  app.use("/api/auth", authRoutes);
+  app.use("/api/locations", locationRoutes);
+
+  app.post("/api/alert", (req, res) => {
+    const { message, timestamp } = req.body;
+    console.log("🚨 Alert Received:", message, timestamp);
+    sendAlert({ message, timestamp });
+    res.status(200).json({ success: true });
+  });
+
+  app.get("/", (req, res) => {
+    res.send("📡 ProSafe backend is running");
+  });
+
+  // ===== Next.js Handler =====
+  app.all("*", (req, res) => handle(req, res));
+
+  // ===== HTTP or HTTPS Server =====
+  let server: http.Server | https.Server;
+
+  if (dev) {
+    // Development uses HTTP
+    server = http.createServer(app);
+    server.listen(port, () => {
+      console.log(`✅ Dev server running at http://localhost:${port}`);
+    });
+  } else {
+    // Production uses HTTPS
+    const sslOptions = {
+      key: fs.readFileSync("./myserver.key"),
+      cert: fs.readFileSync("./CSB.crt"),
+    };
+
+    server = https.createServer(sslOptions, app);
+    server.listen(port, () => {
+      console.log(`🔒 HTTPS server running at https://your-domain.com`);
+    });
+  }
+
+  // ===== WebSocket Initialization =====
+  initSocket(server);
+}
+
+start().catch((err) => {
+  console.error("⨯ Server start error:", err);
 });
