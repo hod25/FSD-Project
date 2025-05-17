@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URLs for different API endpoints
-const AUTH_API_URL = 'http://localhost:5000/auth';
+const AUTH_API_URL = 'http://localhost:5000/api/auth';
 const USERS_API_URL = 'http://localhost:5000/api/users';
 const LOCATIONS_API_URL = 'http://localhost:5000/api/locations';
 

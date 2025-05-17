@@ -28,7 +28,7 @@ export default function DrawerItems({ isCollapsed, onToggleCollapse }: DrawerIte
   const handleLogout = async () => {
     try {
       // Call logout API if needed
-      await fetch('http://localhost:5000/auth/logout', {
+      await fetch('http://localhost:5000/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
       });
