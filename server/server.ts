@@ -14,7 +14,8 @@ import authRoutes from "./routes/auth";
 dotenv.config();
 
 const port = parseInt(
-  process.env.PORT || (process.env.NODE_ENV === "production" ? "443" : "5000")
+  process.env.PORT ||
+    "5000" /*|| (process.env.NODE_ENV === "production" ? "443" : "5000")*/
 );
 const dev = process.env.NODE_ENV !== "production";
 const nextApp = next({ dev, dir: "../client" });
@@ -52,26 +53,26 @@ async function start() {
   // ===== HTTP or HTTPS Server =====
   let server: http.Server | https.Server;
 
-  if (dev) {
-    // Development uses HTTP
-    server = http.createServer(app);
-    server.listen(port, () => {
-      console.log(`✅ Dev server running at http://localhost:${port}`);
-    });
-  } else {
-    // Production uses HTTPS
-    const sslOptions = {
-      key: fs.readFileSync("./myserver.key"),
-      cert: fs.readFileSync("./CSB.crt"),
-    };
+  // if (dev) {
+  // Development uses HTTP
+  server = http.createServer(app);
+  server.listen(port, () => {
+    console.log(`✅ server running at http://localhost:${port}`);
+  });
+  // } else {
+  //   // Production uses HTTPS
+  //   const sslOptions = {
+  //     key: fs.readFileSync("./myserver.key"),
+  //     cert: fs.readFileSync("./CSB.crt"),
+  //   };
 
-    server = https.createServer(sslOptions, app);
-    server.listen(port, () => {
-      console.log(
-        `🔒 HTTPS server running at https://pro-safe.cs.colman.ac.il/`
-      );
-    });
-  }
+  //   server = https.createServer(sslOptions, app);
+  //   server.listen(port, () => {
+  //     console.log(
+  //       `🔒 HTTPS server running at https://pro-safe.cs.colman.ac.il/`
+  //     );
+  //   });
+  // }
 
   // ===== WebSocket Initialization =====
   initSocket(server);
