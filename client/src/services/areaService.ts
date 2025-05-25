@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Area } from '../store/slices/areaSlice';
 
-const API_URL = 'http://localhost:5000/api/areas'; // Adjust this to your actual API endpoint
+const API_URL = 'http://pro-safe.cs.colman.ac.il:5000/api/areas'; // Adjust this to your actual API endpoint
 
 /**
  * Fetches all areas from the server
