@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/locations';
+const API_URL = 'http://pro-safe.cs.colman.ac.il:5000/api/locations';
 
 export interface LocationData {
   id: string;

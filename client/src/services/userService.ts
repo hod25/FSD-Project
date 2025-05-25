@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 // Base URLs for different API endpoints
-const AUTH_API_URL = 'http://localhost:5000/api/auth';
-const USERS_API_URL = 'http://localhost:5000/api/users';
-const LOCATIONS_API_URL = 'http://localhost:5000/api/locations';
+const AUTH_API_URL = 'http://pro-safe.cs.colman.ac.il:5000/api/auth';
+const USERS_API_URL = 'http://pro-safe.cs.colman.ac.il:5000/api/users';
+const LOCATIONS_API_URL = 'http://pro-safe.cs.colman.ac.il:5000/api/locations';
 
 export interface LoginCredentials {
   email: string;

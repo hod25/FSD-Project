@@ -12,7 +12,7 @@ interface RootState {
   };
 }
 
-const SOCKET_SERVER_URL = 'http://localhost:5000';
+const SOCKET_SERVER_URL = 'http://pro-safe.cs.colman.ac.il:5000';
 
 interface Alert {
   message: string;
