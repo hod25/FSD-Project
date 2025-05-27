@@ -1,6 +1,5 @@
-<p align="center">
-  <img src="assets/ProSafe_Logo.svg" alt="ProSafe Logo" width="100%" />
-</p>
+![ProSafe Logo](ProSafe_Logo.svg)
+
 
 # 🛡️ ProSafe – Safety Violation Detection System
 
