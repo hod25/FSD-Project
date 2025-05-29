@@ -10,6 +10,7 @@ import { initSocket, sendAlert } from "./socket/socket";
 import { connectToDB } from "./config/db";
 import locationRoutes from "./routes/locations";
 import authRoutes from "./routes/auth";
+import eventRoutes from "./routes/events";
 
 dotenv.config();
 
@@ -35,7 +36,7 @@ async function start() {
   // ===== API Routes =====
   app.use("/api/auth", authRoutes);
   app.use("/api/locations", locationRoutes);
-
+  app.use("/api/events", eventRoutes);
   app.post("/api/alert", (req, res) => {
     const { message, timestamp } = req.body;
     console.log("🚨 Alert Received:", message, timestamp);

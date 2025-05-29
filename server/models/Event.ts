@@ -1,22 +1,51 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IEvent extends Document {
-  area_id: mongoose.Types.ObjectId;
-  time_stamp: Date;
+  site_location: string;
+  area_location: string;
+  status: string;
+  details: string;
   image_url: string;
-  description: string;
+  time_: Date;
+  no_hardhat_count: number;
 }
 
 const EventSchema: Schema = new Schema(
   {
-    area_id: {
+    site_location: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Location", 
+      required: true,
+    },
+    area_location: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Area",
       required: true,
     },
-    time_stamp: { type: Date, default: Date.now },
-    image_url: { type: String, required: true },
-    description: { type: String },
+    status: {
+      type: String,
+      required: true,
+      default: "Not Handled",
+      enum: ["Not Handled", "Handled"],
+    },
+    details: {
+      type: String,
+      required: true,
+    },
+    image_url: {
+      type: String,
+      required: true,
+    },
+    time_: {
+      type: Date,
+      required: true,
+      default: Date.now,
+    },
+    no_hardhat_count: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
   },
   { collection: "events", timestamps: true }
 );

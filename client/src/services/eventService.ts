@@ -32,7 +32,9 @@ export const fetchEventsByArea = async (areaId: string): Promise<Event[]> => {
   return response.data;
 };
 
+
 export const updateEventStatus = async (eventId: string): Promise<Event> => {
-  const response = await axios.patch<Event>(`${EVENTS_API_URL}/status/${eventId}`);
+  const response = await axios.post<Event>(`${EVENTS_API_URL}/status/${eventId}`);
   return response.data;
 };
+

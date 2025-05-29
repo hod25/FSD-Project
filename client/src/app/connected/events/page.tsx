@@ -6,6 +6,9 @@ import { RootState } from '@/store/store';
 import { fetchAllEvents, Event } from '@/services/eventService';
 import { fetchLocationById } from '@/services/locationService';
 import { fetchAreaById } from '@/services/areaService';
+import { updateEventStatus } from '@/services/eventService'; 
+
+import Swal from 'sweetalert2';
 
 export default function EventsPage() {
   const siteId = useSelector((state: RootState) => state.user.site_location);
@@ -68,15 +71,67 @@ export default function EventsPage() {
     }
   }, [siteId, areaId]);
 
-  const handleStatusChange = (eventId: string) => {
-    setEvents(
-      events.map((event) =>
-        event._id === eventId
-          ? { ...event, status: event.status === 'Open' ? 'Handled' : 'Open' }
-          : event
-      )
-    );
-  };
+const handleStatusChange = async (eventId: string) => {
+  const eventToChange = events.find((event) => event._id === eventId);
+  if (!eventToChange) return;
+
+  if (eventToChange.status === 'Not Handled') {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "This action cannot be undone!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, close it!',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#28a745',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        // קריאה ל-API כדי לעדכן את הסטטוס במסד הנתונים ל-'Handled'
+        const updatedEvent = await updateEventStatus(eventId);
+
+        // עדכון מקומי של רשימת האירועים עם הסטטוס החדש
+        setEvents((prevEvents) =>
+          prevEvents.map((event) =>
+            event._id === eventId ? updatedEvent : event
+          )
+        );
+
+        Swal.fire({
+          title: 'Closed!',
+          text: 'The event was successfully closed.',
+          icon: 'success',
+          confirmButtonColor: '#28a745',
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error!',
+          text: 'Something went wrong while updating the event.',
+          icon: 'error',
+          confirmButtonColor: '#d33',
+        });
+        console.error('Error updating event:', error);
+      }
+    }
+  } else if (eventToChange.status === 'Handled') {
+    Swal.fire({
+      title: 'Info',
+      text: 'This event is already closed and cannot be reopened.',
+      icon: 'warning',
+      confirmButtonColor: '#28a745',
+      customClass: {
+        icon: 'custom-warning-icon',
+      },
+    });
+  }
+};
+
+
+
+
+
+
 
   const openImagePreview = (imageUrl: string) => {
     setSelectedImage(imageUrl);
@@ -206,7 +261,7 @@ export default function EventsPage() {
                 marginBottom: '20px',
                 display: 'flex',
                 position: 'relative',
-                borderLeft: `4px solid ${event.status === 'Open' ? '#dc2626' : '#10b981'}`,
+                borderLeft: `4px solid ${event.status === 'Handled' ? '#10b981': '#dc2626' }`,
                 transition: 'transform 0.2s ease, box-shadow 0.2s ease',
               }}
               onMouseEnter={(e) => {
@@ -337,7 +392,7 @@ export default function EventsPage() {
                     <button
                       onClick={() => handleStatusChange(event._id)}
                       style={{
-                        backgroundColor: event.status === 'Open' ? '#10b981' : '#94a3b8',
+                        backgroundColor: event.status === 'Handled' ? '#059669 ':'#ef4444' ,
                         color: 'white',
                         border: 'none',
                         padding: '6px 14px',
@@ -352,56 +407,75 @@ export default function EventsPage() {
                         marginLeft: '12px',
                         marginTop: '-4px',
                         boxShadow:
-                          event.status === 'Open'
+                          event.status === 'Handled'
                             ? '0 2px 10px rgba(16, 185, 129, 0.2)'
                             : '0 2px 10px rgba(148, 163, 184, 0.15)',
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = 'translateY(-1px)';
                         e.currentTarget.style.boxShadow =
-                          event.status === 'Open'
+                          event.status === 'Handled'
                             ? '0 4px 12px rgba(16, 185, 129, 0.3)'
                             : '0 4px 12px rgba(148, 163, 184, 0.25)';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.transform = 'translateY(0)';
                         e.currentTarget.style.boxShadow =
-                          event.status === 'Open'
+                          event.status === 'Handled'
                             ? '0 2px 10px rgba(16, 185, 129, 0.2)'
                             : '0 2px 10px rgba(148, 163, 184, 0.15)';
                       }}
                     >
-                      {event.status === 'Open' ? (
+                      {event.status === 'Handled' ? (
                         <>
-                          <svg
-                            width="12"
-                            height="12"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"
-                              fill="white"
-                            />
-                          </svg>
-                          Handle
+                   <svg
+  width="12"
+  height="12"
+  viewBox="0 0 24 24"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M20 6L9 17L4 12"
+    stroke="white"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+</svg>
+
+                          Resolved
                         </>
+
                       ) : (
                         <>
-                          <svg
-                            width="12"
-                            height="12"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
-                              fill="white"
-                            />
-                          </svg>
-                          Reopen
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M12 2L2 20h20L12 2z"
+      fill="red"
+      stroke="white"
+      strokeWidth="2"
+    />
+    <path
+      d="M12 8v5"
+      stroke="white"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+    <circle
+      cx="12"
+      cy="17"
+      r="1"
+      fill="white"
+    />
+  </svg>
+                          Unresolved 
                         </>
                       )}
                     </button>
@@ -422,14 +496,15 @@ export default function EventsPage() {
                         fontWeight: '600',
                         letterSpacing: '0.3px',
                         backgroundColor:
-                          event.status === 'Open'
-                            ? 'rgba(239, 68, 68, 0.08)'
-                            : 'rgba(16, 185, 129, 0.08)',
-                        color: event.status === 'Open' ? '#ef4444' : '#10b981',
+                          event.status === 'Handled'
+                            ? 'rgba(16, 185, 129, 0.2)'
+                            : 'rgba(153, 34, 7, 0.08)',
+                        color: event.status === 'Handled' ?  '#10b981':'#ef4444' ,
                         border: `1px solid ${
-                          event.status === 'Open'
-                            ? 'rgba(239, 68, 68, 0.2)'
-                            : 'rgba(16, 185, 129, 0.2)'
+                          event.status === 'Handled'
+                           
+                            ? 'rgba(16, 185, 129, 0.2)'
+                            :'rgba(239, 68, 68, 0.2)'
                         }`,
                       }}
                     >
