@@ -6,7 +6,7 @@ import { RootState } from '@/store/store';
 import { fetchAllEvents, Event } from '@/services/eventService';
 import { fetchLocationById } from '@/services/locationService';
 import { fetchAreaById } from '@/services/areaService';
-import { updateEventStatus } from '@/services/eventService'; 
+import { updateEventStatus } from '@/services/eventService';
 
 import Swal from 'sweetalert2';
 
@@ -71,67 +71,56 @@ export default function EventsPage() {
     }
   }, [siteId, areaId]);
 
-const handleStatusChange = async (eventId: string) => {
-  const eventToChange = events.find((event) => event._id === eventId);
-  if (!eventToChange) return;
+  const handleStatusChange = async (eventId: string) => {
+    const eventToChange = events.find((event) => event._id === eventId);
+    if (!eventToChange) return;
 
-  if (eventToChange.status === 'Not Handled') {
-    const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: "This action cannot be undone!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, close it!',
-      cancelButtonText: 'Cancel',
-      confirmButtonColor: '#28a745',
-    });
+    if (eventToChange.status === 'Not Handled') {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: 'This action cannot be undone!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, close it!',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#28a745',
+      });
 
-    if (result.isConfirmed) {
-      try {
-        // קריאה ל-API כדי לעדכן את הסטטוס במסד הנתונים ל-'Handled'
-        const updatedEvent = await updateEventStatus(eventId);
+      if (result.isConfirmed) {
+        try {
+          // קריאה ל-API עם eventId + status
+          const updatedEvent = await updateEventStatus(eventToChange._id, 'Handled');
 
-        // עדכון מקומי של רשימת האירועים עם הסטטוס החדש
-        setEvents((prevEvents) =>
-          prevEvents.map((event) =>
-            event._id === eventId ? updatedEvent : event
-          )
-        );
+          // עדכון רשימת האירועים
+          setEvents((prevEvents) =>
+            prevEvents.map((event) => (event._id === eventToChange._id ? updatedEvent : event))
+          );
 
-        Swal.fire({
-          title: 'Closed!',
-          text: 'The event was successfully closed.',
-          icon: 'success',
-          confirmButtonColor: '#28a745',
-        });
-      } catch (error) {
-        Swal.fire({
-          title: 'Error!',
-          text: 'Something went wrong while updating the event.',
-          icon: 'error',
-          confirmButtonColor: '#d33',
-        });
-        console.error('Error updating event:', error);
+          Swal.fire({
+            title: 'Closed!',
+            text: 'The event was successfully closed.',
+            icon: 'success',
+            confirmButtonColor: '#28a745',
+          });
+        } catch (error) {
+          console.error('Error updating event:', error);
+          Swal.fire({
+            title: 'Error!',
+            text: 'Something went wrong while updating the event.',
+            icon: 'error',
+            confirmButtonColor: '#d33',
+          });
+        }
       }
+    } else {
+      Swal.fire({
+        title: 'Info',
+        text: 'This event is already closed and cannot be reopened.',
+        icon: 'warning',
+        confirmButtonColor: '#28a745',
+      });
     }
-  } else if (eventToChange.status === 'Handled') {
-    Swal.fire({
-      title: 'Info',
-      text: 'This event is already closed and cannot be reopened.',
-      icon: 'warning',
-      confirmButtonColor: '#28a745',
-      customClass: {
-        icon: 'custom-warning-icon',
-      },
-    });
-  }
-};
-
-
-
-
-
-
+  };
 
   const openImagePreview = (imageUrl: string) => {
     setSelectedImage(imageUrl);
@@ -261,7 +250,7 @@ const handleStatusChange = async (eventId: string) => {
                 marginBottom: '20px',
                 display: 'flex',
                 position: 'relative',
-                borderLeft: `4px solid ${event.status === 'Handled' ? '#10b981': '#dc2626' }`,
+                borderLeft: `4px solid ${event.status === 'Handled' ? '#10b981' : '#dc2626'}`,
                 transition: 'transform 0.2s ease, box-shadow 0.2s ease',
               }}
               onMouseEnter={(e) => {
@@ -392,7 +381,7 @@ const handleStatusChange = async (eventId: string) => {
                     <button
                       onClick={() => handleStatusChange(event._id)}
                       style={{
-                        backgroundColor: event.status === 'Handled' ? '#059669 ':'#ef4444' ,
+                        backgroundColor: event.status === 'Handled' ? '#059669 ' : '#ef4444',
                         color: 'white',
                         border: 'none',
                         padding: '6px 14px',
@@ -428,54 +417,47 @@ const handleStatusChange = async (eventId: string) => {
                     >
                       {event.status === 'Handled' ? (
                         <>
-                   <svg
-  width="12"
-  height="12"
-  viewBox="0 0 24 24"
-  fill="none"
-  xmlns="http://www.w3.org/2000/svg"
->
-  <path
-    d="M20 6L9 17L4 12"
-    stroke="white"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  />
-</svg>
-
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M20 6L9 17L4 12"
+                              stroke="white"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
                           Resolved
                         </>
-
                       ) : (
                         <>
-  <svg
-    width="12"
-    height="12"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M12 2L2 20h20L12 2z"
-      fill="red"
-      stroke="white"
-      strokeWidth="2"
-    />
-    <path
-      d="M12 8v5"
-      stroke="white"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <circle
-      cx="12"
-      cy="17"
-      r="1"
-      fill="white"
-    />
-  </svg>
-                          Unresolved 
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M12 2L2 20h20L12 2z"
+                              fill="red"
+                              stroke="white"
+                              strokeWidth="2"
+                            />
+                            <path
+                              d="M12 8v5"
+                              stroke="white"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                            />
+                            <circle cx="12" cy="17" r="1" fill="white" />
+                          </svg>
+                          Unresolved
                         </>
                       )}
                     </button>
@@ -499,12 +481,11 @@ const handleStatusChange = async (eventId: string) => {
                           event.status === 'Handled'
                             ? 'rgba(16, 185, 129, 0.2)'
                             : 'rgba(153, 34, 7, 0.08)',
-                        color: event.status === 'Handled' ?  '#10b981':'#ef4444' ,
+                        color: event.status === 'Handled' ? '#10b981' : '#ef4444',
                         border: `1px solid ${
                           event.status === 'Handled'
-                           
                             ? 'rgba(16, 185, 129, 0.2)'
-                            :'rgba(239, 68, 68, 0.2)'
+                            : 'rgba(239, 68, 68, 0.2)'
                         }`,
                       }}
                     >

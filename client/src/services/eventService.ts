@@ -32,12 +32,9 @@ export const fetchEventsByArea = async (areaId: string): Promise<Event[]> => {
   return response.data;
 };
 
-// services/eventService.ts
-
-export const updateEventStatus = async (eventId: string): Promise<Event> => {
-  const response = await axios.post<Event>(`${EVENTS_API_URL}/status`, {
-    eventId, 
+export const updateEventStatus = async (eventId: string, status: string): Promise<Event> => {
+  const response = await axios.patch<{ event: Event }>(`${EVENTS_API_URL}/status/${eventId}`, {
+    status,
   });
-  return response.data;
+  return response.data.event;
 };
-
