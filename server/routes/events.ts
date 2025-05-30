@@ -1,8 +1,8 @@
-import express from 'express';
+import { Router } from 'express';
 import { updateEventStatus } from '../controllers/eventController';
 
-const router = express.Router();
+const router = Router();
 
-router.post('/status/:eventId', updateEventStatus);
+router.post('/status', updateEventStatus);
 
 export default router;

@@ -48,7 +48,7 @@ async function start() {
     res.send("📡 ProSafe backend is running");
   });
 
-  // ===== Next.js Handler =====
+  // // ===== Next.js Handler =====
   app.all("*", (req, res) => handle(req, res));
 
   // ===== HTTP or HTTPS Server =====

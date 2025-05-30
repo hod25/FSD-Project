@@ -3,7 +3,10 @@ import EventModel from '../models/Event';
 
 export const updateEventStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { eventId } = req.params;
+    const { eventId } = req.body;;
+    console.log("req", req);
+    console.log('Event ID:', eventId);
+
     const status = 'Handled'; 
 
     const updatedEvent = await EventModel.findByIdAndUpdate(
