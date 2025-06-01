@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import { FaFileExcel } from 'react-icons/fa';
 
 import type { RootState } from '@/store/store';
 import FiltersPanel from './components/FiltersPanel';
@@ -15,6 +16,7 @@ import StatusPieChart from './components/StatusPieChart';
 import styles from './StatisticsPage.module.css';
 
 import { selectAreas } from '@/store/slices/areaSlice';
+import { exportToExcel } from './utils/excelExport';
 
 export type StatsFilters = {
   startDate?: string;
@@ -80,11 +82,27 @@ export default function StatisticsPage() {
     if (locationId) {
       fetchStats();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locationId, areaId]);
+
+  // Function to handle Excel export
+  const handleExport = () => {
+    if (stats) {
+      exportToExcel(stats, locationName || undefined, areaNameMap, locationNameMap);
+    }
+  };
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>📊 Safety Events Statistics</h1>
+      <div className={styles.headerRow}>
+        <h1 className={styles.title}>📊 Safety Events Statistics</h1>
+        {stats && (
+          <button onClick={handleExport} className={styles.exportButton}>
+            <FaFileExcel /> Export to Excel
+          </button>
+        )}
+      </div>
+
       <FiltersPanel filters={filters} setFilters={setFilters} onApply={fetchStats} />
 
       {stats && (
