@@ -12,7 +12,7 @@ export interface MenuItem {
 export const menuItems: MenuItem[] = [
   { id: 'home', label: 'Home', path: '/connected/home', icon: Home },
   { id: 'live-camera', label: 'Live Camera', path: '/connected/live-camera', icon: CameraAlt },
-  { id: 'reports', label: 'Reports', path: '/connected/reports', icon: Assessment },
+  { id: 'statistics', label: 'Statistics', path: '/connected/statistics', icon: Assessment },
   { id: 'events', label: 'Events', path: '/connected/events', icon: Event },
   {
     id: 'site-management',
