@@ -11,6 +11,7 @@ import { connectToDB } from "./config/db";
 import locationRoutes from "./routes/locations";
 import authRoutes from "./routes/auth";
 import eventRoutes from "./routes/events";
+import statsRoutes from "./routes/stats";
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ async function start() {
   app.use("/api/auth", authRoutes);
   app.use("/api/locations", locationRoutes);
   app.use("/api/events", eventRoutes);
+  app.use("/api/stats", statsRoutes);
   app.post("/api/alert", (req, res) => {
     const { message, timestamp } = req.body;
     console.log("🚨 Alert Received:", message, timestamp);
