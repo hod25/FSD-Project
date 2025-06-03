@@ -11,6 +11,7 @@ import { selectUserName } from '../../../store/slices/userSlice';
 
 export default function Profile() {
   const username = useSelector(selectUserName) || 'Guest';
+  const userEmail = useSelector((state: any) => state.user.email) ;
   const [user, setUser] = useState({
     name: '',
     email: '',
@@ -71,7 +72,7 @@ export default function Profile() {
   return (
     <div className={styles.loginContainer}>
       <div className={styles.logoContainer}>
-        <FiUser size={72} color="#007bff" />
+        <FiUser size={72} color="#d18700" className={styles.loginIcon} />
       </div>
       <div className={styles.loginBox}>
         <h2 className={styles.loginTitle}>Your Profile</h2>
@@ -102,21 +103,18 @@ export default function Profile() {
               type="email"
               name="email"
               value={user.email}
+              onChange={handleChange}
               className={styles.loginInput}
-              placeholder="email@example.com"
-              disabled
-              readOnly
+              placeholder={userEmail || 'email@example.com'}
+              disabled={loading}
+              required
             />
           </div>
           {status && (
             <Typography
               variant="body2"
-              sx={{
-                mt: 2,
-                fontWeight: 500,
-                color: status.includes('successfully') ? 'success.main' : 'error.main',
-                textAlign: 'center',
-              }}
+              className={status.includes('successfully') ? styles.successMessage : styles.loginError}
+              sx={{ mt: 2, textAlign: 'center' }}
             >
               {status}
             </Typography>
