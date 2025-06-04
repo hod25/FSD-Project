@@ -7,31 +7,28 @@ import { FaEnvelope, FaUserEdit } from 'react-icons/fa';
 import { Typography } from '@mui/material'; 
 import { useSelector } from 'react-redux';
 import { selectUserName } from '../../../store/slices/userSlice';
-
+import { getCurrentUser, updateUserProfile } from '../../../services/userService';
 
 export default function Profile() {
   const username = useSelector(selectUserName) || 'Guest';
-  const userEmail = useSelector((state: any) => state.user.email) ;
+  const userEmail = useSelector((state: any) => state.user.email);
   const [user, setUser] = useState({
+    _id: '',
     name: '',
     email: '',
   });
-
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Load current user data
     const fetchUser = async () => {
       try {
-        const res = await fetch('/api/user/profile');
-        if (res.ok) {
-          const data = await res.json();
-          setUser({
-            name: data.name || '',
-            email: data.email || '',
-          });
-        }
+        const data = await getCurrentUser();
+        setUser({
+          _id: data._id,
+          name: data.name || '',
+          email: data.email || '',
+        });
       } catch (err) {
         console.error('Error loading user data:', err);
       }
@@ -47,23 +44,16 @@ export default function Profile() {
     e.preventDefault();
     setLoading(true);
     setStatus('');
-
     try {
-      // Only send the name for update
-      const res = await fetch('/api/user/profile', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: user.name }),
+      const updated = await updateUserProfile(user._id, {
+        name: user.name,
+        email: user.email,
       });
-
-      if (res.ok) {
-        setStatus('Changes saved successfully!');
-      } else {
-        setStatus('Failed to save changes.');
-      }
+      setUser({ ...user, name: updated.name, email: updated.email });
+      setStatus('Changes saved successfully!');
     } catch (err) {
       console.error('Error saving:', err);
-      setStatus('An error occurred. Please try again.');
+      setStatus('Failed to save changes.');
     } finally {
       setLoading(false);
     }
