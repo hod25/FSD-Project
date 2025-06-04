@@ -11,5 +11,4 @@ node_modules/
 *.log
 logs/
 
-CSB.crt
-myserver.key
+public
