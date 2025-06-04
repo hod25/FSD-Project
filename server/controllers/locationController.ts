@@ -68,6 +68,31 @@ export const addAreaToLocation = async (
   }
 };
 
+export const removeAreaFromLocation = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { locationId, areaId } = req.body;
+
+  try {
+    const location = await LocationModel.findById(locationId);
+
+    if (!location) {
+      res.status(404).json({ message: "Location not found" });
+      return;
+    }
+    location.areas = location.areas.filter(
+      (area: any) => area.toString() !== areaId.toString()
+    );
+
+    await location.save();
+
+    res.status(200).json({ message: "Area removed successfully" });
+  } catch (error) {
+    console.error("Error removing area from location:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 // ✅ פונקציה שמחזירה שם location לפי ID
 export const getLocationNameById = async (
   req: Request,
@@ -95,7 +120,6 @@ export const getLocationNameById = async (
   }
 };
 
-// פונקציה שמחזירה את כל האזורים ששייכים ללוקיישן לפי ID (עם כל הפרטים)
 export const getAreaNamesByLocationId = async (
   req: Request,
   res: Response
@@ -125,6 +149,7 @@ export const getAreaNamesByLocationId = async (
 export default {
   createLocation,
   addAreaToLocation,
+  removeAreaFromLocation,
   getLocationNameById,
   getAreaNamesByLocationId,
 };

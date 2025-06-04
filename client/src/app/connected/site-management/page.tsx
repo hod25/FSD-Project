@@ -16,18 +16,29 @@ import {
   ListItemSecondaryAction,
   IconButton,
   Tooltip,
+  MenuItem,
 } from '@mui/material';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import AlarmIcon from '@mui/icons-material/Alarm';
-import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
-import VideocamIcon from '@mui/icons-material/Videocam';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
-import { useState, useEffect } from 'react';
 
+import {
+  LocationOn as LocationOnIcon,
+  NotificationsActive as NotificationsActiveIcon,
+  Videocam as VideocamIcon,
+  Delete as DeleteIcon,
+  Add as AddIcon,
+} from '@mui/icons-material';
+import { createArea, deleteArea, updateArea } from '@/services/areaService';
+
+import { addAreaToLocation, fetchLocationById, removeAreaFromLocation } from '@/services/locationService';
+
+import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { selectAreas } from '../../../store/slices/areaSlice';
+import { selectUserLocationId } from '../../../store/slices/userSlice';
+
+import { selectLocationName , setLocationId } from '../../../store/slices/locationSlice';
+// ----------- Types -----------
 type Camera = {
-  id: number;
+  id: string;
   location: string;
   url: string;
   workDays: string[];
@@ -37,32 +48,13 @@ type Camera = {
   enableAlerts: boolean;
 };
 
+// ----------- Component -----------
 export default function Page() {
-  const [cameras, setCameras] = useState<Camera[]>([
-    {
-      id: 1,
-      location: 'Main Entrance',
-      url: 'https://camera.example.com/stream1',
-      workDays: ['Mon', 'Tue', 'Wed'],
-      shiftStart: '08:00',
-      shiftEnd: '17:00',
-      violationTime: 5,
-      enableAlerts: false,
-    },
-    {
-      id: 2,
-      location: 'Back Door',
-      url: 'https://camera.example.com/stream2',
-      workDays: ['Thu', 'Fri'],
-      shiftStart: '09:00',
-      shiftEnd: '18:00',
-      violationTime: 10,
-      enableAlerts: true,
-    },
-  ]);
-
-  const [selectedCameraId, setSelectedCameraId] = useState<number | null>(null);
-
+  const [isEditMode, setIsEditMode] = useState(false);
+  const locationId = useSelector(selectUserLocationId) || '';
+  const [cameras, setCameras] = useState<Camera[]>([]);
+  const [selectedCameraId, setSelectedCameraId] = useState<string | null>(null);
+  const areas = useSelector(selectAreas) || [];
   const [editLocation, setEditLocation] = useState('');
   const [editUrl, setEditUrl] = useState('');
   const [workDays, setWorkDays] = useState<string[]>([]);
@@ -72,7 +64,27 @@ export default function Page() {
   const [enableAlerts, setEnableAlerts] = useState(false);
 
   useEffect(() => {
-    if (selectedCameraId !== null) {
+    if (areas.length > 0) {
+      setCameras((prev) => {
+        const areaCameras: Camera[] = areas
+          .filter(area => area.name !== "All Areas")
+          .map((area) => ({
+            id: area.id,
+            location: area.name,
+            url: area.url,
+            workDays: [],
+            shiftStart: '08:00',
+            shiftEnd: '17:00',
+            violationTime: 5,
+            enableAlerts: false,
+          }));
+        return [...areaCameras];
+      });
+    }
+  }, [areas]);
+
+  useEffect(() => {
+    if (selectedCameraId) {
       const cam = cameras.find((c) => c.id === selectedCameraId);
       if (cam) {
         setEditLocation(cam.location);
@@ -94,50 +106,137 @@ export default function Page() {
     }
   }, [selectedCameraId, cameras]);
 
-  const saveSettings = () => {
-    if (selectedCameraId === null) return;
 
-    setCameras((prev) =>
-      prev.map((cam) =>
-        cam.id === selectedCameraId
-          ? {
-              ...cam,
-              location: editLocation,
-              url: editUrl,
-              workDays,
-              shiftStart,
-              shiftEnd,
-              violationTime,
-              enableAlerts,
-            }
-          : cam
-      )
-    );
-    alert('Camera settings saved!');
-  };
-
-  const addCamera = () => {
-    const newId = cameras.length ? Math.max(...cameras.map((c) => c.id)) + 1 : 1;
-    const newCamera: Camera = {
-      id: newId,
-      location: '',
-      url: '',
-      workDays: [],
-      shiftStart: '08:00',
-      shiftEnd: '17:00',
-      violationTime: 5,
-      enableAlerts: false,
-    };
-    setCameras((prev) => [...prev, newCamera]);
-    setSelectedCameraId(newId);
-  };
-
-  const deleteCamera = (id: number) => {
-    setCameras((prev) => prev.filter((c) => c.id !== id));
-    if (selectedCameraId === id) {
-      setSelectedCameraId(null);
+const saveSettings = async () => {
+  try {
+  let areaExists = areas.some(area => area.name === editLocation);
+    if (!areaExists) {
+      areaExists = false;
     }
+
+    const existingCamera = cameras.find(cam => cam.location === editLocation);
+
+    if (existingCamera) {
+
+      // עדכון מצלמה קיימת
+      const updatedCamera: Camera = {
+        ...existingCamera,
+        location: editLocation,
+        url: editUrl,
+        workDays,
+        shiftStart,
+        shiftEnd,
+        violationTime,
+        enableAlerts,
+      };
+
+      // עדכון האזור במסד הנתונים
+      const updatedArea = await updateArea(existingCamera.id, {
+        name: editLocation,
+        url: editUrl,
+      });
+
+      setCameras(prev =>
+        prev.map(cam =>
+          cam.id === existingCamera.id ? updatedCamera : cam
+        )
+      );
+
+      setSelectedCameraId(existingCamera.id);
+      alert('Camera updated!');
+
+
+
+    } else {
+      // יצירת מצלמה חדשה
+      const newId = Date.now().toString();
+      const newCamera: Camera = {
+        id: newId,
+        location: editLocation,
+        url: editUrl,
+        workDays,
+        shiftStart,
+        shiftEnd,
+        violationTime,
+        enableAlerts,
+      };
+
+      // יצירת אזור חדש במסד הנתונים
+const newAreaResponse: any = await createArea({
+  name: editLocation,
+  url: editUrl,
+});
+
+// שליפת ה-ID מהאובייקט הפנימי
+const newAreaId = newAreaResponse.area?._id;
+      // חיבור האזור למיקום
+      if (locationId) {
+        console.log("🔗 Connecting area to location:", locationId, newAreaId);
+        try {
+          const locationData = await fetchLocationById(locationId);
+          await addAreaToLocation(locationId, newAreaId);
+          console.log("✅ Area added to location:", locationData.id);
+        } catch (err) {
+          console.error("❌ Failed to add area to location:", err);
+          alert("Area created, but failed to connect it to the location.");
+        }
+      }
+
+      // עדכון רשימת המצלמות
+      setCameras(prev => [...prev, newCamera]);
+      setSelectedCameraId(newId);
+      alert("Camera added!");
+    }
+  } catch (error) {
+    console.error("🔥 Error saving settings:", error);
+    alert("Failed to save settings, please try again.");
+  }
+};
+
+const addCamera = () => {
+  const newId = Date.now().toString();
+  const newCamera: Camera = {
+    id: newId,
+    location: '',
+    url: '',
+    workDays: [],
+    shiftStart: '08:00',
+    shiftEnd: '17:00',
+    violationTime: 5,
+    enableAlerts: false,
   };
+  setCameras((prev) => [...prev, newCamera]);
+  setSelectedCameraId(newId);
+  setIsEditMode(false); 
+};
+
+
+const deleteCamera = async (cameraId: string) => {
+
+  setCameras(prev => prev.filter(c => c.id !== cameraId));
+
+  if (selectedCameraId === cameraId) {
+    const remaining = cameras.filter(c => c.id !== cameraId);
+    setSelectedCameraId(remaining.length > 0 ? remaining[0].id : null);
+  }
+
+  const areaToDelete = areas.find(area => area.id === cameraId);
+
+  if (!areaToDelete) {
+   console.warn("⚠️ No suitable area found for the camera:", areaToDelete);
+
+    return;
+  }
+
+  try {
+    await deleteArea(areaToDelete.id); 
+    await removeAreaFromLocation(locationId, areaToDelete.id);
+  } catch (error) {
+    console.error("❌ Error deleting the area:", error);
+
+  }
+};
+
 
   return (
     <Box
@@ -152,8 +251,15 @@ export default function Page() {
       }}
     >
       <Stack direction="row" spacing={4} alignItems="flex-start">
-        {/* צד שמאל - רשימת מצלמות */}
-        <Box sx={{ width: '40%', borderRight: '1px solid #ddd', pr: 3, maxHeight: '80vh', overflowY: 'auto' }}>
+        <Box
+          sx={{
+            width: '40%',
+            borderRight: '1px solid #ddd',
+            pr: 3,
+            maxHeight: '80vh',
+            overflowY: 'auto',
+          }}
+        >
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
             <Typography variant="h6" fontWeight="bold">
               Cameras
@@ -164,33 +270,44 @@ export default function Page() {
           </Stack>
 
           <List>
-            {cameras.map((cam) => (
-<ListItem
-  key={cam.id}
-  component="div" // הוסף את השורה הזו
-  onClick={() => setSelectedCameraId(cam.id)}
-  divider
-  sx={{
-    cursor: 'pointer',
-    bgcolor: cam.id === selectedCameraId ? 'rgba(25,118,210,0.1)' : 'inherit', // מחליף selected
+            {cameras.length === 0 ? (
+              <Typography variant="body2" color="text.secondary">
+                No Cameras available
+              </Typography>
+            ) : (
+              cameras
+                .filter(cam => cam.location.trim() !== '' || cam.id === selectedCameraId) 
+                .map((cam) => (
+                  <ListItem
+                    key={cam.id}
+                    onClick={() => {
+    setSelectedCameraId(cam.id);
+    setIsEditMode(true); 
   }}
->
-  <ListItemText primary={cam.location || '(No Location)'} secondary={cam.url} />
-  <ListItemSecondaryAction>
-    <Tooltip title="Delete">
-      <IconButton edge="end" onClick={() => deleteCamera(cam.id)}>
-        <DeleteIcon color="error" />
-      </IconButton>
-    </Tooltip>
-  </ListItemSecondaryAction>
-</ListItem>
-
-            ))}
-            {cameras.length === 0 && <Typography>No cameras added yet.</Typography>}
+                    divider
+                    sx={{
+                      cursor: 'pointer',
+                      bgcolor: selectedCameraId === cam.id ? '#FB9C00' : 'transparent',
+                      transition: 'background-color 0.3s ease',
+                    }}
+                  >
+                    <ListItemText
+                      primary={cam.location || '(No Location)'}
+                      secondary={cam.url || ('')}
+                    />
+                    <ListItemSecondaryAction>
+                      <Tooltip title="Delete">
+                        <IconButton edge="end" onClick={() => deleteCamera(cam.id)}>
+                          <DeleteIcon color="error" />
+                        </IconButton>
+                      </Tooltip>
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                ))
+            )}
           </List>
         </Box>
 
-        {/* צד ימין - פרטי המצלמה לעריכה */}
         <Box sx={{ width: '60%', pl: 3 }}>
           <Stack spacing={3} component="form" onSubmit={(e) => e.preventDefault()}>
             <Stack direction="row" alignItems="center" spacing={1}>
@@ -208,13 +325,18 @@ export default function Page() {
                 </Typography>
               </Stack>
               <TextField
-                size="medium"
                 fullWidth
                 placeholder="Location"
                 value={editLocation}
                 onChange={(e) => setEditLocation(e.target.value)}
-                disabled={selectedCameraId === null}
-              />
+                 disabled={isEditMode|| !selectedCameraId} 
+              >
+                {areas.map((area) => (
+                  <MenuItem key={area.id} value={area.name}>
+                    {area.name}
+                  </MenuItem>
+                ))}
+              </TextField>
             </Stack>
 
             <Stack spacing={1}>
@@ -225,120 +347,106 @@ export default function Page() {
                 </Typography>
               </Stack>
               <TextField
-                size="medium"
                 fullWidth
-                placeholder="https://camera.example.com/stream"
                 type="url"
+                placeholder="https://camera.example.com/stream"
                 value={editUrl}
                 onChange={(e) => setEditUrl(e.target.value)}
-                disabled={selectedCameraId === null}
+                disabled={!selectedCameraId}
               />
-            </Stack>
-    <Stack direction="row" alignItems="center" spacing={1}>
-            
-            <Typography variant="subtitle2" color="text.secondary">
-              Work Days
-            </Typography>
-          </Stack>
-         <ToggleButtonGroup
-  value={workDays}
-  onChange={(_, newDays) => {
-    if (newDays !== null) setWorkDays(newDays);
-  }}
-  aria-label="work days"
-  size="medium"
-  fullWidth
-  disabled={selectedCameraId === null}
->
-  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-    <ToggleButton
-      key={day}
-      value={day}
-      sx={{
-        backgroundColor: workDays.includes(day) ? '#FFA726 !important' : 'transparent',
-        color: workDays.includes(day) ? '#fff' : '#000',
-        '&:hover': {
-          backgroundColor: workDays.includes(day) ? '#FB8C00 !important' : '#eee',
-        },
-      }}
-    >
-      {day}
-    </ToggleButton>
-  ))}
-</ToggleButtonGroup>
-
-
-            <Stack direction="row" spacing={4} justifyContent="space-between" alignItems="center">
-              <Box flex={1}>
-                <Typography variant="caption" color="text.secondary" gutterBottom>
-                  Shift Start
-                </Typography>
-                <TextField
-                  size="medium"
-                  type="time"
-                  value={shiftStart}
-                  onChange={(e) => setShiftStart(e.target.value)}
-                  fullWidth
-                  disabled={selectedCameraId === null}
-                />
-              </Box>
-              <Box flex={1}>
-                <Typography variant="caption" color="text.secondary" gutterBottom>
-                  Shift End
-                </Typography>
-                <TextField
-                  size="medium"
-                  type="time"
-                  value={shiftEnd}
-                  onChange={(e) => setShiftEnd(e.target.value)}
-                  fullWidth
-                  disabled={selectedCameraId === null}
-                />
-              </Box>
             </Stack>
 
             <Stack spacing={1}>
-              <Typography variant="caption" color="text.secondary">
-                Violation Time (minutes)
+              <Typography variant="subtitle2" color="text.secondary">
+                Work Days
               </Typography>
+            </Stack>
+            <ToggleButtonGroup
+              value={workDays}
+              onChange={(_, newDays) => {
+                if (newDays !== null) setWorkDays(newDays);
+              }}
+              aria-label="work days"
+              size="medium"
+              fullWidth
+              disabled={selectedCameraId === null}
+            >
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                <ToggleButton
+                  key={day}
+                  value={day}
+                  sx={{
+                    backgroundColor: workDays.includes(day) ? '#FFA726 !important' : 'transparent',
+                    color: workDays.includes(day) ? '#fff' : '#000',
+                    '&:hover': {
+                      backgroundColor: workDays.includes(day) ? '#FB8C00 !important' : '#eee',
+                    },
+                  }}
+                >
+                  {day}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
+
+            <Stack direction="row" spacing={2} alignItems="center">
               <TextField
-                size="medium"
-                type="number"
-                inputProps={{ min: 0 }}
-                value={violationTime}
-                onChange={(e) => setViolationTime(Number(e.target.value))}
-                disabled={selectedCameraId === null}
+                label="Shift Start"
+                type="time"
+                value={shiftStart}
+                onChange={(e) => setShiftStart(e.target.value)}
+                disabled={!selectedCameraId}
+                InputLabelProps={{ shrink: true }}
+                inputProps={{ step: 300 }}
+              />
+              <TextField
+                label="Shift End"
+                type="time"
+                value={shiftEnd}
+                onChange={(e) => setShiftEnd(e.target.value)}
+                disabled={!selectedCameraId}
+                InputLabelProps={{ shrink: true }}
+                inputProps={{ step: 300 }}
               />
             </Stack>
 
-            <Stack direction="row" alignItems="center" justifyContent="space-between" mt={2}>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <NotificationsActiveIcon color="action" />
-            <Typography variant="subtitle2" color="text.secondary">
-              Enable Alerts
-            </Typography>
-          </Stack>
-          <Switch
-            checked={enableAlerts}
-            onChange={(e) => setEnableAlerts(e.target.checked)}
-            color="primary"
-          />
-        </Stack>
+            <Stack spacing={1}>
+              <Typography variant="subtitle2" color="text.secondary">
+                Violation Time (minutes)
+              </Typography>
+              <TextField
+                type="number"
+                value={violationTime}
+                onChange={(e) => setViolationTime(Number(e.target.value))}
+                disabled={!selectedCameraId}
+                inputProps={{ min: 1, max: 60 }}
+              />
+            </Stack>
 
-            <Divider />
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Switch
+                checked={enableAlerts}
+                onChange={(e) => setEnableAlerts(e.target.checked)}
+                disabled={!selectedCameraId}
+                color="primary"
+              />
+              <Typography variant="subtitle2" color="text.secondary">
+                Enable Alerts
+              </Typography>
+            </Stack>
 
-              <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{ mt: 2, fontWeight: 'bold', textTransform: 'none' }}
-        >
-              Save Settings
-            </Button>
+          <Button
+  variant="contained"
+  color="primary"
+  onClick={saveSettings}
+>
+  {isEditMode ? 'Update' : 'Save'} {/* ✅ */}
+</Button>
+
           </Stack>
         </Box>
       </Stack>
     </Box>
   );
 }
+
+
