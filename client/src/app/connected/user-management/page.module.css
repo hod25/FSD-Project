@@ -1,0 +1,34 @@
+.userTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+.userTable th, .userTable td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+.userTable th {
+  background: #f0f0f0;
+}
+.createUserForm {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.createUserForm input {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.createUserForm button {
+  background: #0070f3;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.createUserForm button:hover {
+  background: #005bb5;
+}
