@@ -1,6 +1,8 @@
 'use client';
 
 import { Home, CameraAlt, Assessment, Event, Business, Person } from '@mui/icons-material';
+import { useSelector } from 'react-redux';
+import { selectIsAdmin } from '@/store/slices/userSlice';
 
 export interface MenuItem {
   id: string;
@@ -20,5 +22,6 @@ export const menuItems: MenuItem[] = [
     path: '/connected/site-management',
     icon: Business,
   },
-  { id: 'profile', label: 'Profile', path: '/connected/profile', icon: Person },
+  // { id: 'user-management', label: 'User Management', path: '/connected/user-management', icon: Person }, // Hidden for now
+  // { id: 'profile', label: 'Profile', path: '/connected/profile', icon: Person }, // Hidden for now
 ];
