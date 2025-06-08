@@ -43,17 +43,22 @@ export default function Profile() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setStatus('');
+    setStatus("");
     try {
-      const updated = await updateUserProfile(user._id, {
-        name: user.name,
-        email: user.email,
-      });
+      // שלח רק שדות ששונו
+      const updateData: any = {};
+      if (user.name) updateData.name = user.name;
+      if (user.email) updateData.email = user.email;
+      const updated = await updateUserProfile(user._id, updateData);
       setUser({ ...user, name: updated.name, email: updated.email });
-      setStatus('Changes saved successfully!');
-    } catch (err) {
-      console.error('Error saving:', err);
-      setStatus('Failed to save changes.');
+      setStatus("Changes saved successfully!");
+    } catch (err: any) {
+      if (err?.response?.data?.message) {
+        setStatus(err.response.data.message);
+      } else {
+        setStatus("Failed to save changes.");
+      }
+      console.error("Error saving:", err);
     } finally {
       setLoading(false);
     }
