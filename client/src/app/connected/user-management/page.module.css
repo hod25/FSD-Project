@@ -1,34 +1,144 @@
+/* עיצוב כללי כמו בפרופיל */
+.userManagementContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8f9fb 0%, #f0f2f5 100%);
+}
+
+.userBox {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 600px;
+  animation: slideUp 0.6s ease-out;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.userBox::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #e09500, #d18700, #ffb400);
+}
+
+.userTitle {
+  color: #333;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.userSubtitle {
+  color: #707070;
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.createUserForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.createUserForm input {
+  padding: 10px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 15px;
+}
+.createUserForm button {
+  background: #d18700;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.createUserForm button:hover {
+  background: #b37300;
+}
+
 .userTable {
   width: 100%;
   border-collapse: collapse;
   margin-top: 16px;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.04);
 }
 .userTable th, .userTable td {
-  border: 1px solid #ddd;
-  padding: 8px;
+  border: 1px solid #e0e0e0;
+  padding: 12px 8px;
   text-align: center;
+  font-size: 15px;
 }
 .userTable th {
-  background: #f0f0f0;
+  background: #f8f9fb;
+  color: #d18700;
+  font-weight: 600;
 }
-.createUserForm {
+.userTable tr:nth-child(even) {
+  background: #faf7f2;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.formGroup {
   display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
+  flex-direction: column;
+  gap: 0.3rem;
 }
-.createUserForm input {
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+
+.inputLabel {
+  font-size: 15px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 2px;
 }
-.createUserForm button {
-  background: #0070f3;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
+
+@media (max-width: 700px) {
+  .userBox {
+    padding: 2rem 1rem;
+    max-width: 98vw;
+  }
+  .userTable th, .userTable td {
+    font-size: 13px;
+    padding: 8px 4px;
+  }
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
 }
-.createUserForm button:hover {
-  background: #005bb5;
+
+@keyframes slideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -12,11 +12,14 @@ import { getCurrentUser, updateUserProfile } from '../../../services/userService
 export default function Profile() {
   const username = useSelector(selectUserName) || 'Guest';
   const userEmail = useSelector((state: any) => state.user.email);
+  const userPhone = useSelector((state: any) => state.user.phone);
   const [user, setUser] = useState({
     _id: '',
     name: '',
     email: '',
+    phone: '',
   });
+  const [password, setPassword] = useState('');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -28,6 +31,7 @@ export default function Profile() {
           _id: data._id,
           name: data.name || '',
           email: data.email || '',
+          phone: data.phone || '',
         });
       } catch (err) {
         console.error('Error loading user data:', err);
@@ -45,12 +49,14 @@ export default function Profile() {
     setLoading(true);
     setStatus("");
     try {
-      // שלח רק שדות ששונו
       const updateData: any = {};
       if (user.name) updateData.name = user.name;
       if (user.email) updateData.email = user.email;
+      if (user.phone) updateData.phone = user.phone;
+      if (password) updateData.password = password;
       const updated = await updateUserProfile(user._id, updateData);
-      setUser({ ...user, name: updated.name, email: updated.email });
+      setUser({ ...user, name: updated.name, email: updated.email, phone: updated.phone || '' });
+      setPassword('');
       setStatus("Changes saved successfully!");
     } catch (err: any) {
       if (err?.response?.data?.message) {
@@ -66,9 +72,9 @@ export default function Profile() {
 
   return (
     <div className={styles.loginContainer}>
-      <div className={styles.logoContainer}>
+      {/* <div className={styles.logoContainer}>
         <FiUser size={72} color="#d18700" className={styles.loginIcon} />
-      </div>
+      </div> */}
       <div className={styles.loginBox}>
         <h2 className={styles.loginTitle}>Your Profile</h2>
         <p className={styles.loginSubtitle}>View or update your account information</p>
@@ -103,6 +109,34 @@ export default function Profile() {
               placeholder={userEmail || 'email@example.com'}
               disabled={loading}
               required
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label className={styles.loginLabel}>
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              name="phone"
+              value={user.phone}
+              onChange={handleChange}
+              className={styles.loginInput}
+              placeholder={userPhone || 'Phone Number'}
+              disabled={loading}
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label className={styles.loginLabel}>
+              New Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className={styles.loginInput}
+              placeholder="New Password"
+              disabled={loading}
             />
           </div>
           {status && (

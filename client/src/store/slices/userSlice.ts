@@ -5,6 +5,7 @@ import { fetchLocation } from './locationSlice';
 export interface UserState {
   name: string | null;
   email: string | null;
+  phone: string | null;
   access_level: string | null;
   site_location: string | null;
   _id: string | null;
@@ -16,6 +17,7 @@ export interface UserState {
 const initialState: UserState = {
   name: null,
   email: null,
+  phone: null,
   access_level: null,
   site_location: null,
   _id: null,
@@ -56,14 +58,16 @@ const userSlice = createSlice({
       action: PayloadAction<{
         name: string;
         email: string;
+        phone?: string;
         access_level: string;
         site_location: string;
         _id: string;
       }>
     ) => {
-      const { name, email, access_level, site_location, _id } = action.payload;
+      const { name, email, phone, access_level, site_location, _id } = action.payload;
       state.name = name;
       state.email = email;
+      state.phone = phone || null;
       state.access_level = access_level;
       state.site_location = site_location;
       state._id = _id;
@@ -85,9 +89,10 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUserAsync.fulfilled, (state, action) => {
-        const { name, email, access_level, site_location, _id } = action.payload;
+        const { name, email, phone, access_level, site_location, _id } = action.payload;
         state.name = name;
         state.email = email;
+        state.phone = phone || null;
         state.access_level = access_level;
         state.site_location = site_location || null;
         state._id = _id;
@@ -109,6 +114,7 @@ export const selectIsLoggedIn = (state: { user: UserState }) => state.user.isLog
 export const selectIsAdmin = (state: { user: UserState }) => state.user.access_level === 'admin';
 export const selectUserName = (state: { user: UserState }) => state.user.name;
 export const selectUserEmail = (state: { user: UserState }) => state.user.email;
+export const selectUserPhone = (state: { user: UserState }) => state.user.phone;
 export const selectUserLocationId = (state: { user: UserState }) => state.user.site_location;
 export const selectUserLoading = (state: { user: UserState }) => state.user.loading;
 export const selectUserError = (state: { user: UserState }) => state.user.error;
