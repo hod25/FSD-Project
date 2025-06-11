@@ -11,6 +11,9 @@ A real-time monitoring system for detecting workers without helmets on construct
 
 ## 🚀 Getting Started
 
+
+
+
 ### 1. Start the Frontend (Next.js)
 
 ```bash
