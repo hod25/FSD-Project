@@ -23,5 +23,5 @@ export const menuItems: MenuItem[] = [
     icon: Business,
   },
   { id: 'profile', label: 'Profile', path: '/connected/profile', icon: Person },
-  { id: 'user-management', label: 'User Management', path: '/connected/user-management', icon: Person }, // Hidden for now
+  // { id: 'user-management', label: 'User Management', path: '/connected/user-management', icon: Person }, // Hidden for now
 ];
