@@ -37,3 +37,16 @@ npm install           # First-time setup
 npm run dev           # Starts the backend at http://localhost:5000
 
 ```
+
+### 3. add .env file to server directory
+
+New Email for ProSafe was created
+We used Gmail App password feature for connecting to the smtp service
+```bash
+MONGODB_URI=""
+PORT=
+EMAIL_USER=""
+EMAIL_PASS=""
+
+```
+
