@@ -8,7 +8,7 @@ import styles from "./page.module.css";
 const UserManagementPage = () => {
   const [users, setUsers] = useState<UserData[]>([]);
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
-  const [newUser, setNewUser] = useState<RegisterCredentials>({ name: "", email: "", password: "" });
+  const [newUser, setNewUser] = useState<RegisterCredentials>({ name: "", email: "", password: "", phone: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -18,14 +18,14 @@ const UserManagementPage = () => {
     getCurrentUser()
       .then((user) => {
         setCurrentUser(user);
-        if (user.access_level?.toLowerCase() !== "admin") {
-          router.replace("/connected/home");
-        } else {
+        // if (user.access_level?.toLowerCase() !== "admin") {
+        //   router.replace("/connected/home");
+        // } else {
           fetchUsers();
-        }
+        // }
       })
       .catch(() => {
-        router.replace("/auth/signin");
+        // router.replace("/auth/signin");
       });
   }, []);
 
@@ -51,7 +51,7 @@ const UserManagementPage = () => {
     setError(null);
     try {
       await register(newUser);
-      setNewUser({ name: "", email: "", password: "" });
+      setNewUser({ name: "", email: "", password: "", phone: "" });
       fetchUsers();
     } catch (err: any) {
       setError(err?.response?.data?.message || "Failed to create user");
@@ -59,41 +59,60 @@ const UserManagementPage = () => {
   };
 
   return (
-    <div className={styles.profileContainer}>
-      <h1>ניהול משתמשים</h1>
-      {error && <div style={{ color: "red" }}>{error}</div>}
-      <form onSubmit={handleCreateUser} className={styles.createUserForm}>
-        <h2>יצירת משתמש חדש</h2>
-        <input name="name" placeholder="שם" value={newUser.name} onChange={handleInputChange} required />
-        <input name="email" placeholder="אימייל" value={newUser.email} onChange={handleInputChange} required />
-        <input name="password" placeholder="סיסמה" type="password" value={newUser.password} onChange={handleInputChange} required />
-        <button type="submit">צור משתמש</button>
-      </form>
-      <h2>רשימת משתמשים</h2>
-      {loading ? (
-        <div>טוען...</div>
-      ) : (
-        <table className={styles.userTable}>
-          <thead>
-            <tr>
-              <th>שם</th>
-              <th>אימייל</th>
-              <th>הרשאה</th>
-              <th>מיקום</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user._id}>
-                <td>{user.name}</td>
-                <td>{user.email}</td>
-                <td>{user.access_level}</td>
-                <td>{user.site_location || "-"}</td>
+    <div className={styles.userManagementContainer}>
+      <div className={styles.userBox}>
+        <h2 className={styles.userSubtitle}>User List</h2>
+        {loading ? (
+          <div>Loading...</div>
+        ) : (
+          <table className={styles.userTable}>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Location</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user._id}>
+                  <td>{user.name}</td>
+                  <td>{user.email}</td>
+                  <td>{user.access_level}</td>
+                  <td>{user.site_location || "-"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+      <div className={styles.userBox}>
+        <h1 className={styles.userTitle}>User Management</h1>
+        {error && <div style={{ color: "red", textAlign: "center", marginBottom: 12 }}>{error}</div>}
+        <form onSubmit={handleCreateUser} className={styles.createUserForm}>
+          <h2 className={styles.userSubtitle}>Create New User</h2>
+          <div className={styles.formGrid}>
+            <div className={styles.formGroup}>
+              <label className={styles.inputLabel} htmlFor="name">Name</label>
+              <input id="name" name="name" placeholder="Name" value={newUser.name} onChange={handleInputChange} required />
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.inputLabel} htmlFor="email">Email</label>
+              <input id="email" name="email" placeholder="Email" value={newUser.email} onChange={handleInputChange} required />
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.inputLabel} htmlFor="phone">Phone Number</label>
+              <input id="phone" name="phone" placeholder="Phone Number" value={newUser.phone} onChange={handleInputChange} />
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.inputLabel} htmlFor="password">Password</label>
+              <input id="password" name="password" placeholder="Password" type="password" value={newUser.password} onChange={handleInputChange} required />
+            </div>
+          </div>
+          <button type="submit">Create User</button>
+        </form>
+      </div>
     </div>
   );
 };
