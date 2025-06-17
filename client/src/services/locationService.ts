@@ -79,3 +79,25 @@ export const updateLocation = async (
 export const deleteLocation = async (id: string): Promise<void> => {
   await axios.delete(`${API_URL}/${id}`);
 };
+export const addAreaToLocation = async (locationId: string, areaId: string) => {
+  const response = await axios.post(`${API_URL}/add-area`, {
+    locationId,
+    areaId,
+  });
+  return response.data;
+};
+/**
+ * Removes an area from a location
+ */
+export const removeAreaFromLocation = async (
+  locationId: string,
+  areaId: string
+): Promise<{ message: string }> => {
+  const response = await axios.post<{ message: string }>(`${API_URL}/remove-area`, {
+    locationId,
+    areaId,
+  });
+  return response.data;
+};
+
+
