@@ -32,10 +32,11 @@ import { addAreaToLocation, fetchLocationById, removeAreaFromLocation } from '@/
 
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { selectAreas } from '../../../store/slices/areaSlice';
+import { selectAreas, selectCurrentAreaName } from '../../../store/slices/areaSlice';
 import { selectUserLocationId } from '../../../store/slices/userSlice';
-
+import {  PayloadAction } from '@reduxjs/toolkit';
 import { selectLocationName , setLocationId } from '../../../store/slices/locationSlice';
+import Swal from 'sweetalert2';
 // ----------- Types -----------
 type Camera = {
   id: string;
@@ -106,7 +107,7 @@ export default function Page() {
     }
   }, [selectedCameraId, cameras]);
 
-
+const currentAreaName = useSelector(selectCurrentAreaName);
 const saveSettings = async () => {
   try {
   let areaExists = areas.some(area => area.name === editLocation);
@@ -211,6 +212,44 @@ const addCamera = () => {
 };
 
 
+const handleDeleteClick = async (cameraId: string) => {
+  const cameraToDelete = cameras.find((cam) => cam.id === cameraId);
+
+  if (!cameraToDelete) return;
+  
+  if (cameraToDelete.location === currentAreaName) {
+    Swal.fire({
+      title: 'Cannot delete this camera',
+      text: 'This camera belongs to the currently selected area.',
+      icon: 'error',
+    });
+    return;
+  }
+
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: 'This will permanently delete the camera.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+  });
+
+  if (result.isConfirmed) {
+    await deleteCamera(cameraId);
+    Swal.fire({
+      title: 'Deleted!',
+      text: 'The camera has been removed.',
+      icon: 'success',
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  }
+};
+
+
 const deleteCamera = async (cameraId: string) => {
 
   setCameras(prev => prev.filter(c => c.id !== cameraId));
@@ -224,6 +263,14 @@ const deleteCamera = async (cameraId: string) => {
 
   if (!areaToDelete) {
    console.warn("⚠️ No suitable area found for the camera:", areaToDelete);
+
+
+  const handleDeleteClick = (cameraId: string) => {
+  const confirmed = window.confirm("האם אתה בטוח שברצונך למחוק את המצלמה?");
+  if (confirmed) {
+    deleteCamera(cameraId);
+  }
+};
 
     return;
   }
@@ -297,9 +344,11 @@ const deleteCamera = async (cameraId: string) => {
                     />
                     <ListItemSecondaryAction>
                       <Tooltip title="Delete">
-                        <IconButton edge="end" onClick={() => deleteCamera(cam.id)}>
-                          <DeleteIcon color="error" />
-                        </IconButton>
+           <IconButton edge="end" onClick={() => handleDeleteClick(cam.id)}>
+  <DeleteIcon color="error" />
+</IconButton>
+
+
                       </Tooltip>
                     </ListItemSecondaryAction>
                   </ListItem>
