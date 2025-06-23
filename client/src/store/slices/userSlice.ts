@@ -113,6 +113,7 @@ export const selectUser = (state: { user: UserState }) => state.user;
 export const selectIsLoggedIn = (state: { user: UserState }) => state.user.isLoggedIn;
 export const selectIsAdmin = (state: { user: UserState }) => state.user.access_level === 'admin';
 export const selectUserName = (state: { user: UserState }) => state.user.name;
+export const selectID = (state: { user: UserState }) => state.user._id;
 export const selectUserEmail = (state: { user: UserState }) => state.user.email;
 export const selectUserPhone = (state: { user: UserState }) => state.user.phone;
 export const selectUserLocationId = (state: { user: UserState }) => state.user.site_location;

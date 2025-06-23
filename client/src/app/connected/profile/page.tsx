@@ -13,6 +13,7 @@ export default function Profile() {
   const username = useSelector(selectUserName) || 'Guest';
   const userEmail = useSelector((state: any) => state.user.email);
   const userPhone = useSelector((state: any) => state.user.phone);
+  const userid=useSelector((state: any) => state.user._id);
   const [user, setUser] = useState({
     _id: '',
     name: '',
@@ -43,32 +44,83 @@ export default function Profile() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setStatus("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setStatus("");
-    try {
-      const updateData: any = {};
-      if (user.name) updateData.name = user.name;
-      if (user.email) updateData.email = user.email;
-      if (user.phone) updateData.phone = user.phone;
-      if (password) updateData.password = password;
-      const updated = await updateUserProfile(user._id, updateData);
-      setUser({ ...user, name: updated.name, email: updated.email, phone: updated.phone || '' });
-      setPassword('');
-      setStatus("Changes saved successfully!");
-    } catch (err: any) {
-      if (err?.response?.data?.message) {
-        setStatus(err.response.data.message);
-      } else {
-        setStatus("Failed to save changes.");
-      }
-      console.error("Error saving:", err);
-    } finally {
-      setLoading(false);
+  // ניקוי רווחים מהקלטים
+  const trimmedName = user.name.trim();
+  const trimmedEmail = user.email.trim();
+  const trimmedPhone = user.phone?.trim();
+  const trimmedPassword = password.trim();
+
+  // אם השדות ריקים, נשמור את הערכים הקודמים (מה שכרגע ב-store)
+  const finalName = trimmedName || username;
+  const finalEmail = trimmedEmail || userEmail;
+  const finalPhone = trimmedPhone || userPhone || '';
+
+  // בדיקת תקינות אימייל
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(finalEmail)) {
+    setStatus("Please enter a valid email address.");
+    return;
+  }
+
+  // בדיקת תקינות טלפון - רק ספרות
+  const phoneRegex = /^\d*$/;
+  if (finalPhone && !phoneRegex.test(finalPhone)) {
+    setStatus("Phone number must contain only digits.");
+    return;
+  }
+
+  // חובה שיהיה שם ואימייל
+  if (!finalName || !finalEmail) {
+    setStatus("Name and Email cannot be empty.");
+    return;
+  }
+
+  // בדיקה אם לא שונה כלום (גם לא סיסמה)
+  if (
+    finalName === username.trim() &&
+    finalEmail === userEmail.trim() &&
+    finalPhone === (userPhone?.trim() || '') &&
+    trimmedPassword === ""
+  ) {
+    setStatus("No changes to save.");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const updateData: any = {
+      name: finalName,
+      email: finalEmail,
+      phone: finalPhone,
+    };
+    if (trimmedPassword) updateData.password = trimmedPassword;
+
+    const updated = await updateUserProfile(userid, updateData);
+    setUser({
+      ...user,
+      name: updated.name,
+      email: updated.email,
+      phone: updated.phone || '',
+    });
+    setPassword('');
+    setStatus("Changes saved successfully!");
+  } catch (err: any) {
+    if (err?.response?.data?.message) {
+      setStatus(err.response.data.message);
+    } else {
+      setStatus("Failed to save changes.");
     }
-  };
+    console.error("Error saving:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   return (
     <div className={styles.loginContainer}>
@@ -87,7 +139,7 @@ export default function Profile() {
             <input
               type="text"
               name="name"
-              value={user.name}
+              value={username}
               onChange={handleChange}
               className={styles.loginInput}
               placeholder={username || 'Full Name'}
@@ -118,7 +170,7 @@ export default function Profile() {
             <input
               type="tel"
               name="phone"
-              value={user.phone}
+              value={userPhone}
               onChange={handleChange}
               className={styles.loginInput}
               placeholder={userPhone || 'Phone Number'}

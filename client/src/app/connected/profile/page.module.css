@@ -104,7 +104,17 @@
   font-size: 15px;
   border: 1px solid #e0e0e0;
   border-radius: 6px;
+  background-color: white;
+  color: #000; 
   transition: all 0.3s ease;
+}
+
+.loginInput:global(:-webkit-autofill),
+.loginInput:global(:-webkit-autofill:focus),
+.loginInput:global(:-webkit-autofill:hover) {
+  background-color: white !important;
+  color: #333 !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 .loginInput:focus {
@@ -262,4 +272,5 @@
   .formGrid {
     grid-template-columns: 1fr;
   }
+  
 }
