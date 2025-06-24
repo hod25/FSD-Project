@@ -82,6 +82,13 @@ export const updateUserProfile = async (
   });
   return response.data;
 };
+// Get user by ID 
+export const getUserById = async (userId: string): Promise<UserData> => {
+  const response = await axios.get<UserData>(`${USERS_API_URL}/${userId}`, {
+    withCredentials: true,
+  });
+  return response.data;
+};
 
 /**
  * Location-related Functions
@@ -120,3 +127,10 @@ export const getAreasByLocationId = async (locationId: string): Promise<AreaData
   );
   return response.data.areas;
 };
+
+
+
+
+
+
+
