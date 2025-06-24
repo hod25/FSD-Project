@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import styles from './page.module.css';
 import { FiUser, FiSave } from 'react-icons/fi';
 import { FaEnvelope, FaUserEdit } from 'react-icons/fa';
@@ -8,9 +8,10 @@ import { Typography } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { selectUserName } from '../../../store/slices/userSlice';
 import { getCurrentUser, updateUserProfile } from '../../../services/userService';
+import { getUserById } from '../../../services/userService';
 
 export default function Profile() {
-  const username = useSelector(selectUserName) || 'Guest';
+  const username = useSelector(selectUserName) || '';
   const userEmail = useSelector((state: any) => state.user.email);
   const userPhone = useSelector((state: any) => state.user.phone);
   const userid=useSelector((state: any) => state.user._id);
@@ -24,22 +25,25 @@ export default function Profile() {
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const data = await getCurrentUser();
-        setUser({
-          _id: data._id,
-          name: data.name || '',
-          email: data.email || '',
-          phone: data.phone || '',
-        });
-      } catch (err) {
-        console.error('Error loading user data:', err);
+
+useEffect(() => {
+  const fetchUserPhoneById = async () => {
+    try {
+      if (userid) {
+        const userData = await getUserById(userid);
+        setUser(prev => ({
+          ...prev,
+          phone: userData.phone || '',
+        }));
       }
-    };
-    fetchUser();
-  }, []);
+    } catch (err) {
+      console.error('Failed to fetch user phone:', err);
+    }
+  };
+
+  fetchUserPhoneById();
+}, [userid]);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUser({ ...user, [e.target.name]: e.target.value });
@@ -128,8 +132,8 @@ const handleSubmit = async (e: React.FormEvent) => {
         <FiUser size={72} color="#d18700" className={styles.loginIcon} />
       </div> */}
       <div className={styles.loginBox}>
-        <h2 className={styles.loginTitle}>Your Profile</h2>
-        <p className={styles.loginSubtitle}>View or update your account information</p>
+        <h2 className={styles.loginTitle}>My Profile</h2>
+        <p className={styles.loginSubtitle}>View or update account information</p>
         <form onSubmit={handleSubmit} className={styles.loginForm}>
           <div className={styles.formGroup}>
             <label className={styles.loginLabel}>
@@ -163,20 +167,20 @@ const handleSubmit = async (e: React.FormEvent) => {
               required
             />
           </div>
-          <div className={styles.formGroup}>
-            <label className={styles.loginLabel}>
-              Phone Number
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              value={userPhone}
-              onChange={handleChange}
-              className={styles.loginInput}
-              placeholder={userPhone || 'Phone Number'}
-              disabled={loading}
-            />
-          </div>
+        <div className={styles.formGroup}>
+  <label className={styles.loginLabel}>
+    Phone Number
+  </label>
+  <input
+    type="tel"
+    name="phone"
+    value={user.phone }
+    onChange={handleChange}
+    className={styles.loginInput}
+    placeholder="Phone Number"
+    disabled={loading}
+  />
+</div>
           <div className={styles.formGroup}>
             <label className={styles.loginLabel}>
               New Password
