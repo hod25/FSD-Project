@@ -120,6 +120,7 @@ export const getLocationNameById = async (
   }
 };
 
+// פונקציה שמחזירה את כל האזורים ששייכים ללוקיישן לפי ID (עם כל הפרטים)
 export const getAreaNamesByLocationId = async (
   req: Request,
   res: Response
