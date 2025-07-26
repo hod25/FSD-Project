@@ -13,7 +13,7 @@ import EventModel from "./models/Event";
 import authRoutes from "./routes/auth";
 import locationRoutes from "./routes/locations";
 import areaRoutes from "./routes/areas";
-import userRoutes from "./routes/auth";
+import userRoutes from "./routes/users";
 import eventRoutes from "./routes/event";
 import statsRoutes from "./routes/stats";
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
-import { getUserById, register, UserData } from "@/services/userService";
+import { getUserById, register, UserData,getUsersByLocation,deleteUser } from "@/services/userService";
 import styles from "./page.module.css";
 import { useSelector } from 'react-redux';
 
@@ -23,11 +23,32 @@ const UserManagementPage = () => {
 
   const userid = useSelector((state: any) => state.user._id);
 
+    
+const fetchUsersWithLocation = async (site_location?: string) => {
+  if (!site_location) {
+    console.error("❌ Site location is undefined");
+    setError("Current user has no site location");
+    setLoading(false);
+    return;
+  }
+
+  try {
+    const usersList = await getUsersByLocation(site_location);
+    setUsers(usersList);
+  } catch (err) {
+    console.error("❌ Failed to fetch users", err);
+    setError("Failed to fetch users");
+  } finally {
+    setLoading(false);
+  }
+};
+
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
         const fullUser = await getUserById(userid);
         setCurrentUser(fullUser);
+        await fetchUsersWithLocation(fullUser.site_location);
         // כאן תוכל להכניס גם fetchUsers() אם אתה רוצה למשוך את רשימת המשתמשים לפי אזור
       } catch (error) {
         console.error("❌ Failed to fetch current user", error);
@@ -40,9 +61,27 @@ const UserManagementPage = () => {
     }
   }, [userid]);
 
+
+
   const handleInputChange = (e: { target: { name: string; value: string } }) => {
     setNewUser({ ...newUser, [e.target.name]: e.target.value });
   };
+
+  const handleDeleteUser = async (userId: string) => {
+  try {
+    await deleteUser(userId);
+    if (currentUser?.site_location) {
+      await fetchUsersWithLocation(currentUser.site_location);
+    }
+    setSuccessMessage("User deleted successfully ✅");
+  } catch (err: any) {
+    console.error("❌ Failed to delete user", err);
+    setError(
+      err?.response?.data?.message || err?.message || "Failed to delete user"
+    );
+  }
+};
+
 
   const handleCreateUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -78,7 +117,7 @@ const UserManagementPage = () => {
         ...newUser,
         site_location: currentUser.site_location,
       });
-
+      await fetchUsersWithLocation(currentUser.site_location);
       setNewUser({ name: "", email: "", password: "", phone: "" });
       setSuccessMessage("User created successfully ✅");
     } catch (err: any) {
@@ -90,6 +129,16 @@ const UserManagementPage = () => {
       setError(message);
     }
   };
+
+    if (!loading && currentUser?.access_level === "viewer") {
+      return (
+        <div className={styles.userManagementContainer}>
+          <h2 className={styles.userTitle}>Access Denied</h2>
+          <p>You do not have permission to view this page.</p>
+        </div>
+      );
+    }
+
 
   return (
     <div className={styles.userManagementContainer}>
@@ -116,7 +165,14 @@ const UserManagementPage = () => {
                   <td>{user.email}</td>
                   <td>{user.access_level}</td>
                   <td>
-                    <button className={styles.deleteBtn}>
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() => {
+                          if (confirm("Are you sure you want to delete this user?")) {
+                            handleDeleteUser(user._id);
+                          }
+                        }}
+                    >
                       Delete
                     </button>
                   </td>
