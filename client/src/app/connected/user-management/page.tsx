@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
-import { getUserById, register, UserData,getUsersByLocation } from "@/services/userService";
+import { getUserById, register, UserData,getUsersByLocation,deleteUser } from "@/services/userService";
 import styles from "./page.module.css";
 import { useSelector } from 'react-redux';
 
@@ -67,6 +67,22 @@ const fetchUsersWithLocation = async (site_location?: string) => {
     setNewUser({ ...newUser, [e.target.name]: e.target.value });
   };
 
+  const handleDeleteUser = async (userId: string) => {
+  try {
+    await deleteUser(userId);
+    if (currentUser?.site_location) {
+      await fetchUsersWithLocation(currentUser.site_location);
+    }
+    setSuccessMessage("User deleted successfully ✅");
+  } catch (err: any) {
+    console.error("❌ Failed to delete user", err);
+    setError(
+      err?.response?.data?.message || err?.message || "Failed to delete user"
+    );
+  }
+};
+
+
   const handleCreateUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -114,6 +130,16 @@ const fetchUsersWithLocation = async (site_location?: string) => {
     }
   };
 
+    if (!loading && currentUser?.access_level === "viewer") {
+      return (
+        <div className={styles.userManagementContainer}>
+          <h2 className={styles.userTitle}>Access Denied</h2>
+          <p>You do not have permission to view this page.</p>
+        </div>
+      );
+    }
+
+
   return (
     <div className={styles.userManagementContainer}>
       <div className={styles.userBox}>
@@ -139,7 +165,14 @@ const fetchUsersWithLocation = async (site_location?: string) => {
                   <td>{user.email}</td>
                   <td>{user.access_level}</td>
                   <td>
-                    <button className={styles.deleteBtn}>
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() => {
+                          if (confirm("Are you sure you want to delete this user?")) {
+                            handleDeleteUser(user._id);
+                          }
+                        }}
+                    >
                       Delete
                     </button>
                   </td>
