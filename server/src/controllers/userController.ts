@@ -89,8 +89,19 @@ const getUsersBySiteLocation = async (req: Request, res: Response): Promise<void
   }
 };
 
+const deleteUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    await userModel.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "User deleted" });
+  } catch (error) {
+    console.error("❌ Failed to delete user", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 export default {
   updateProfile,
   getUserById,
-  getUsersBySiteLocation
+  getUsersBySiteLocation,
+  deleteUser,
 };

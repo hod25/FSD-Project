@@ -72,6 +72,11 @@ export const getCurrentUser = async (): Promise<UserData> => {
   return response.data;
 };
 
+
+export const deleteUser = async (userId: string) => {
+  await axios.delete(`${USERS_API_URL}/${userId}`);
+};
+
 // Update user profile
 export const updateUserProfile = async (
   userId: string,
