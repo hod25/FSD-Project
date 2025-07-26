@@ -149,6 +149,32 @@ export async function getEventsByDateStatus(filter: any) {
   return Object.values(map);
 }
 
+export const getViolationTimestamps = async (filters: any): Promise<string[]> => {
+  const query: any = {
+    no_hardhat_count: { $gt: 0 },
+  };
+  if (filters.locationIds?.length) {
+    query.site_location = { $in: filters.locationIds };
+  }
+
+  if (filters.areaIds?.length) {
+    query.area_location = { $in: filters.areaIds };
+  }
+
+  if (filters.startDate || filters.endDate) {
+    query.time_ = {};
+    if (filters.startDate) {
+      query.time_.$gte = new Date(filters.startDate);
+    }
+    if (filters.endDate) {
+      query.time_.$lte = new Date(filters.endDate);
+    }
+  }
+  const events = await EventModel.find(query).select("time_ -_id").lean();
+  return events.map((event) => new Date(event.time_).toISOString());
+};
+
+
 export async function getEventsByLocationStatus(filter: any) {
   const match = buildMatch(filter);
   const result = await EventModel.aggregate([

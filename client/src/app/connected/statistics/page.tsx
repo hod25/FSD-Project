@@ -17,6 +17,11 @@ import styles from './StatisticsPage.module.css';
 
 import { selectAreas } from '@/store/slices/areaSlice';
 import { exportToExcel } from './utils/excelExport';
+import dynamic from 'next/dynamic';
+
+const TimeOfDayChart = dynamic(() => import('./components/TimeOfDayChart'), {
+  ssr: false,
+});
 
 export type StatsFilters = {
   startDate?: string;
@@ -29,6 +34,7 @@ export type StatsResponse = {
   totalEvents: number;
   totalViolations: number;
   avgViolationsPerEvent: number;
+  violationTimestamps: string[]; 
 
   statusCounts: Record<string, number>;
 
@@ -123,7 +129,8 @@ export default function StatisticsPage() {
                 name: locationNameMap[item.locationId] || item.locationId,
               }))}
             />
-
+          <TimeOfDayChart timestamps={stats.violationTimestamps} />
+            
             <BarChartByArea
               data={stats.eventsByAreaStatus.map((item) => ({
                 ...item,
