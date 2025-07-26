@@ -9,6 +9,7 @@ import {
   getEventsByDateStatus,
   getEventsByLocationStatus,
   getEventsByAreaStatus,
+  getViolationTimestamps,
 } from "../utils/index";
 
 export const getNoHardHatStats = async (
@@ -28,6 +29,7 @@ export const getNoHardHatStats = async (
       eventsByDateStatus,
       eventsByLocationStatus,
       eventsByAreaStatus,
+      violationTimestamps,
     ] = await Promise.all([
       getTotalEvents(filters),
       getTotalViolations(filters),
@@ -38,6 +40,7 @@ export const getNoHardHatStats = async (
       getEventsByDateStatus(filters),
       getEventsByLocationStatus(filters),
       getEventsByAreaStatus(filters),
+      getViolationTimestamps(filters), 
     ]);
 
     const avgViolationsPerEvent =
@@ -54,6 +57,7 @@ export const getNoHardHatStats = async (
       eventsByDateStatus,
       eventsByLocationStatus,
       eventsByAreaStatus,
+      violationTimestamps,
     });
   } catch (error) {
     console.error("Error in getNoHardHatStats:", error);
