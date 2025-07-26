@@ -71,8 +71,26 @@ const getUserById = async (req: Request, res: Response): Promise<void> => {
 };
 
 
+const getUsersBySiteLocation = async (req: Request, res: Response): Promise<void> => {
+  const { site_location } = req.query;
+
+  try {
+    let users;
+    if (site_location) {
+      users = await userModel.find({ site_location });
+    } else {
+      users = await userModel.find(); // fallback to all users
+    }
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("❌ Failed to fetch users", error);
+    res.status(500).json({ message: "Failed to fetch users" });
+  }
+};
 
 export default {
   updateProfile,
-  getUserById
+  getUserById,
+  getUsersBySiteLocation
 };
