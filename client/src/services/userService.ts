@@ -120,6 +120,17 @@ export const getLocationById = async (locationId: string): Promise<LocationData>
   return response.data;
 };
 
+
+export const getUsersByLocation = async (site_location: string) => {
+  const response = await axios.get(`${USERS_API_URL}?site_location=${site_location}`);
+  return response.data;
+};
+
+export const getAllUsers = async () => {
+  const response = await axios.get(`${USERS_API_URL}`);
+  return response.data;
+};
+
 // Get all areas for a location
 export const getAreasByLocationId = async (locationId: string): Promise<AreaData[]> => {
   const response = await axios.get<{ areas: AreaData[] }>(

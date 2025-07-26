@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
-import { getUserById, register, UserData } from "@/services/userService";
+import { getUserById, register, UserData,getUsersByLocation } from "@/services/userService";
 import styles from "./page.module.css";
 import { useSelector } from 'react-redux';
 
@@ -23,11 +23,32 @@ const UserManagementPage = () => {
 
   const userid = useSelector((state: any) => state.user._id);
 
+    
+const fetchUsersWithLocation = async (site_location?: string) => {
+  if (!site_location) {
+    console.error("❌ Site location is undefined");
+    setError("Current user has no site location");
+    setLoading(false);
+    return;
+  }
+
+  try {
+    const usersList = await getUsersByLocation(site_location);
+    setUsers(usersList);
+  } catch (err) {
+    console.error("❌ Failed to fetch users", err);
+    setError("Failed to fetch users");
+  } finally {
+    setLoading(false);
+  }
+};
+
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
         const fullUser = await getUserById(userid);
         setCurrentUser(fullUser);
+        await fetchUsersWithLocation(fullUser.site_location);
         // כאן תוכל להכניס גם fetchUsers() אם אתה רוצה למשוך את רשימת המשתמשים לפי אזור
       } catch (error) {
         console.error("❌ Failed to fetch current user", error);
@@ -39,6 +60,8 @@ const UserManagementPage = () => {
       fetchCurrentUser();
     }
   }, [userid]);
+
+
 
   const handleInputChange = (e: { target: { name: string; value: string } }) => {
     setNewUser({ ...newUser, [e.target.name]: e.target.value });
@@ -78,7 +101,7 @@ const UserManagementPage = () => {
         ...newUser,
         site_location: currentUser.site_location,
       });
-
+      await fetchUsersWithLocation(currentUser.site_location);
       setNewUser({ name: "", email: "", password: "", phone: "" });
       setSuccessMessage("User created successfully ✅");
     } catch (err: any) {
