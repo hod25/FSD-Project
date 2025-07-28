@@ -72,6 +72,11 @@ export const getCurrentUser = async (): Promise<UserData> => {
   return response.data;
 };
 
+
+export const deleteUser = async (userId: string) => {
+  await axios.delete(`${USERS_API_URL}/${userId}`);
+};
+
 // Update user profile
 export const updateUserProfile = async (
   userId: string,
@@ -117,6 +122,17 @@ export const getLocationNameById = async (locationId: string): Promise<string> =
 // Get location details by ID
 export const getLocationById = async (locationId: string): Promise<LocationData> => {
   const response = await axios.get<LocationData>(`${LOCATIONS_API_URL}/${locationId}`);
+  return response.data;
+};
+
+
+export const getUsersByLocation = async (site_location: string) => {
+  const response = await axios.get(`${USERS_API_URL}?site_location=${site_location}`);
+  return response.data;
+};
+
+export const getAllUsers = async () => {
+  const response = await axios.get(`${USERS_API_URL}`);
   return response.data;
 };
 

@@ -26,6 +26,7 @@ export default function DrawerItems({ isCollapsed, onToggleCollapse }: DrawerIte
   const router = useRouter();
   const dispatch = useDispatch();
   const isAdmin = useSelector(selectIsAdmin);
+  const user = useSelector((state: any) => state.user);
 
   const handleLogout = async () => {
     try {
@@ -102,19 +103,17 @@ export default function DrawerItems({ isCollapsed, onToggleCollapse }: DrawerIte
             gap: 1,
           }}
         >
-          {menuItems.map((item) => (
+        {menuItems
+          .filter((item) => {
+            // Hide user-management for viewer role
+            if (item.id === "user-management" && user?.access_level === "viewer") {
+              return false;
+            }
+            return true;
+          })
+          .map((item) => (
             <DrawerListItem key={item.id} {...item} isCollapsed={isCollapsed} />
           ))}
-          {/* {isAdmin && (
-            <DrawerListItem
-              key="user-management"
-              id="user-management"
-              label="User Management"
-              path="/connected/user-management"
-              icon={Person}
-              isCollapsed={isCollapsed}
-            />
-          )} */}
         </List>
       </Box>
 
