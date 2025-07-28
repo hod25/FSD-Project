@@ -21,8 +21,12 @@ export default function EventsPage() {
   const [areaName, setAreaName] = useState<string>('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  // פילטרים - תאריך התחלה ותאריך סיום
+  const [filterStartDate, setFilterStartDate] = useState<string>(''); // פורמט yyyy-mm-dd
+  const [filterEndDate, setFilterEndDate] = useState<string>(''); // פורמט yyyy-mm-dd
+  const [filterStatus, setFilterStatus] = useState<'all' | 'Handled' | 'Not Handled'>('all');
+
   useEffect(() => {
-    // Reset state when area or site changes
     setEvents([]);
     setLoading(true);
     setError(null);
@@ -35,15 +39,29 @@ export default function EventsPage() {
           return;
         }
 
-        console.log(`Fetching events for site ${siteId} and area ${areaId}`);
         const allEvents = await fetchAllEvents();
-        console.log(`Total events fetched: ${allEvents.length}`);
 
-        // Filter only events for current site + area
-        const filtered = allEvents.filter(
+        // סינון לפי אתר ואז אזור
+        let filtered = allEvents.filter(
           (event) => event.site_location === siteId && event.area_location === areaId
         );
-        console.log(`Filtered events: ${filtered.length}`);
+
+        // סינון לפי סטטוס
+        if (filterStatus !== 'all') {
+          filtered = filtered.filter((event) => event.status === filterStatus);
+        }
+
+        // סינון לפי טווח תאריכים (אם קיים)
+        if (filterStartDate) {
+          const start = new Date(filterStartDate);
+          filtered = filtered.filter((event) => new Date(event.time_) >= start);
+        }
+        if (filterEndDate) {
+          const end = new Date(filterEndDate);
+          // כדי לכלול את כל היום, נשים 23:59:59 בסוף היום
+          end.setHours(23, 59, 59, 999);
+          filtered = filtered.filter((event) => new Date(event.time_) <= end);
+        }
 
         setEvents(filtered);
 
@@ -69,7 +87,7 @@ export default function EventsPage() {
     } else {
       setLoading(false);
     }
-  }, [siteId, areaId]);
+  }, [siteId, areaId, filterStartDate, filterEndDate, filterStatus]);
 
   const handleStatusChange = async (eventId: string) => {
     const eventToChange = events.find((event) => event._id === eventId);
@@ -88,14 +106,10 @@ export default function EventsPage() {
 
       if (result.isConfirmed) {
         try {
-          // קריאה ל-API עם eventId + status
           const updatedEvent = await updateEventStatus(eventToChange._id, 'Handled');
-
-          // עדכון רשימת האירועים
           setEvents((prevEvents) =>
             prevEvents.map((event) => (event._id === eventToChange._id ? updatedEvent : event))
           );
-
           Swal.fire({
             title: 'Closed!',
             text: 'The event was successfully closed.',
@@ -141,8 +155,11 @@ export default function EventsPage() {
         borderRadius: '12px',
         boxShadow: 'none',
         minHeight: 'calc(100vh - 100px)',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
+      {/* HEADER */}
       <header
         style={{
           borderBottom: '1px solid #e9ecef',
@@ -177,6 +194,177 @@ export default function EventsPage() {
         </div>
       </header>
 
+      {/* FILTERS - כולל טווח תאריכים */}
+      <section
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          gap: '20px',
+          marginBottom: '30px',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+        }}
+      >{/* תאריך התחלה */}
+<div style={{ flex: '1 1 200px', minWidth: '200px' }}>
+  <label
+    htmlFor="filter-start-date"
+    style={{
+      display: 'block',
+      fontWeight: '700',
+      fontSize: '18px',
+      color: '#1e293b',
+      marginBottom: '8px',
+    }}
+  >
+    Start Date
+  </label>
+  <div style={{ position: 'relative' }}>
+    <input
+      id="filter-start-date"
+      type="date"
+      value={filterStartDate}
+      onChange={(e) => setFilterStartDate(e.target.value)}
+      style={{
+        width: '100%',
+        padding: '12px 40px 12px 16px', // הוספתי paddingRight של 40px
+        fontSize: '16px',
+        fontWeight: '600',
+        borderRadius: '8px',
+        border: '1.5px solid #94a3b8',
+        color: '#334155',
+        cursor: 'pointer',
+      }}
+    />
+    {filterStartDate && (
+      <button
+        onClick={() => setFilterStartDate('')}
+        aria-label="Clear start date filter"
+        title="Clear start date filter"
+        style={{
+          position: 'absolute',
+          right: '10px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          backgroundColor: '#e11d48',
+          border: 'none',
+          borderRadius: '50%',
+          width: '24px',
+          height: '24px',
+          color: 'white',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 2px 8px rgba(225, 29, 72, 0.6)',
+        }}
+      >
+        ×
+      </button>
+    )}
+  </div>
+</div>
+
+{/* תאריך סיום */}
+<div style={{ flex: '1 1 200px', minWidth: '200px' }}>
+  <label
+    htmlFor="filter-end-date"
+    style={{
+      display: 'block',
+      fontWeight: '700',
+      fontSize: '18px',
+      color: '#1e293b',
+      marginBottom: '8px',
+    }}
+  >
+    End Date
+  </label>
+  <div style={{ position: 'relative' }}>
+    <input
+      id="filter-end-date"
+      type="date"
+      value={filterEndDate}
+      onChange={(e) => setFilterEndDate(e.target.value)}
+      style={{
+        width: '100%',
+        padding: '12px 40px 12px 16px', // גם פה paddingRight של 40px
+        fontSize: '16px',
+        fontWeight: '600',
+        borderRadius: '8px',
+        border: '1.5px solid #94a3b8',
+        color: '#334155',
+        cursor: 'pointer',
+      }}
+    />
+    {filterEndDate && (
+      <button
+        onClick={() => setFilterEndDate('')}
+        aria-label="Clear end date filter"
+        title="Clear end date filter"
+        style={{
+          position: 'absolute',
+          right: '10px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          backgroundColor: '#e11d48',
+          border: 'none',
+          borderRadius: '50%',
+          width: '24px',
+          height: '24px',
+          color: 'white',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 2px 8px rgba(225, 29, 72, 0.6)',
+        }}
+      >
+        ×
+      </button>
+    )}
+  </div>
+</div>
+
+
+        {/* סטטוס */}
+        <div style={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <label
+            htmlFor="filter-status"
+            style={{
+              display: 'block',
+              fontWeight: '700',
+              fontSize: '18px',
+              color: '#1e293b',
+              marginBottom: '8px',
+            }}
+          >
+            Filter by Status
+          </label>
+          <select
+            id="filter-status"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value as any)}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              fontSize: '16px',
+              fontWeight: '600',
+              borderRadius: '8px',
+              border: '1.5px solid #94a3b8',
+              color: '#334155',
+              cursor: 'pointer',
+              backgroundColor: 'white',
+            }}
+          >
+            <option value="all">All</option>
+            <option value="Handled">Handled</option>
+            <option value="Not Handled">Not Handled</option>
+          </select>
+        </div>
+      </section>
+
+      {/* תוכן האירועים */}
       {loading ? (
         <div
           style={{
@@ -360,28 +548,38 @@ export default function EventsPage() {
                     style={{
                       display: 'flex',
                       justifyContent: 'space-between',
-                      alignItems: 'flex-start',
+                      alignItems: 'center',
+                      marginBottom: '12px',
                     }}
                   >
-                    <h3
+                    <h2
                       style={{
-                        margin: '0 0 10px 0',
-                        fontSize: '16px',
-                        fontWeight: '500',
-                        color: '#0f172a',
-                        lineHeight: '1.5',
-                        letterSpacing: '-0.01em',
-                        flex: 1,
+                        fontSize: '18px',
+                        fontWeight: '700',
+                        margin: 0,
+                        color: '#1e293b',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
                       }}
                     >
                       {event.details}
-                    </h3>
+                      {/* תאריך ושעה מלאים ליד כותרת האירוע */}
+                      <span
+                        style={{
+                          fontSize: '12px',
+                          color: '#64748b',
+                          fontWeight: '500',
+                        }}
+                      >
+                      
+                      </span>
+                    </h2>
 
-                    {/* Moved status button here */}
                     <button
                       onClick={() => handleStatusChange(event._id)}
                       style={{
-                        backgroundColor: event.status === 'Handled' ? '#059669 ' : '#ef4444',
+                        backgroundColor: event.status === 'Handled' ? '#059669' : '#ef4444',
                         color: 'white',
                         border: 'none',
                         padding: '6px 14px',
