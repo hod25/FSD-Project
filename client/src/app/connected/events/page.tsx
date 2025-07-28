@@ -563,7 +563,7 @@ export default function EventsPage() {
                       }}
                     >
                       {event.details}
-                      {/* תאריך ושעה מלאים ליד כותרת האירוע */}
+                      {/* פרטים מלאים של האירוע */}
                       <span
                         style={{
                           fontSize: '12px',
