@@ -204,128 +204,128 @@ export default function EventsPage() {
           flexWrap: 'wrap',
           alignItems: 'center',
         }}
-      >{/* תאריך התחלה */}
-<div style={{ flex: '1 1 200px', minWidth: '200px' }}>
-  <label
-    htmlFor="filter-start-date"
-    style={{
-      display: 'block',
-      fontWeight: '700',
-      fontSize: '18px',
-      color: '#1e293b',
-      marginBottom: '8px',
-    }}
-  >
-    Start Date
-  </label>
-  <div style={{ position: 'relative' }}>
-    <input
-      id="filter-start-date"
-      type="date"
-      value={filterStartDate}
-      onChange={(e) => setFilterStartDate(e.target.value)}
-      style={{
-        width: '100%',
-        padding: '12px 40px 12px 16px', // הוספתי paddingRight של 40px
-        fontSize: '16px',
-        fontWeight: '600',
-        borderRadius: '8px',
-        border: '1.5px solid #94a3b8',
-        color: '#334155',
-        cursor: 'pointer',
-      }}
-    />
-    {filterStartDate && (
-      <button
-        onClick={() => setFilterStartDate('')}
-        aria-label="Clear start date filter"
-        title="Clear start date filter"
-        style={{
-          position: 'absolute',
-          right: '10px',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          backgroundColor: '#e11d48',
-          border: 'none',
-          borderRadius: '50%',
-          width: '24px',
-          height: '24px',
-          color: 'white',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 2px 8px rgba(225, 29, 72, 0.6)',
-        }}
       >
-        ×
-      </button>
-    )}
-  </div>
-</div>
+        {/* תאריך התחלה */}
+        <div style={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <label
+            htmlFor="filter-start-date"
+            style={{
+              display: 'block',
+              fontWeight: '700',
+              fontSize: '18px',
+              color: '#1e293b',
+              marginBottom: '8px',
+            }}
+          >
+            Start Date
+          </label>
+          <div style={{ position: 'relative' }}>
+            <input
+              id="filter-start-date"
+              type="date"
+              value={filterStartDate}
+              onChange={(e) => setFilterStartDate(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 40px 12px 16px', // הוספתי paddingRight של 40px
+                fontSize: '16px',
+                fontWeight: '600',
+                borderRadius: '8px',
+                border: '1.5px solid #94a3b8',
+                color: '#334155',
+                cursor: 'pointer',
+              }}
+            />
+            {filterStartDate && (
+              <button
+                onClick={() => setFilterStartDate('')}
+                aria-label="Clear start date filter"
+                title="Clear start date filter"
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  backgroundColor: '#e11d48',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '24px',
+                  height: '24px',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(225, 29, 72, 0.6)',
+                }}
+              >
+                ×
+              </button>
+            )}
+          </div>
+        </div>
 
-{/* תאריך סיום */}
-<div style={{ flex: '1 1 200px', minWidth: '200px' }}>
-  <label
-    htmlFor="filter-end-date"
-    style={{
-      display: 'block',
-      fontWeight: '700',
-      fontSize: '18px',
-      color: '#1e293b',
-      marginBottom: '8px',
-    }}
-  >
-    End Date
-  </label>
-  <div style={{ position: 'relative' }}>
-    <input
-      id="filter-end-date"
-      type="date"
-      value={filterEndDate}
-      onChange={(e) => setFilterEndDate(e.target.value)}
-      style={{
-        width: '100%',
-        padding: '12px 40px 12px 16px', // גם פה paddingRight של 40px
-        fontSize: '16px',
-        fontWeight: '600',
-        borderRadius: '8px',
-        border: '1.5px solid #94a3b8',
-        color: '#334155',
-        cursor: 'pointer',
-      }}
-    />
-    {filterEndDate && (
-      <button
-        onClick={() => setFilterEndDate('')}
-        aria-label="Clear end date filter"
-        title="Clear end date filter"
-        style={{
-          position: 'absolute',
-          right: '10px',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          backgroundColor: '#e11d48',
-          border: 'none',
-          borderRadius: '50%',
-          width: '24px',
-          height: '24px',
-          color: 'white',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 2px 8px rgba(225, 29, 72, 0.6)',
-        }}
-      >
-        ×
-      </button>
-    )}
-  </div>
-</div>
-
+        {/* תאריך סיום */}
+        <div style={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <label
+            htmlFor="filter-end-date"
+            style={{
+              display: 'block',
+              fontWeight: '700',
+              fontSize: '18px',
+              color: '#1e293b',
+              marginBottom: '8px',
+            }}
+          >
+            End Date
+          </label>
+          <div style={{ position: 'relative' }}>
+            <input
+              id="filter-end-date"
+              type="date"
+              value={filterEndDate}
+              onChange={(e) => setFilterEndDate(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 40px 12px 16px', // גם פה paddingRight של 40px
+                fontSize: '16px',
+                fontWeight: '600',
+                borderRadius: '8px',
+                border: '1.5px solid #94a3b8',
+                color: '#334155',
+                cursor: 'pointer',
+              }}
+            />
+            {filterEndDate && (
+              <button
+                onClick={() => setFilterEndDate('')}
+                aria-label="Clear end date filter"
+                title="Clear end date filter"
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  backgroundColor: '#e11d48',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '24px',
+                  height: '24px',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(225, 29, 72, 0.6)',
+                }}
+              >
+                ×
+              </button>
+            )}
+          </div>
+        </div>
 
         {/* סטטוס */}
         <div style={{ flex: '1 1 200px', minWidth: '200px' }}>
@@ -530,7 +530,6 @@ export default function EventsPage() {
                     {new Date(event.time_).toLocaleTimeString('en-US', {
                       hour: '2-digit',
                       minute: '2-digit',
-                      hour12: true,
                     })}
                   </div>
                 </div>
@@ -564,16 +563,14 @@ export default function EventsPage() {
                       }}
                     >
                       {event.details}
-                      {/* תאריך ושעה מלאים ליד כותרת האירוע */}
+                      {/* פרטים מלאים של האירוע */}
                       <span
                         style={{
                           fontSize: '12px',
                           color: '#64748b',
                           fontWeight: '500',
                         }}
-                      >
-                      
-                      </span>
+                      ></span>
                     </h2>
 
                     <button
@@ -659,6 +656,18 @@ export default function EventsPage() {
                         </>
                       )}
                     </button>
+                  </div>
+
+                  {/* הוספת המיקום (אתר + אזור) מתחת לכותרת */}
+                  <div
+                    style={{
+                      fontSize: '13px',
+                      color: '#64748b',
+                      fontWeight: '500',
+                      marginBottom: '10px',
+                    }}
+                  >
+                    Location: {siteName} / {areaName}
                   </div>
 
                   <div
