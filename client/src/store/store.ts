@@ -1,9 +1,33 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
-import storage from 'redux-persist/lib/storage'; // LocalStorage
 import userReducer from './slices/userSlice';
 import locationReducer from './slices/locationSlice';
 import areaReducer from './slices/areaSlice'; // Make sure to include areaReducer
+
+// Create a storage object that handles SSR properly
+const createNoopStorage = () => {
+  return {
+    getItem(_key: string) {
+      return Promise.resolve(null);
+    },
+    setItem(_key: string, value: any) {
+      return Promise.resolve(value);
+    },
+    removeItem(_key: string) {
+      return Promise.resolve();
+    },
+  };
+};
+
+// Use dynamic import to avoid SSR issues
+let storage: any;
+if (typeof window !== 'undefined') {
+  // Client-side: use localStorage
+  storage = require('redux-persist/lib/storage').default;
+} else {
+  // Server-side: use noop storage
+  storage = createNoopStorage();
+}
 
 // Redux Persist Configuration
 const userPersistConfig = {

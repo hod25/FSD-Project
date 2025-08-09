@@ -19,6 +19,13 @@
   margin-top: 2rem;
 }
 
+.chartGridWithRecent {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
 .chartContainer {
   background-color: white;
   border-radius: 12px;

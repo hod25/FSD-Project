@@ -12,16 +12,17 @@ import EventsOverTimeChart from './components/EventsOverTimeChart';
 import BarChartByLocation from './components/BarChartByLocation';
 import BarChartByArea from './components/BarChartByArea';
 import StatusPieChart from './components/StatusPieChart';
+import ViolationProbabilityChart from './components/ViolationProbabilityChart';
+import ViolationsByHourChart from './components/ViolationsByHourChart';
+import ViolationsByDayChart from './components/ViolationsByDayChart';
+import SeverityDistributionChart from './components/SeverityDistributionChart';
+import UserSummary from './components/UserSummary';
 
 import styles from './StatisticsPage.module.css';
 
 import { selectAreas } from '@/store/slices/areaSlice';
 import { exportToExcel } from './utils/excelExport';
 import dynamic from 'next/dynamic';
-
-const TimeOfDayChart = dynamic(() => import('./components/TimeOfDayChart'), {
-  ssr: false,
-});
 
 export type StatsFilters = {
   startDate?: string;
@@ -46,6 +47,18 @@ export type StatsResponse = {
 
   eventsByArea: { areaId: string; count: number }[];
   eventsByAreaStatus: { areaId: string; handled: number; unhandled: number }[];
+  
+  userAnalytics: { admin: number; viewer: number; supervisor: number; total: number };
+  
+  severityDistribution: Array<{ severity: string; count: number; percentage: number }>;
+  
+  violationProbability: {
+    hourlyData: Array<{ hour: number; count: number; percentage: number }>;
+    dailyData: Array<{ day: string; count: number; percentage: number }>;
+    peakHour: { hour: number; count: number; percentage: number };
+    peakDay: { day: string; count: number; percentage: number };
+    totalViolations: number;
+  };
 };
 
 export default function StatisticsPage() {
@@ -74,7 +87,7 @@ export default function StatisticsPage() {
         payload,
         { withCredentials: true }
       );
-
+      
       setStats(res.data);
     } catch (err) {
       console.error('Failed to fetch stats', err);
@@ -129,7 +142,6 @@ export default function StatisticsPage() {
                 name: locationNameMap[item.locationId] || item.locationId,
               }))}
             />
-          <TimeOfDayChart timestamps={stats.violationTimestamps} />
             
             <BarChartByArea
               data={stats.eventsByAreaStatus.map((item) => ({
@@ -137,6 +149,22 @@ export default function StatisticsPage() {
                 name: areaNameMap[item.areaId] || item.areaId,
               }))}
             />
+            
+            <ViolationsByHourChart data={stats.violationProbability?.hourlyData || []} />
+            <ViolationsByDayChart data={stats.violationProbability?.dailyData || []} />
+            <SeverityDistributionChart data={stats.severityDistribution || [
+              { severity: "1 Person", count: 0, percentage: 0 },
+              { severity: "2 People", count: 0, percentage: 0 },
+              { severity: "3 People", count: 0, percentage: 0 },
+              { severity: "4+ People", count: 0, percentage: 0 }
+            ]} />
+          </div>
+          
+
+          
+          <div className={styles.chartGrid}>
+            <UserSummary userAnalytics={stats.userAnalytics || { admin: 0, viewer: 0, supervisor: 0, total: 0 }} />
+            <ViolationProbabilityChart data={stats.violationProbability || { hourlyData: [], dailyData: [], peakHour: { hour: 0, count: 0, percentage: 0 }, peakDay: { day: '', count: 0, percentage: 0 }, totalViolations: 0 }} />
           </div>
         </>
       )}

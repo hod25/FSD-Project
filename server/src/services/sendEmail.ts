@@ -12,7 +12,8 @@ export async function sendEmail(to: string, message: string): Promise<void> {
   await transporter.sendMail({
     from: process.env.EMAIL_USER,
     to,
-    subject: 'New Event Alert Detected',
-    text: message,
+    subject: '🚨 New Safety Event Alert - ProSafe',
+    html: message,
+    text: message.replace(/<[^>]*>/g, ''), // Strip HTML for text fallback
   });
 }
