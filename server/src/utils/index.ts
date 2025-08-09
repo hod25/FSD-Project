@@ -1,5 +1,6 @@
 import EventModel from "../models/Event";
 import AreaModel from "../models/Area";
+import UserModel from "../models/User";
 
 function normalizeStatus(status: string) {
   return status?.toLowerCase()?.replace(/\s/g, "") || "";
@@ -222,4 +223,218 @@ export async function getEventsByAreaStatus(filter: any) {
   });
 
   return Object.values(map);
+}
+
+
+
+export async function getUserAnalytics(filter: any) {
+  console.log('🔍 getUserAnalytics called with filter:', filter);
+  
+  const { startDate, endDate, locationIds } = filter;
+  const match: any = {};
+
+  // Only apply filters if they are actually provided
+  if (startDate || endDate) {
+    match.createdAt = {};
+    if (startDate) match.createdAt.$gte = new Date(startDate);
+    if (endDate) match.createdAt.$lte = new Date(endDate);
+  }
+
+  if (locationIds && locationIds.length > 0) {
+    match.site_location = { $in: locationIds };
+  }
+
+  console.log('🔍 Match criteria:', match);
+
+  // Get all users with the applied filters
+  const allUsers = await UserModel.find(match).lean();
+  console.log('🔍 Users found with filters:', allUsers.length);
+  
+  const userCounts = {
+    admin: 0,
+    viewer: 0,
+    supervisor: 0,
+    total: 0
+  };
+  
+  allUsers.forEach(user => {
+    const accessLevel = user.access_level || 'viewer';
+    console.log('🔍 User:', user.name, 'access_level:', accessLevel);
+    if (userCounts.hasOwnProperty(accessLevel)) {
+      userCounts[accessLevel as keyof typeof userCounts]++;
+    } else {
+      userCounts.viewer++;
+    }
+    userCounts.total++;
+  });
+  
+  console.log('🔍 Final userCounts:', userCounts);
+  return userCounts;
+}
+
+export async function getUserGrowthOverTime(filter: any) {
+  const { startDate, endDate, locationIds } = filter;
+  const match: any = {};
+
+  if (startDate || endDate) {
+    match.createdAt = {};
+    if (startDate) match.createdAt.$gte = new Date(startDate);
+    if (endDate) match.createdAt.$lte = new Date(endDate);
+  }
+
+  if (locationIds?.length) {
+    match.site_location = { $in: locationIds };
+  }
+
+  // First, let's get all users with their creation dates
+  const allUsers = await UserModel.find(match).select('createdAt access_level').lean();
+  
+  if (allUsers.length === 0) {
+    return [];
+  }
+
+  // Group users by date and access level
+  const userGroups: Record<string, any> = {};
+  
+  allUsers.forEach(user => {
+    const date = user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+    const accessLevel = user.access_level || 'viewer';
+    
+    if (!userGroups[date]) {
+      userGroups[date] = { date, admin: 0, viewer: 0, supervisor: 0, total: 0 };
+    }
+    
+    userGroups[date][accessLevel]++;
+    userGroups[date].total++;
+  });
+
+  // Convert to array and sort by date
+  const result = Object.values(userGroups).sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  
+  return result;
+}
+
+export async function getSeverityDistribution(filter: any) {
+  try {
+    const match = buildMatch(filter);
+    
+    // Get violations grouped by no_hardhat_count
+    const severityViolations = await EventModel.aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: "$no_hardhat_count",
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // Calculate total violations for percentage calculation
+    const totalViolations = await EventModel.countDocuments(match);
+
+    // Define severity categories
+    const severityCategories = [
+      { min: 1, max: 1, label: "1 Person" },
+      { min: 2, max: 2, label: "2 People" },
+      { min: 3, max: 3, label: "3 People" },
+      { min: 4, max: Infinity, label: "4+ People" }
+    ];
+
+    // Group violations by severity categories
+    const severityDistribution = severityCategories.map(category => {
+      const count = severityViolations
+        .filter(v => {
+          const hardhatCount = Number(v._id);
+          return hardhatCount >= category.min && hardhatCount <= category.max;
+        })
+        .reduce((sum, v) => sum + v.count, 0);
+      
+      return {
+        severity: category.label,
+        count: count,
+        percentage: totalViolations > 0 ? Math.round((count / totalViolations) * 100) : 0
+      };
+    });
+
+    return severityDistribution;
+  } catch (error) {
+    console.error('Error in getSeverityDistribution:', error);
+    // Return default structure on error
+    return [
+      { severity: "1 Person", count: 0, percentage: 0 },
+      { severity: "2 People", count: 0, percentage: 0 },
+      { severity: "3 People", count: 0, percentage: 0 },
+      { severity: "4+ People", count: 0, percentage: 0 }
+    ];
+  }
+}
+
+export async function getViolationProbability(filter: any) {
+  const match = buildMatch(filter);
+  
+  // Get violations by hour of day
+  const hourlyViolations = await EventModel.aggregate([
+    { $match: match },
+    {
+      $group: {
+        _id: { $hour: "$time_" },
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { _id: 1 } }
+  ]);
+
+  // Get violations by day of week
+  const dailyViolations = await EventModel.aggregate([
+    { $match: match },
+    {
+      $group: {
+        _id: { $dayOfWeek: "$time_" },
+        count: { $sum: 1 }
+      }
+    },
+    { $sort: { _id: 1 } }
+  ]);
+
+  // Calculate total violations for percentage calculation
+  const totalViolations = await EventModel.countDocuments(match);
+
+  // Process hourly data
+  const hourlyData = Array.from({ length: 24 }, (_, hour) => {
+    const hourData = hourlyViolations.find(h => h._id === hour);
+    return {
+      hour: hour,
+      count: hourData?.count || 0,
+      percentage: totalViolations > 0 ? Math.round((hourData?.count || 0) / totalViolations * 100) : 0
+    };
+  });
+
+  // Process daily data
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dailyData = Array.from({ length: 7 }, (_, dayIndex) => {
+    const dayData = dailyViolations.find(d => d._id === dayIndex + 1); // MongoDB dayOfWeek is 1-7
+    return {
+      day: dayNames[dayIndex],
+      count: dayData?.count || 0,
+      percentage: totalViolations > 0 ? Math.round((dayData?.count || 0) / totalViolations * 100) : 0
+    };
+  });
+
+  // Find peak hours and days
+  const peakHour = hourlyData.reduce((max, current) => 
+    current.count > max.count ? current : max
+  );
+  
+  const peakDay = dailyData.reduce((max, current) => 
+    current.count > max.count ? current : max
+  );
+
+  return {
+    hourlyData,
+    dailyData,
+    peakHour,
+    peakDay,
+    totalViolations
+  };
 }

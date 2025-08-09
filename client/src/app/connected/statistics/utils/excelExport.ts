@@ -253,6 +253,37 @@ export async function exportToExcel(
     rowIndex++;
   });
 
+  // Severity Distribution Section
+  worksheet.addRow([]);
+  const severityHeaderRow = worksheet.addRow(['', 'Violation Severity Distribution']);
+  applyStyleToRow(severityHeaderRow, headerStyle);
+  worksheet.mergeCells(`B${severityHeaderRow.number}:E${severityHeaderRow.number}`);
+
+  // Severity table headers
+  const severityTableHeaders = worksheet.addRow(['', 'Severity', 'Count', 'Percentage']);
+  applyStyleToRow(severityTableHeaders, subheaderStyle);
+
+  // Severity data rows
+  rowIndex = 0;
+  stats.severityDistribution?.forEach((item) => {
+    const row = worksheet.addRow(['', item.severity, item.count, item.percentage]);
+
+    // Apply alternating row styles
+    const rowColor = rowIndex % 2 === 0 ? 'F5F5F5' : 'FFFFFF';
+    applyAlternatingRowStyle(row, rowColor, tableCellStyle);
+
+    // Format number cells
+    const countCell = row.getCell(3);
+    countCell.numFmt = integerFormat;
+    countCell.alignment = { horizontal: 'right', vertical: 'middle' };
+
+    const percentageCell = row.getCell(4);
+    percentageCell.numFmt = '0.0%';
+    percentageCell.alignment = { horizontal: 'right', vertical: 'middle' };
+
+    rowIndex++;
+  });
+
   // Set column widths for better readability
   worksheet.getColumn(1).width = 5; // Margin
   worksheet.getColumn(2).width = 30; // Names/labels
