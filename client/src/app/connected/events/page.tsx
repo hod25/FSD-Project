@@ -76,7 +76,7 @@ export default function EventsPage() {
         }
       } catch (err) {
         console.error('❌ Failed to load events:', err);
-        setError('Failed to load events. Please try again later.');
+        setError('Failed to load events, Please select an area.');
       } finally {
         setLoading(false);
       }
