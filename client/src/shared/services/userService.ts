@@ -143,10 +143,3 @@ export const getAreasByLocationId = async (locationId: string): Promise<AreaData
   );
   return response.data.areas;
 };
-
-
-
-
-
-
-

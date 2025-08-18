@@ -11,9 +11,9 @@ import EventModel from "./models/Event";
 
 // Routes
 import authRoutes from "./routes/auth";
+import usersRoutes from "./routes/users";
 import locationRoutes from "./routes/locations";
 import areaRoutes from "./routes/areas";
-import userRoutes from "./routes/users";
 import eventRoutes from "./routes/event";
 import statsRoutes from "./routes/stats";
 
@@ -51,12 +51,11 @@ const upload = multer({ storage });
 
 // ===== Routes =====
 app.use("/api/auth", authRoutes);
+app.use("/api/users", usersRoutes);
 app.use("/api/locations", locationRoutes);
 app.use("/api/areas", areaRoutes);
-app.use("/api/users", userRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/stats", statsRoutes);
-
 // ===== Home =====
 app.get("/", (_req, res) => {
   res.send("📡 ProSafe backend is running");

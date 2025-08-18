@@ -7,8 +7,5 @@ router.put("/:id", userController.updateProfile);
 // שליפת פרטי משתמש לפי ID
 router.get("/:id", userController.getUserById); 
 
-router.get("/", userController.getUsersBySiteLocation);
-
-router.delete("/:id", userController.deleteUser);
 
 export default router;

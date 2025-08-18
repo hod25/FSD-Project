@@ -21,6 +21,8 @@ startEventWatcher();
 const PORT = process.env.PORT || 5000;
 let serverInstance: http.Server;
 
+
+
 connectToDB().then(() => {
   serverInstance = server.listen(PORT, () => {
     console.log(`🚀 ProSafe server + WebSocket running at http://localhost:${PORT}`);
