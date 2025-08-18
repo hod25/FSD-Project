@@ -344,6 +344,7 @@ export default function EventsPage() {
           <select
             id="filter-status"
             value={filterStatus}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onChange={(e) => setFilterStatus(e.target.value as any)}
             style={{
               width: '100%',

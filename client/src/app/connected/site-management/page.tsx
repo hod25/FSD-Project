@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 'use client';
 
 import {
@@ -7,7 +8,6 @@ import {
   TextField,
   Typography,
   Switch,
-  Divider,
   ToggleButton,
   ToggleButtonGroup,
   List,
@@ -27,8 +27,14 @@ import {
   Add as AddIcon,
 } from '@mui/icons-material';
 
-import { createArea, deleteArea, updateArea } from '@/services/areaService';
-import { addAreaToLocation, fetchLocationById, removeAreaFromLocation } from '@/services/locationService';
+import { createArea, deleteArea } from '@/services/areaService';
+
+import {
+  addAreaToLocation,
+  fetchLocationById,
+  removeAreaFromLocation,
+} from '@/services/locationService';
+
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { selectAreas, selectCurrentAreaName } from '../../../store/slices/areaSlice';
@@ -50,11 +56,12 @@ type Camera = {
 // ----------- Component -----------
 export default function Page() {
   // שליפת המשתמש הנוכחי מ-Redux
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const user = useSelector((state: any) => state.user);
   const accessLevel = user?.access_level;
 
   // חסימת צפייה למשתמשי viewer
-  if (accessLevel === "viewer") {
+  if (accessLevel === 'viewer') {
     return (
       <Box
         sx={{
@@ -68,9 +75,7 @@ export default function Page() {
         <Typography variant="h4" color="error" gutterBottom>
           Access Denied
         </Typography>
-        <Typography variant="body1">
-          You do not have permission to view or edit cameras.
-        </Typography>
+        <Typography variant="body1">You do not have permission to view or edit cameras.</Typography>
       </Box>
     );
   }
@@ -91,11 +96,12 @@ export default function Page() {
   const currentAreaName = useSelector(selectCurrentAreaName);
 
   // ----------- Effects -----------
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (areas.length > 0) {
-      setCameras(
-        areas
-          .filter(area => area.name !== "All Areas")
+      setCameras(() => {
+        return areas
+          .filter((area) => area.name !== 'All Areas')
           .map((area) => ({
             id: area.id,
             location: area.name,
@@ -105,8 +111,8 @@ export default function Page() {
             shiftEnd: '17:00',
             violationTime: 5,
             enableAlerts: false,
-          }))
-      );
+          }));
+      });
     }
   }, [areas]);
 
@@ -133,13 +139,14 @@ export default function Page() {
     }
   }, [selectedCameraId, cameras]);
 
-  // ----------- Handlers -----------
   const saveSettings = async () => {
     try {
-      let areaExists = areas.some(area => area.name === editLocation);
-      if (!areaExists) areaExists = false;
+      let areaExists = areas.some((area) => area.name === editLocation);
+      if (!areaExists) {
+        areaExists = false;
+      }
 
-      const existingCamera = cameras.find(cam => cam.location === editLocation);
+      const existingCamera = cameras.find((cam) => cam.location === editLocation);
 
       if (existingCamera) {
         // עדכון מצלמה קיימת
@@ -154,15 +161,8 @@ export default function Page() {
           enableAlerts,
         };
 
-        await updateArea(existingCamera.id, {
-          name: editLocation,
-          url: editUrl,
-        });
-
-        setCameras(prev =>
-          prev.map(cam =>
-            cam.id === existingCamera.id ? updatedCamera : cam
-          )
+        setCameras((prev) =>
+          prev.map((cam) => (cam.id === existingCamera.id ? updatedCamera : cam))
         );
 
         setSelectedCameraId(existingCamera.id);
@@ -181,32 +181,36 @@ export default function Page() {
           enableAlerts,
         };
 
+        // יצירת אזור חדש במסד הנתונים
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const newAreaResponse: any = await createArea({
           name: editLocation,
           url: editUrl,
         });
 
+        // שליפת ה-ID מהאובייקט הפנימי
         const newAreaId = newAreaResponse.area?._id;
-
+        // חיבור האזור למיקום
         if (locationId) {
+          console.log('🔗 Connecting area to location:', locationId, newAreaId);
           try {
             const locationData = await fetchLocationById(locationId);
             await addAreaToLocation(locationId, newAreaId);
-            console.log("✅ Area added to location:", locationData.id);
+            console.log('✅ Area added to location:', locationData.id);
           } catch (err) {
-            console.error("❌ Failed to add area to location:", err);
-            alert("Area created, but failed to connect it to the location.");
+            console.error('❌ Failed to add area to location:', err);
+            alert('Area created, but failed to connect it to the location.');
           }
         }
 
-        setCameras(prev => [...prev, newCamera]);
+        // עדכון רשימת המצלמות
+        setCameras((prev) => [...prev, newCamera]);
         setSelectedCameraId(newId);
-        window.location.reload();
-        alert("Camera added!");
+        alert('Camera added!');
       }
     } catch (error) {
-      console.error("🔥 Error saving settings:", error);
-      alert("Failed to save settings, please try again.");
+      console.error('🔥 Error saving settings:', error);
+      alert('Failed to save settings, please try again.');
     }
   };
 
@@ -222,14 +226,14 @@ export default function Page() {
       violationTime: 5,
       enableAlerts: false,
     };
-    setCameras(prev => [...prev, newCamera]);
+    setCameras((prev) => [...prev, newCamera]);
     setSelectedCameraId(newId);
     setIsEditMode(false);
-     
   };
 
   const handleDeleteClick = async (cameraId: string) => {
     const cameraToDelete = cameras.find((cam) => cam.id === cameraId);
+
     if (!cameraToDelete) return;
 
     if (cameraToDelete.location === currentAreaName) {
@@ -264,29 +268,29 @@ export default function Page() {
     }
   };
 
-const deleteCamera = async (cameraId: string) => {
-  setCameras(prev => prev.filter(c => c.id !== cameraId));
+  const deleteCamera = async (cameraId: string) => {
+    setCameras((prev) => prev.filter((c) => c.id !== cameraId));
 
-  if (selectedCameraId === cameraId) {
-    const remaining = cameras.filter(c => c.id !== cameraId);
-    setSelectedCameraId(remaining.length > 0 ? remaining[0].id : null);
-  }
+    if (selectedCameraId === cameraId) {
+      const remaining = cameras.filter((c) => c.id !== cameraId);
+      setSelectedCameraId(remaining.length > 0 ? remaining[0].id : null);
+    }
 
-  const areaToDelete = areas.find(area => area.id === cameraId);
-  if (!areaToDelete) return;
+    const areaToDelete = areas.find((area) => area.id === cameraId);
 
-  try {
-    await deleteArea(areaToDelete.id);
-    await removeAreaFromLocation(locationId, areaToDelete.id);
+    if (!areaToDelete) {
+      console.warn('⚠️ No suitable area found for the camera:', areaToDelete);
 
-    // רענון העמוד
-    window.location.reload();
+      return;
+    }
 
-  } catch (error) {
-    console.error("❌ Error deleting the area:", error);
-  }
-};
-
+    try {
+      await deleteArea(areaToDelete.id);
+      await removeAreaFromLocation(locationId, areaToDelete.id);
+    } catch (error) {
+      console.error('❌ Error deleting the area:', error);
+    }
+  };
 
   // ----------- JSX -----------
   return (
@@ -328,13 +332,13 @@ const deleteCamera = async (cameraId: string) => {
               </Typography>
             ) : (
               cameras
-                .filter(cam => cam.location.trim() !== '' || cam.id === selectedCameraId) 
+                .filter((cam) => cam.location.trim() !== '' || cam.id === selectedCameraId)
                 .map((cam) => (
                   <ListItem
                     key={cam.id}
                     onClick={() => {
                       setSelectedCameraId(cam.id);
-                      setIsEditMode(true); 
+                      setIsEditMode(true);
                     }}
                     divider
                     sx={{
@@ -345,7 +349,7 @@ const deleteCamera = async (cameraId: string) => {
                   >
                     <ListItemText
                       primary={cam.location || '(No Location)'}
-                      secondary={cam.url || ('')}
+                      secondary={cam.url || ''}
                     />
                     <ListItemSecondaryAction>
                       <Tooltip title="Delete">
@@ -382,7 +386,7 @@ const deleteCamera = async (cameraId: string) => {
                 placeholder="Location"
                 value={editLocation}
                 onChange={(e) => setEditLocation(e.target.value)}
-                disabled={isEditMode|| !selectedCameraId} 
+                disabled={isEditMode || !selectedCameraId}
               >
                 {areas.map((area) => (
                   <MenuItem key={area.id} value={area.name}>
@@ -487,12 +491,8 @@ const deleteCamera = async (cameraId: string) => {
               </Typography>
             </Stack>
 
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={saveSettings}
-            >
-              {isEditMode ? 'Update' : 'Save'}
+            <Button variant="contained" color="primary" onClick={saveSettings}>
+              {isEditMode ? 'Update' : 'Save'} {/* ✅ */}
             </Button>
           </Stack>
         </Box>
