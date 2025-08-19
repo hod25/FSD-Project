@@ -46,11 +46,7 @@ type Camera = {
   id: string;
   location: string;
   url: string;
-  workDays: string[];
-  shiftStart: string;
-  shiftEnd: string;
-  violationTime: number;
-  enableAlerts: boolean;
+
 };
 
 // ----------- Component -----------
@@ -88,11 +84,6 @@ export default function Page() {
   const areas = useSelector(selectAreas) || [];
   const [editLocation, setEditLocation] = useState('');
   const [editUrl, setEditUrl] = useState('');
-  const [workDays, setWorkDays] = useState<string[]>([]);
-  const [shiftStart, setShiftStart] = useState('08:00');
-  const [shiftEnd, setShiftEnd] = useState('17:00');
-  const [violationTime, setViolationTime] = useState(5);
-  const [enableAlerts, setEnableAlerts] = useState(false);
   const currentAreaName = useSelector(selectCurrentAreaName);
 
   // ----------- Effects -----------
@@ -106,11 +97,7 @@ export default function Page() {
             id: area.id,
             location: area.name,
             url: area.url,
-            workDays: [],
-            shiftStart: '08:00',
-            shiftEnd: '17:00',
-            violationTime: 5,
-            enableAlerts: false,
+       
           }));
       });
     }
@@ -122,20 +109,12 @@ export default function Page() {
       if (cam) {
         setEditLocation(cam.location);
         setEditUrl(cam.url);
-        setWorkDays(cam.workDays);
-        setShiftStart(cam.shiftStart);
-        setShiftEnd(cam.shiftEnd);
-        setViolationTime(cam.violationTime);
-        setEnableAlerts(cam.enableAlerts);
+     
       }
     } else {
       setEditLocation('');
       setEditUrl('');
-      setWorkDays([]);
-      setShiftStart('08:00');
-      setShiftEnd('17:00');
-      setViolationTime(5);
-      setEnableAlerts(false);
+  
     }
   }, [selectedCameraId, cameras]);
 
@@ -154,11 +133,7 @@ export default function Page() {
           ...existingCamera,
           location: editLocation,
           url: editUrl,
-          workDays,
-          shiftStart,
-          shiftEnd,
-          violationTime,
-          enableAlerts,
+  
         };
 
         setCameras((prev) =>
@@ -174,11 +149,7 @@ export default function Page() {
           id: newId,
           location: editLocation,
           url: editUrl,
-          workDays,
-          shiftStart,
-          shiftEnd,
-          violationTime,
-          enableAlerts,
+    
         };
 
         // יצירת אזור חדש במסד הנתונים
@@ -206,6 +177,7 @@ export default function Page() {
         // עדכון רשימת המצלמות
         setCameras((prev) => [...prev, newCamera]);
         setSelectedCameraId(newId);
+        window.location.reload();
         alert('Camera added!');
       }
     } catch (error) {
@@ -220,11 +192,7 @@ export default function Page() {
       id: newId,
       location: '',
       url: '',
-      workDays: [],
-      shiftStart: '08:00',
-      shiftEnd: '17:00',
-      violationTime: 5,
-      enableAlerts: false,
+    
     };
     setCameras((prev) => [...prev, newCamera]);
     setSelectedCameraId(newId);
@@ -287,6 +255,7 @@ export default function Page() {
     try {
       await deleteArea(areaToDelete.id);
       await removeAreaFromLocation(locationId, areaToDelete.id);
+      window.location.reload();
     } catch (error) {
       console.error('❌ Error deleting the area:', error);
     }
@@ -413,84 +382,7 @@ export default function Page() {
               />
             </Stack>
 
-            <Stack spacing={1}>
-              <Typography variant="subtitle2" color="text.secondary">
-                Work Days
-              </Typography>
-            </Stack>
-            <ToggleButtonGroup
-              value={workDays}
-              onChange={(_, newDays) => {
-                if (newDays !== null) setWorkDays(newDays);
-              }}
-              aria-label="work days"
-              size="medium"
-              fullWidth
-              disabled={selectedCameraId === null}
-            >
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                <ToggleButton
-                  key={day}
-                  value={day}
-                  sx={{
-                    backgroundColor: workDays.includes(day) ? '#FFA726 !important' : 'transparent',
-                    color: workDays.includes(day) ? '#fff' : '#000',
-                    '&:hover': {
-                      backgroundColor: workDays.includes(day) ? '#FB8C00 !important' : '#eee',
-                    },
-                  }}
-                >
-                  {day}
-                </ToggleButton>
-              ))}
-            </ToggleButtonGroup>
-
-            <Stack direction="row" spacing={2} alignItems="center">
-              <TextField
-                label="Shift Start"
-                type="time"
-                value={shiftStart}
-                onChange={(e) => setShiftStart(e.target.value)}
-                disabled={!selectedCameraId}
-                InputLabelProps={{ shrink: true }}
-                inputProps={{ step: 300 }}
-              />
-              <TextField
-                label="Shift End"
-                type="time"
-                value={shiftEnd}
-                onChange={(e) => setShiftEnd(e.target.value)}
-                disabled={!selectedCameraId}
-                InputLabelProps={{ shrink: true }}
-                inputProps={{ step: 300 }}
-              />
-            </Stack>
-
-            <Stack spacing={1}>
-              <Typography variant="subtitle2" color="text.secondary">
-                Violation Time (minutes)
-              </Typography>
-              <TextField
-                type="number"
-                value={violationTime}
-                onChange={(e) => setViolationTime(Number(e.target.value))}
-                disabled={!selectedCameraId}
-                inputProps={{ min: 1, max: 60 }}
-              />
-            </Stack>
-
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Switch
-                checked={enableAlerts}
-                onChange={(e) => setEnableAlerts(e.target.checked)}
-                disabled={!selectedCameraId}
-                color="primary"
-              />
-              <Typography variant="subtitle2" color="text.secondary">
-                Enable Alerts
-              </Typography>
-            </Stack>
-
+            
             <Button variant="contained" color="primary" onClick={saveSettings}>
               {isEditMode ? 'Update' : 'Save'} {/* ✅ */}
             </Button>
