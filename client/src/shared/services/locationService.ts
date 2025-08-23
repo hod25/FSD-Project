@@ -100,7 +100,3 @@ export const removeAreaFromLocation = async (
   return response.data;
 };
 
-<<<<<<< HEAD:client/src/shared/services/locationService.ts
-
-=======
->>>>>>> f60cc7d (stablize system):client/src/services/locationService.ts

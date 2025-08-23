@@ -20,11 +20,6 @@ startEventWatcher();
 // הפעלת השרת רק אחרי התחברות למונגו
 const PORT = process.env.PORT || 5000;
 let serverInstance: http.Server;
-<<<<<<< HEAD
-
-
-=======
->>>>>>> f60cc7d (stablize system)
 
 connectToDB().then(() => {
   serverInstance = server.listen(PORT, () => {
@@ -66,8 +61,4 @@ process.on('uncaughtException', (error) => {
 process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
   gracefulShutdown('unhandledRejection');
-<<<<<<< HEAD
 });
-=======
-});
->>>>>>> f60cc7d (stablize system)
