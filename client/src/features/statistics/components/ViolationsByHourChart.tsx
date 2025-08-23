@@ -63,4 +63,8 @@ const ViolationsByHourChart: React.FC<ViolationsByHourChartProps> = ({ data }) =
   );
 };
 
+<<<<<<< HEAD:client/src/features/statistics/components/ViolationsByHourChart.tsx
 export default ViolationsByHourChart;
+=======
+export default ViolationsByHourChart;
+>>>>>>> f60cc7d (stablize system):client/src/app/connected/statistics/components/ViolationsByHourChart.tsx

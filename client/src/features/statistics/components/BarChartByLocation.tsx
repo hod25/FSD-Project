@@ -1,27 +1,29 @@
-// components/BarChartByLocation.tsx
+'use client';
+
 import {
   BarChart,
   Bar,
-  CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
+  CartesianGrid,
   ResponsiveContainer,
   Legend,
 } from 'recharts';
 import styles from '../StatisticsPage.module.css'; // Assuming shared styles
 
-type LocationData = {
-  locationId: string;
+// components/BarChartByArea.tsx
+type AreaData = {
+  areaId: string;
   handled: number;
   unhandled: number;
   name: string; // 🆕
 };
 
-export default function BarChartByLocation({ data }: { data: LocationData[] }) {
+export default function BarChartByArea({ data }: { data: AreaData[] }) {
   return (
     <div className={styles.chartContainer}>
-      <h3>Events by Location</h3>
+      <h3>Events by Area</h3>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data}>
           <CartesianGrid stroke="#ccc" />

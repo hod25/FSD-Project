@@ -7,6 +7,7 @@ import areaReducer from './slices/areaSlice'; // Make sure to include areaReduce
 // Create a storage object that handles SSR properly
 const createNoopStorage = () => {
   return {
+<<<<<<< HEAD:client/src/shared/store/store.ts
     getItem(): Promise<null> {
       return Promise.resolve(null);
     },
@@ -14,17 +15,32 @@ const createNoopStorage = () => {
       return Promise.resolve(value);
     },
     removeItem(): Promise<void> {
+=======
+    getItem(_key: string) {
+      return Promise.resolve(null);
+    },
+    setItem(_key: string, value: any) {
+      return Promise.resolve(value);
+    },
+    removeItem(_key: string) {
+>>>>>>> f60cc7d (stablize system):client/src/store/store.ts
       return Promise.resolve();
     },
   };
 };
 
 // Use dynamic import to avoid SSR issues
+<<<<<<< HEAD:client/src/shared/store/store.ts
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let storage: any;
 if (typeof window !== 'undefined') {
   // Client-side: use localStorage
   // eslint-disable-next-line @typescript-eslint/no-require-imports
+=======
+let storage: any;
+if (typeof window !== 'undefined') {
+  // Client-side: use localStorage
+>>>>>>> f60cc7d (stablize system):client/src/store/store.ts
   storage = require('redux-persist/lib/storage').default;
 } else {
   // Server-side: use noop storage

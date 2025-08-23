@@ -437,4 +437,8 @@ export async function getViolationProbability(filter: any) {
     peakDay,
     totalViolations
   };
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> f60cc7d (stablize system)

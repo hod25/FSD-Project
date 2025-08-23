@@ -60,4 +60,8 @@ const ViolationsByDayChart: React.FC<ViolationsByDayChartProps> = ({ data }) => 
   );
 };
 
+<<<<<<< HEAD:client/src/features/statistics/components/ViolationsByDayChart.tsx
 export default ViolationsByDayChart;
+=======
+export default ViolationsByDayChart;
+>>>>>>> f60cc7d (stablize system):client/src/app/connected/statistics/components/ViolationsByDayChart.tsx

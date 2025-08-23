@@ -26,7 +26,12 @@ interface DrawerItemsProps {
 export default function DrawerItems({ isCollapsed, onToggleCollapse }: DrawerItemsProps) {
   const router = useRouter();
   const dispatch = useDispatch();
+<<<<<<< HEAD:client/src/shared/ui/navigation/DrawerItems.tsx
   const user = useSelector((state: RootState) => state.user) as UserData;
+=======
+  const isAdmin = useSelector(selectIsAdmin);
+  const user = useSelector((state: any) => state.user);
+>>>>>>> f60cc7d (stablize system):client/src/components/DrawerItems.tsx
 
   const handleLogout = async () => {
     try {
@@ -103,6 +108,7 @@ export default function DrawerItems({ isCollapsed, onToggleCollapse }: DrawerIte
             gap: 1,
           }}
         >
+<<<<<<< HEAD:client/src/shared/ui/navigation/DrawerItems.tsx
           {menuItems
             .filter((item) => {
               // Hide user-management for viewer role
@@ -114,6 +120,19 @@ export default function DrawerItems({ isCollapsed, onToggleCollapse }: DrawerIte
             .map((item) => (
               <DrawerListItem key={item.id} {...item} isCollapsed={isCollapsed} />
             ))}
+=======
+        {menuItems
+          .filter((item) => {
+            // Hide user-management for viewer role
+            if (item.id === "user-management" && user?.access_level === "viewer") {
+              return false;
+            }
+            return true;
+          })
+          .map((item) => (
+            <DrawerListItem key={item.id} {...item} isCollapsed={isCollapsed} />
+          ))}
+>>>>>>> f60cc7d (stablize system):client/src/components/DrawerItems.tsx
         </List>
       </Box>
 

@@ -338,6 +338,7 @@ export default function EventsPage() {
           <select
             id="filter-status"
             value={filterStatus}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onChange={(e) => setFilterStatus(e.target.value as any)}
             style={{
               width: '100%',
@@ -557,7 +558,7 @@ export default function EventsPage() {
                       }}
                     >
                       {event.details}
-                      {/* תאריך ושעה מלאים ליד כותרת האירוע */}
+                      {/* פרטים מלאים של האירוע */}
                       <span
                         style={{
                           fontSize: '12px',

@@ -22,11 +22,18 @@ export function startEventWatcher() {
   if (changeStream) {
     changeStream.close();
   }
+<<<<<<< HEAD
   changeStream = EventModel.watch();
   changeStream.on('change', async (change: any) => {
     if (change.operationType !== 'insert') return;
     
     if (!change.fullDocument) return;
+=======
+  console.log("event watcher started")
+  changeStream = EventModel.watch();
+  changeStream.on('change', async (change: any) => {
+    
+>>>>>>> f60cc7d (stablize system)
     const newEvent = change.fullDocument as IEvent;
         if (newEvent.status === 'Handled') return;
 
@@ -36,13 +43,21 @@ export function startEventWatcher() {
       console.warn(`No location found for site_location: ${newEvent.site_location}`);
       return;
     }
+<<<<<<< HEAD
+=======
+    console.log("biiiiiiiiiiii")
+>>>>>>> f60cc7d (stablize system)
 
     const users = await User.find({ 
       site_location: location._id,
       notification: true,
       access_level: { $in: ['admin', 'supervisor'] }
     });
+<<<<<<< HEAD
 
+=======
+    console.log("ciiiiiiiiiiii")
+>>>>>>> f60cc7d (stablize system)
     if (users.length === 0) {
       console.warn(`No users found for location ${newEvent.site_location} with notifications enabled`);
       return;
@@ -77,6 +92,10 @@ export function startEventWatcher() {
 
     for (const user of users) {
       try {
+<<<<<<< HEAD
+=======
+        console.log("diiiiiiiiiiii")
+>>>>>>> f60cc7d (stablize system)
         await sendEmailWithRetry(user.email, htmlMessage);
         console.log(`Alert email sent to ${user.email}`);
       } catch (err) {
