@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import { MenuItem } from '../app/routes/paths';
+import { MenuItem } from '@/shared/constants/routes';
 
 interface DrawerListItemProps extends MenuItem {
   isCollapsed: boolean;

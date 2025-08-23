@@ -3,8 +3,8 @@
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
-import { selectIsLoggedIn } from '@/store/slices/userSlice';
-import ConnectedLayout from '@/components/ConnectedLayout';
+import { selectIsLoggedIn } from '@/shared/store/slices/userSlice';
+import { ConnectedLayout } from '@/shared/ui/layout';
 
 export default function ConnectedRootLayout({ children }: { children: React.ReactNode }) {
   const isLoggedIn = useSelector(selectIsLoggedIn);

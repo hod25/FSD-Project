@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
-import { selectIsLoggedIn } from '@/store/slices/userSlice';
+import { selectIsLoggedIn } from '@/shared/store/slices/userSlice';
 
 export default function UnauthenticatedLayout({ children }: { children: React.ReactNode }) {
   const isLoggedIn = useSelector(selectIsLoggedIn);

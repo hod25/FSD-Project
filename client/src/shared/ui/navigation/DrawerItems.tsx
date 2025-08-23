@@ -1,7 +1,7 @@
 'use client';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { logoutUser, selectIsAdmin } from '@/store/slices/userSlice';
+import { logoutUser } from '@/shared/store/slices/userSlice';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import List from '@mui/material/List';
@@ -12,10 +12,11 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import DrawerListItem from './DrawerListItem';
-import { menuItems } from '../app/routes/paths';
+import { menuItems } from '@/shared/constants/routes';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Person } from '@mui/icons-material';
+import type { RootState } from '@/shared/store/store';
+import type { UserData } from '@/shared/types/user';
 
 interface DrawerItemsProps {
   isCollapsed: boolean;
@@ -25,8 +26,7 @@ interface DrawerItemsProps {
 export default function DrawerItems({ isCollapsed, onToggleCollapse }: DrawerItemsProps) {
   const router = useRouter();
   const dispatch = useDispatch();
-  const isAdmin = useSelector(selectIsAdmin);
-  const user = useSelector((state: any) => state.user);
+  const user = useSelector((state: RootState) => state.user) as UserData;
 
   const handleLogout = async () => {
     try {
@@ -103,17 +103,17 @@ export default function DrawerItems({ isCollapsed, onToggleCollapse }: DrawerIte
             gap: 1,
           }}
         >
-        {menuItems
-          .filter((item) => {
-            // Hide user-management for viewer role
-            if (item.id === "user-management" && user?.access_level === "viewer") {
-              return false;
-            }
-            return true;
-          })
-          .map((item) => (
-            <DrawerListItem key={item.id} {...item} isCollapsed={isCollapsed} />
-          ))}
+          {menuItems
+            .filter((item) => {
+              // Hide user-management for viewer role
+              if (item.id === 'user-management' && user?.access_level === 'viewer') {
+                return false;
+              }
+              return true;
+            })
+            .map((item) => (
+              <DrawerListItem key={item.id} {...item} isCollapsed={isCollapsed} />
+            ))}
         </List>
       </Box>
 

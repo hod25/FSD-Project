@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import styles from '../StatisticsPage.module.css';
 
 interface SeverityData {
@@ -19,8 +11,6 @@ interface SeverityData {
 interface SeverityDistributionChartProps {
   data: SeverityData[];
 }
-
-const COLORS = ['#00C49F', '#FFBB28', '#FF8042', '#FF0000'];
 
 const SeverityDistributionChart: React.FC<SeverityDistributionChartProps> = ({ data }) => {
   if (!data || data.length === 0) {
@@ -40,23 +30,19 @@ const SeverityDistributionChart: React.FC<SeverityDistributionChartProps> = ({ d
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis 
-            dataKey="severity" 
+          <XAxis
+            dataKey="severity"
             tick={{ fontSize: 12 }}
             angle={-45}
             textAnchor="end"
             height={80}
           />
           <YAxis tick={{ fontSize: 12 }} />
-          <Tooltip 
+          <Tooltip
             formatter={(value: number) => [value, 'Violations']}
             labelFormatter={(label) => `Severity: ${label}`}
           />
-          <Bar 
-            dataKey="count" 
-            fill="#3182ce" 
-            radius={[4, 4, 0, 0]}
-          />
+          <Bar dataKey="count" fill="#3182ce" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
