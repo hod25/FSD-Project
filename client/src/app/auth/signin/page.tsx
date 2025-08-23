@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { loginUserAsync } from '@/store/slices/userSlice';
-import { AppDispatch } from '@/store/store';
+import { loginUserAsync } from '@/shared/store/slices/userSlice';
+import { AppDispatch } from '@/shared/store/store';
 import styles from './page.module.css';
 import Image from 'next/image';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';

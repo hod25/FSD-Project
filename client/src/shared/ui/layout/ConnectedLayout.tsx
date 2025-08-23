@@ -3,8 +3,8 @@
 import { useState, useEffect, PropsWithChildren } from 'react';
 import Box from '@mui/material/Box';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import Sidebar from './Sidebar';
-import Navbar from './Navbar';
+import Sidebar from '../navigation/Sidebar';
+import Navbar from '../navigation/Navbar';
 
 const drawerWidth = 240;
 

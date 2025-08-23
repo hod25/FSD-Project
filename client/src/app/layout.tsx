@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { ReduxProvider } from '@/components/ReduxProvider';
+import { ReduxProvider } from '@/shared/ui/components';
 import './globals.css';
 
 // Load fonts

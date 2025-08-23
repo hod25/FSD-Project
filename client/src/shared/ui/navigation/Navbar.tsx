@@ -25,16 +25,20 @@ import {
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import LiveAlertBadge from './LiveAlertBadge';
+import LiveAlertBadge from '../components/LiveAlertBadge';
 import {
   setCurrentAreaByName,
   setAreaList,
   selectCurrentAreaName,
   selectAreas,
-} from '../store/slices/areaSlice';
-import { setLocationName, setLocationId, selectLocationName } from '../store/slices/locationSlice';
-import { selectUserName, selectUserLocationId } from '../store/slices/userSlice';
-import { fetchLocationById, fetchAreaNamesByLocationId } from '../services/locationService';
+} from '../../store/slices/areaSlice';
+import {
+  setLocationName,
+  setLocationId,
+  selectLocationName,
+} from '../../store/slices/locationSlice';
+import { selectUserName, selectUserLocationId } from '../../store/slices/userSlice';
+import { fetchLocationById, fetchAreaNamesByLocationId } from '../../services/locationService';
 import { navbarStyles, spinnerStyle } from './styles/NavbarStyles';
 
 interface NavbarProps {

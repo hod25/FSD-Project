@@ -1,0 +1,592 @@
+/* עיצוב מקצועי לניהול משתמשים */
+.userManagementContainer {
+  min-height: 100vh;
+  padding: 2rem;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.headerSection {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  border-radius: 12px;
+  padding: 2.5rem;
+  color: white;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(52, 73, 94, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mainTitle {
+  font-size: 2.2rem;
+  font-weight: 300;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+.mainSubtitle {
+  font-size: 1rem;
+  opacity: 0.85;
+  font-weight: 300;
+}
+
+.userBox {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e8e8e8;
+  padding: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  transition: box-shadow 0.2s ease;
+}
+
+.userBox:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+.roleBadge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+
+.adminBadge {
+  background: #ffeaea;
+  color: #c0392b;
+  border: 1px solid #f5c6cb;
+}
+
+.viewerBadge {
+  background: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+}
+
+.deleteBtn {
+  background: #ffffff;
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deleteBtn:hover {
+  background: #e74c3c;
+  color: white;
+}
+
+.deleteBtn:active {
+  transform: translateY(1px);
+}
+
+.messageContainer {
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.errorMessage {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.successMessage {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.userBox::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #34495e, #2c3e50);
+}
+
+.sectionTitle {
+  color: #2c3e50;
+  font-size: 1.6rem;
+  font-weight: 400;
+  margin-bottom: 1.5rem;
+  text-align: left;
+  border-bottom: 2px solid #ecf0f1;
+  padding-bottom: 0.75rem;
+}
+
+.accessDeniedBox {
+  background: white;
+  color: #2c3e50;
+  text-align: center;
+  padding: 3rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e8e8e8;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.accessDeniedTitle {
+  font-size: 1.8rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+  color: #e74c3c;
+}
+
+.accessDeniedText {
+  font-size: 1rem;
+  color: #7f8c8d;
+  line-height: 1.5;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  color: #2c3e50;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ecf0f1;
+  border-top: 2px solid #2c3e50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.createUserForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.createUserForm input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  background: white;
+  color: #333;
+}
+
+.createUserForm input:focus {
+  border-color: #d18700;
+  box-shadow: 0 0 0 3px rgba(209, 135, 0, 0.1);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.createUserForm input::placeholder {
+  color: #bbb;
+}
+
+.submitBtn {
+  background: linear-gradient(135deg, #d18700 0%, #e09500 50%, #ffb400 100%);
+  color: white;
+  border: none;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(209, 135, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.submitBtn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.submitBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(209, 135, 0, 0.4);
+}
+
+.submitBtn:hover::before {
+  left: 100%;
+}
+
+.submitBtn:disabled {
+  background: linear-gradient(135deg, #cca05c 0%, #b8944f 100%);
+  cursor: not-allowed;
+  transform: none;
+  animation: pulse 2s infinite;
+}
+
+.submitBtn:disabled:hover {
+  transform: none;
+  box-shadow: 0 4px 15px rgba(209, 135, 0, 0.3);
+}
+
+.userTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e8e8e8;
+}
+
+.userTable th,
+.userTable td {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 14px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.userTable th {
+  background: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.userTable tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.userTable tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.userTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.inputLabel {
+  font-size: 15px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 5px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.inputLabel::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  background: #d18700;
+  border-radius: 50%;
+}
+
+@media (max-width: 768px) {
+  .userManagementContainer {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
+  .userBox {
+    padding: 1.5rem;
+    border-radius: 15px;
+  }
+
+  .headerSection {
+    padding: 2rem 1.5rem;
+    border-radius: 15px;
+  }
+
+  .mainTitle {
+    font-size: 2rem;
+  }
+
+  .userTable {
+    font-size: 14px;
+  }
+
+  .userTable th,
+  .userTable td {
+    font-size: 13px;
+    padding: 12px 8px;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+
+  .deleteBtn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .statsNumber {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .userManagementContainer {
+    padding: 0.5rem;
+  }
+
+  .userBox {
+    padding: 1rem;
+  }
+
+  .headerSection {
+    padding: 1.5rem 1rem;
+  }
+
+  .mainTitle {
+    font-size: 1.8rem;
+  }
+
+  .mainSubtitle {
+    font-size: 1rem;
+  }
+
+  .userTable th,
+  .userTable td {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+
+  .deleteBtn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .sectionTitle {
+    font-size: 1.5rem;
+  }
+
+  .searchInput {
+    padding: 12px 18px 12px 45px;
+    background-size: 16px 16px;
+    background-position: 12px center;
+  }
+}
+
+/* Simple and clean animations */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.userBox:hover .sectionTitle {
+  color: #d18700;
+  transition: color 0.3s ease;
+}
+
+.statsCard {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.statsItem {
+  background: white;
+  border: 1px solid #e8e8e8;
+  color: #2c3e50;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.statsItem:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.statsItem.adminStats {
+  border-left: 4px solid #e74c3c;
+}
+
+.statsItem.viewerStats {
+  border-left: 4px solid #3498db;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  background: white;
+  color: #333;
+}
+
+.searchInput:focus {
+  border-color: #2c3e50;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1);
+}
+
+.searchInput::placeholder {
+  color: #999;
+}
+
+.searchContainer {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  background: #f8f9fa;
+}
+
+.emptyStateText {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #495057;
+}
+
+.emptyStateSubtext {
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+.createUserForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.createUserForm input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  background: white;
+  color: #333;
+}
+
+.createUserForm input:focus {
+  border-color: #2c3e50;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1);
+}
+
+.createUserForm input::placeholder {
+  color: #999;
+}
+
+.submitBtn {
+  background: #2c3e50;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.submitBtn:hover {
+  background: #34495e;
+}
+
+.submitBtn:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.submitBtn:active {
+  transform: translateY(1px);
+}
+
+.statsNumber {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #2c3e50;
+}
+
+.statsLabel {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  font-weight: 500;
+}
