@@ -4,6 +4,7 @@ import cors from "cors";
 import path from "path";
 import fs from "fs";
 import multer from "multer";
+import next from "next";
 
 // Controllers & models
 import { sendAlert } from "./socket/socket";
@@ -17,89 +18,99 @@ import userRoutes from "./routes/users";
 import eventRoutes from "./routes/event";
 import statsRoutes from "./routes/stats";
 
-console.log("🔥 Running app.ts from:", __filename);
-
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
-const app = express();
+const dev = process.env.NODE_ENV !== "production";
+const nextApp = next({ dev, dir: path.join(__dirname, "../../client") });
+const handle = nextApp.getRequestHandler();
 
-// ===== CORS =====
-app.use(cors({
-  origin: "http://localhost:3000",
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
-}));
+// ===== Build and export the app (async) =====
+const appPromise = (async () => {
+  await nextApp.prepare();
 
-// ===== Static Folder for images =====
-const alertImagesPath = path.join(__dirname, "../public/alert_images");
-fs.mkdirSync(alertImagesPath, { recursive: true });
-app.use("/static", express.static(path.join(__dirname, "../public")));
+  const app = express();
 
-// ===== Body Parsers =====
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+  // ===== CORS =====
+  /**
+   * @deprecated Old fixed-origin CORS (localhost only)
+   * app.use(cors({
+   *   origin: "http://localhost:3000",
+   *   credentials: true,
+   *   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+   * }));
+   */
+  app.use(cors({
+    origin: (origin, callback) => callback(null, true), // allow all
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+  }));
 
-// ===== Multer Setup =====
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, alertImagesPath),
-  filename: (_req, file, cb) => {
-    const filename = `frame_${Date.now()}${path.extname(file.originalname)}`;
-    cb(null, filename);
-  }
-});
-const upload = multer({ storage });
+  // ===== Static Folder for images =====
+  const alertImagesPath = path.join(__dirname, "../public/alert_images");
+  fs.mkdirSync(alertImagesPath, { recursive: true });
+  app.use("/static", express.static(path.join(__dirname, "../public")));
 
-// ===== Routes =====
-app.use("/api/auth", authRoutes);
-app.use("/api/locations", locationRoutes);
-app.use("/api/areas", areaRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/events", eventRoutes);
-app.use("/api/stats", statsRoutes);
+  // ===== Body Parsers =====
+  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json());
 
-// ===== Home =====
-app.get("/", (_req, res) => {
-  res.send("📡 ProSafe backend is running");
-});
+  // ===== Multer Setup =====
+  const storage = multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, alertImagesPath),
+    filename: (_req, file, cb) => {
+      const filename = `frame_${Date.now()}${path.extname(file.originalname)}`;
+      cb(null, filename);
+    }
+  });
+  const upload = multer({ storage });
 
-// ===== Real-Time Alert Endpoint =====
-app.post("/api/alert", upload.single("image"), async (req, res) => {
-  const { message, timestamp, site_location, area_location, details } = req.body;
-  const filename = req.file?.filename;
+  // ===== Routes =====
+  app.use("/api/auth", authRoutes);
+  app.use("/api/locations", locationRoutes);
+  app.use("/api/areas", areaRoutes);
+  app.use("/api/users", userRoutes);
+  app.use("/api/events", eventRoutes);
+  app.use("/api/stats", statsRoutes);
 
-  const image_url = filename
-    ? `http://pro-safe.cs.colman.ac.il:5000/static/alert_images/${filename}`
-    : "";
+  // ===== Real-Time Alert Endpoint =====
+  app.post("/api/alert", upload.single("image"), async (req, res) => {
+    const { message, timestamp, site_location, area_location, details } = req.body;
+    const filename = req.file?.filename;
 
-  const no_hardhat_count = req.body.no_hardhat_count
-    ? parseInt(req.body.no_hardhat_count, 10)
-    : 0;
+    const image_url = filename
+      ? `http://pro-safe.cs.colman.ac.il:5000/static/alert_images/${filename}`
+      : "";
 
-  console.log("🚨 Alert Received:", message, timestamp);
-  console.log("📩 Full body:", req.body);
-  console.log("🧮 Parsed no_hardhat_count:", no_hardhat_count, "| typeof:", typeof no_hardhat_count);
-  console.log("📷 Uploaded image:", filename);
+    const no_hardhat_count = req.body.no_hardhat_count
+      ? parseInt(req.body.no_hardhat_count, 10)
+      : 0;
 
-  // שליחה ל־WebSocket
-  sendAlert({ message, timestamp, site_location, area_location, details, image_url, no_hardhat_count });
+    console.log("🚨 Alert Received:", message, timestamp);
 
-  try {
-    const saved = await EventModel.create({
-      site_location,
-      area_location,
-      status: "Not Handled",
-      details,
-      image_url,
-      time_: timestamp,
-      no_hardhat_count
-    });
+    sendAlert({ message, timestamp, site_location, area_location, details, image_url, no_hardhat_count });
 
-    console.log("✅ Event saved:", saved._id);
-    res.status(200).json({ success: true });
-  } catch (err) {
-    console.error("❌ Failed to save event:", err);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-});
+    try {
+      const saved = await EventModel.create({
+        site_location,
+        area_location,
+        status: "Not Handled",
+        details,
+        image_url,
+        time_: timestamp,
+        no_hardhat_count
+      });
 
-export default app;
+      res.status(200).json({ success: true });
+    } catch (err) {
+      console.error("❌ Failed to save event:", err);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
+
+  // ===== Next.js frontend =====
+  app.all("*", (req, res) => handle(req, res));
+
+  return app;
+})();
+
+export default appPromise;

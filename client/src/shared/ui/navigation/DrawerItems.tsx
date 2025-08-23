@@ -1,7 +1,7 @@
 'use client';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { logoutUser,selectIsAdmin } from '@/shared/store/slices/userSlice';
+import { logoutUser } from '@/shared/store/slices/userSlice';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import List from '@mui/material/List';
@@ -15,8 +15,7 @@ import DrawerListItem from './DrawerListItem';
 import { menuItems } from '@/shared/constants/routes';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import type { RootState } from '@/shared/store/store';
-import type { UserData } from '@/shared/types/user';
+import { RootState } from '@/shared/store';
 
 interface DrawerItemsProps {
   isCollapsed: boolean;
@@ -26,8 +25,7 @@ interface DrawerItemsProps {
 export default function DrawerItems({ isCollapsed, onToggleCollapse }: DrawerItemsProps) {
   const router = useRouter();
   const dispatch = useDispatch();
-  const isAdmin = useSelector(selectIsAdmin);
-  const user = useSelector((state: any) => state.user);
+  const user = useSelector((state: RootState) => state.user);
 
   const handleLogout = async () => {
     try {

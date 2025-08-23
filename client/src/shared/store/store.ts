@@ -2,44 +2,45 @@ import { configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
 import userReducer from './slices/userSlice';
 import locationReducer from './slices/locationSlice';
-import areaReducer from './slices/areaSlice'; // Make sure to include areaReducer
+import areaReducer from './slices/areaSlice';
+import type { WebStorage } from 'redux-persist/es/types';
 
-// Create a storage object that handles SSR properly
-const createNoopStorage = () => {
+// ---- Create a storage object that handles SSR properly ----
+const createNoopStorage = (): WebStorage => {
   return {
-    getItem(_key: string) {
+    getItem(): Promise<string | null> {
       return Promise.resolve(null);
     },
-    setItem(_key: string, value: any) {
-      return Promise.resolve(value);
+    setItem(): Promise<void> {
+      return Promise.resolve();
     },
-    removeItem(_key: string) {
+    removeItem(): Promise<void> {
       return Promise.resolve();
     },
   };
 };
 
-// Use dynamic import to avoid SSR issues
-let storage: any;
+// ---- Use dynamic import to avoid SSR issues ----
+let storage: WebStorage;
 if (typeof window !== 'undefined') {
   // Client-side: use localStorage
-  storage = require('redux-persist/lib/storage').default;
+  storage = (await import('redux-persist/lib/storage')).default as WebStorage;
 } else {
   // Server-side: use noop storage
   storage = createNoopStorage();
 }
 
-// Redux Persist Configuration
+// ---- Redux Persist Configuration ----
 const userPersistConfig = {
   key: 'user',
   storage,
-  whitelist: ['name', 'email', 'access_level', 'site_location', '_id', 'isLoggedIn'], // Store user properties
+  whitelist: ['name', 'email', 'access_level', 'site_location', '_id', 'isLoggedIn'],
 };
 
 const locationPersistConfig = {
   key: 'location',
   storage,
-  whitelist: ['name', 'id', 'details'], // Store location data including areas
+  whitelist: ['name', 'id', 'details'],
 };
 
 const areaPersistConfig = {
@@ -56,16 +57,16 @@ export const store = configureStore({
   reducer: {
     user: persistedUserReducer,
     location: persistedLocationReducer,
-    area: persistedAreaReducer, // Include area reducer in the store
+    area: persistedAreaReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // Prevents Redux Persist warnings
+      serializableCheck: false,
     }),
 });
 
 export const persistor = persistStore(store);
 
-// Type definitions for TypeScript
+// ---- Types ----
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

@@ -10,20 +10,20 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import styles from '../StatisticsPage.module.css'; // Assuming shared styles
+import styles from '../StatisticsPage.module.css';
 
-// components/BarChartByArea.tsx
-type AreaData = {
-  areaId: string;
+// ✅ Correct type for Location
+type LocationData = {
+  locationId: string;
   handled: number;
   unhandled: number;
-  name: string; // 🆕
+  name: string;
 };
 
-export default function BarChartByArea({ data }: { data: AreaData[] }) {
+export default function BarChartByLocation({ data }: { data: LocationData[] }) {
   return (
     <div className={styles.chartContainer}>
-      <h3>Events by Area</h3>
+      <h3>Events by Location</h3>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data}>
           <CartesianGrid stroke="#ccc" />
