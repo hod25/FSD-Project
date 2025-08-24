@@ -4,23 +4,18 @@ import { useSelector } from 'react-redux';
 import { selectUser } from '@/shared/store/slices/userSlice';
 import { selectAreas } from '@/shared/store/slices/areaSlice';
 import { selectLocationName } from '@/shared/store/slices/locationSlice';
-import {
-  Box,
-  Typography,
-  Paper,
-  Container,
-  CircularProgress,
-  Chip,
-  Divider,
-  Card,
-} from '@mui/material';
+import { RootState } from '@/shared/store/store';
+import { Box, Typography, Paper, Container, CircularProgress, Chip, Card } from '@mui/material';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import SecurityIcon from '@mui/icons-material/Security';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
-import VideocamIcon from '@mui/icons-material/Videocam';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import SecurityIcon from '@mui/icons-material/Security';
+import EventIcon from '@mui/icons-material/Event';
+import PeopleIcon from '@mui/icons-material/People';
+import ShieldIcon from '@mui/icons-material/Shield';
+import { fetchAllEvents, Event } from '@/shared/services/eventService';
+import axios from 'axios';
 
 interface DailyForecast {
   time: string[];
@@ -32,19 +27,70 @@ interface DailyForecast {
 export default function HomePage() {
   const user = useSelector(selectUser);
   const areas = useSelector(selectAreas);
-  const locationName = useSelector(selectLocationName); // Get location name from Redux
+  const locationName = useSelector(selectLocationName);
+  const siteId = useSelector((state: RootState) => state.user.site_location);
   const [weather, setWeather] = useState<DailyForecast | null>(null);
   const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
+  const [userAnalytics, setUserAnalytics] = useState({
+    admin: 0,
+    viewer: 0,
+    total: 0,
+  });
 
-  const [blink, setBlink] = useState(true);
-
+  // Fetch user analytics
   useEffect(() => {
-    const interval = setInterval(() => {
-      setBlink((prev) => !prev);
-    }, 1000);
+    const loadUserAnalytics = async () => {
+      try {
+        const response = await axios.post(
+          'http://pro-safe.cs.colman.ac.il:5000/api/stats/no-hardhat',
+          {
+            locationIds: siteId ? [siteId] : [],
+          },
+          { withCredentials: true }
+        );
+        if (response.data?.userAnalytics) {
+          setUserAnalytics(response.data.userAnalytics);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user analytics:', error);
+      }
+    };
 
-    return () => clearInterval(interval);
-  }, []);
+    if (siteId) {
+      loadUserAnalytics();
+    }
+  }, [siteId]);
+
+  // Fetch events
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        setEventsLoading(true);
+        const eventsData = await fetchAllEvents();
+
+        // Filter events by current site if siteId exists
+        const filteredEvents = siteId
+          ? eventsData.filter((event) => event.site_location === siteId)
+          : eventsData;
+
+        setEvents(filteredEvents);
+        console.log('Loaded events:', filteredEvents.length, 'events for site:', siteId);
+        console.log('Sample event:', filteredEvents[0]);
+
+        // Debug: log all unique area_location values
+        const uniqueAreas = [...new Set(filteredEvents.map((e) => e.area_location))];
+        console.log('Unique area_location values in events:', uniqueAreas);
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+        setEvents([]);
+      } finally {
+        setEventsLoading(false);
+      }
+    };
+    loadEvents();
+  }, [siteId]);
 
   useEffect(() => {
     const fetchWeather = async () => {
@@ -80,6 +126,26 @@ export default function HomePage() {
       day: 'numeric',
     });
 
+  // Function to count events by area
+  const getEventsCountByArea = (areaId: string, areaName: string) => {
+    if (eventsLoading) return '...';
+
+    // Try to match by both area ID and area name
+    const count = events.filter(
+      (event) => event.area_location === areaId || event.area_location === areaName
+    ).length;
+
+    console.log(`Area ${areaName} (${areaId}): ${count} events`);
+    return count;
+  };
+
+  // Debug: log areas data
+  useEffect(() => {
+    if (areas && areas.length > 0) {
+      console.log('Areas data:', areas);
+    }
+  }, [areas]);
+
   // Filter out "All Areas" from the display list
   const filteredAreas = areas.filter(
     (area) =>
@@ -90,57 +156,43 @@ export default function HomePage() {
   );
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box
+    <Container maxWidth="lg" sx={{ mt: 3, mb: 4 }}>
+      {/* HEADER */}
+      <Paper
+        elevation={0}
         sx={{
-          borderRadius: 4,
-          p: 3,
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+          borderRadius: 2,
+          p: 4,
+          mb: 3,
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
         }}
       >
-        {/* HEADER */}
         <Box
           sx={{
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
             alignItems: 'center',
             justifyContent: 'space-between',
-            mb: 4,
-            pb: 3,
-            borderBottom: '1px solid rgba(0,77,122,0.1)',
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, md: 0 } }}>
-            <Image
-              src="/ProSafe_Logo.svg"
-              alt="ProSafe Logo"
-              width={120}
-              height={60}
-              priority
-              style={{ filter: 'drop-shadow(0 0 5px rgba(0,77,122,0.2))' }}
-            />
-            <Divider
-              orientation="vertical"
-              flexItem
-              sx={{ mx: 2, height: 50, display: { xs: 'none', md: 'block' } }}
-            />
-            <Box>
-              <Typography
-                variant="h5"
-                fontWeight="600"
-                sx={{
-                  background: 'linear-gradient(135deg, #004d7a 0%, #008793 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  mb: 0.5,
-                }}
-              >
-                Safety Dashboard
-              </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 3, md: 0 } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Image
+                src="/pro-icon.png"
+                alt="ProSafe Icon"
+                width={48}
+                height={48}
+                priority
+                style={{ borderRadius: '8px' }}
+              />
+              <Image src="/ProSafe_Logo.svg" alt="ProSafe Logo" width={120} height={60} priority />
+            </Box>
+            <Box sx={{ ml: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <LocationOnIcon fontSize="small" color="primary" />
-                <Typography variant="body2" color="text.secondary">
-                  Current Site: <strong>{locationName || 'No location selected'}</strong>
+                <LocationOnIcon fontSize="small" sx={{ color: '#ffc040' }} />
+                <Typography variant="body1" sx={{ color: '#111827', fontWeight: 500 }}>
+                  {locationName || 'No location selected'}
                 </Typography>
               </Box>
             </Box>
@@ -153,284 +205,651 @@ export default function HomePage() {
               alignItems: { xs: 'center', md: 'flex-end' },
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: 500, color: '#111827' }}>
                 {user?.name}
               </Typography>
               <Chip
                 icon={<VpnKeyIcon fontSize="small" />}
-                label={user?.access_level === 'admin' ? 'Administrator' : 'Standard User'}
+                label={user?.access_level === 'admin' ? 'Admin' : 'User'}
                 size="small"
                 sx={{
                   fontWeight: 500,
-                  background:
-                    user?.access_level === 'admin'
-                      ? 'linear-gradient(135deg, #2d2d2d 0%, #474747 100%)'
-                      : 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)',
-                  color: user?.access_level === 'admin' ? '#ffffff' : '#666666',
-                  border: user?.access_level === 'admin' ? '1px solid #000' : '1px solid #ccc',
+                  backgroundColor: user?.access_level === 'admin' ? '#ffc040' : '#fff9e6',
+                  color: user?.access_level === 'admin' ? '#ffffff' : '#b8860b',
+                  border: user?.access_level === 'admin' ? 'none' : '1px solid #ffc040',
+                  '& .MuiChip-icon': {
+                    color: user?.access_level === 'admin' ? '#ffffff' : '#ffc040',
+                  },
                 }}
               />
             </Box>
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="caption" sx={{ color: '#9ca3af' }}>
               Last login: Today, 09:45 AM
             </Typography>
           </Box>
         </Box>
+      </Paper>
 
-        <Typography
-          variant="h6"
-          sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, fontWeight: 600 }}
+      {/* SECURITY AREAS SECTION */}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 2,
+          p: 4,
+          mb: 3,
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          maxWidth: '1000px',
+          mx: 'auto',
+        }}
+      >
+        <Box
+          sx={{
+            textAlign: 'center',
+            mb: 3,
+          }}
         >
-          <SecurityIcon color="primary" />
-          Safety Areas
-        </Typography>
+          <Typography
+            variant="h5"
+            sx={{
+              mb: 1,
+              fontWeight: 600,
+              color: '#111827',
+              letterSpacing: '-0.025em',
+            }}
+          >
+            Security Areas
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              color: '#6b7280',
+              maxWidth: 500,
+              mx: 'auto',
+            }}
+          >
+            Monitor and manage security zones with real-time event tracking
+          </Typography>
+        </Box>
 
         {filteredAreas && filteredAreas.length > 0 ? (
           <Box
             sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: '1fr',
+                sm: 'repeat(2, 1fr)',
+                md: 'repeat(2, 1fr)',
+                lg: 'repeat(3, 1fr)',
+              },
               gap: 3,
-              mb: 4,
-              justifyContent: { xs: 'center', sm: 'flex-start' },
+              maxWidth: '800px',
+              mx: 'auto',
+              justifyContent: 'center',
             }}
           >
             {filteredAreas.map((area) => (
-              <Box
+              <Card
                 key={area.id}
-                sx={{ flex: '1 1 100%', maxWidth: { xs: '100%', sm: '45%', md: '23%' } }}
+                elevation={0}
+                sx={{
+                  p: 3,
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: 2,
+                  textAlign: 'center',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)',
+                    borderColor: '#ffc040',
+                  },
+                }}
               >
-                <Card
+                {/* Area Icon */}
+                <Box
                   sx={{
-                    height: '100%',
-                    background: 'rgba(255,255,255,0.9)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255,255,255,0.3)',
-                    boxShadow: '0 4px 24px rgba(0,36,75,0.08)',
-                    borderRadius: 2,
-                    transition: 'all 0.3s ease',
-                    overflow: 'hidden',
-                    '&:hover': {
-                      transform: 'translateY(-5px)',
-                      boxShadow: '0 12px 28px rgba(0,36,75,0.15)',
-                      background:
-                        'linear-gradient(145deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85))',
-                    },
+                    width: 56,
+                    height: 56,
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #ffc040 0%, #ff8f65 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mb: 2,
+                    mx: 'auto',
+                    boxShadow: '0 4px 12px rgba(255, 192, 64, 0.3)',
                   }}
                 >
-                  <Box sx={{ p: 2, position: 'relative' }}>
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 12,
-                        right: 12,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 0.5,
-                        backgroundColor: 'rgba(0,0,0,0.5)',
-                        color: '#fff',
-                        borderRadius: '10px',
-                        padding: '2px 8px',
-                        fontSize: '0.7rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      <FiberManualRecordIcon
-                        sx={{
-                          fontSize: '0.7rem',
-                          color: blink ? '#f44336' : 'rgba(244, 67, 54, 0.6)',
-                          animation: blink ? 'pulse 1s infinite' : 'none',
-                          '@keyframes pulse': {
-                            '0%': { opacity: 0.6 },
-                            '50%': { opacity: 1 },
-                            '100%': { opacity: 0.6 },
-                          },
-                        }}
-                      />
-                      LIVE
-                    </Box>
+                  <ShieldIcon sx={{ color: '#ffffff', fontSize: 28 }} />
+                </Box>
 
-                    {/* Camera icon */}
-                    <Box
-                      sx={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #2d2d2d 0%, #474747 100%)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        mb: 2,
-                        position: 'relative',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <VideocamIcon sx={{ color: '#ffffff', fontSize: 28 }} />
+                {/* Area Name */}
+                <Typography
+                  variant="h6"
+                  fontWeight={600}
+                  sx={{
+                    color: '#111827',
+                    mb: 2,
+                    fontSize: '1.1rem',
+                    letterSpacing: '-0.025em',
+                  }}
+                >
+                  {area.name}
+                </Typography>
 
-                      {/* Lens reflection effect */}
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          width: '10px',
-                          height: '10px',
-                          borderRadius: '50%',
-                          background:
-                            'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 60%)',
-                          top: '20px',
-                          left: '25px',
-                        }}
-                      />
-                    </Box>
-
-                    <Typography variant="h6" fontWeight={600} gutterBottom>
-                      {area.name}
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Chip
-                        label="Active"
-                        size="small"
-                        sx={{
-                          background: 'rgba(76,175,80,0.1)',
-                          color: '#388e3c',
-                          fontWeight: 600,
-                          fontSize: '0.7rem',
-                        }}
-                      />
-                    </Box>
-                  </Box>
-                </Card>
-              </Box>
+                {/* Events Count */}
+                <Box
+                  sx={{
+                    backgroundColor: '#f8fafc',
+                    borderRadius: 2,
+                    p: 2,
+                  }}
+                >
+                  <Typography
+                    variant="h4"
+                    fontWeight={700}
+                    sx={{
+                      color: '#111827',
+                      lineHeight: 1,
+                      mb: 0.5,
+                    }}
+                  >
+                    {getEventsCountByArea(area.id, area.name)}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: '#6b7280',
+                      fontWeight: 500,
+                    }}
+                  >
+                    Events
+                  </Typography>
+                </Box>
+              </Card>
             ))}
           </Box>
         ) : (
-          <Paper
-            elevation={0}
+          <Box
             sx={{
-              p: 3,
-              mb: 4,
-              borderRadius: 2,
-              // Increased opacity for better visibility on transparent background
-              background: 'rgba(0,97,167,0.07)',
-              border: '1px solid rgba(0,97,167,0.2)',
+              p: 6,
+              textAlign: 'center',
+              backgroundColor: '#f8fafc',
+              borderRadius: 3,
+              border: '2px dashed #e2e8f0',
+              maxWidth: 600,
+              mx: 'auto',
             }}
           >
-            <Typography sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              No security zones available. Please set up zones in the management console.
+            <ShieldIcon sx={{ fontSize: 48, color: '#9ca3af', mb: 2 }} />
+            <Typography variant="h6" sx={{ color: '#374151', mb: 1, fontWeight: 600 }}>
+              No Security Areas Configured
             </Typography>
-          </Paper>
+            <Typography sx={{ color: '#6b7280' }}>
+              Set up security areas in the management console to start monitoring events and
+              maintaining coverage
+            </Typography>
+          </Box>
         )}
+      </Paper>
 
-        {/* WEATHER */}
-        <Typography
-          variant="h6"
-          sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, fontWeight: 600 }}
+      {/* OVERVIEW SECTION */}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 2,
+          p: 4,
+          mb: 3,
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          maxWidth: '900px',
+          mx: 'auto',
+        }}
+      >
+        <Box
+          sx={{
+            textAlign: 'center',
+            mb: 3,
+          }}
         >
-          <Box component="span" role="img" aria-label="Weather" sx={{ fontSize: 24 }}>
-            🌤️
-          </Box>
-          Weather Forecast {locationName && `- ${locationName}`}
-        </Typography>
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 600,
+              color: '#111827',
+              letterSpacing: '-0.025em',
+            }}
+          >
+            System Overview
+          </Typography>
+        </Box>
 
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-            <CircularProgress size={40} thickness={4} sx={{ color: '#0061a7' }} />
-          </Box>
-        ) : weather ? (
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+            gap: 2.5,
+            maxWidth: '600px',
+            mx: 'auto',
+          }}
+        >
+          {/* Active Areas */}
           <Paper
             elevation={0}
             sx={{
-              p: 2,
+              p: 2.5,
+              backgroundColor: '#f8fafc',
+              border: '1px solid #e2e8f0',
               borderRadius: 2,
-              background: 'rgba(255,255,255,0.8)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,255,255,0.3)',
-              boxShadow: '0 4px 24px rgba(0,36,75,0.08)',
-              overflowX: 'auto',
+              textAlign: 'center',
             }}
           >
             <Box
               sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 2,
+                backgroundColor: '#ffc040',
                 display: 'flex',
-                gap: { xs: 1, sm: 2 },
-                justifyContent: { xs: 'flex-start', md: 'space-between' },
-                minWidth: { xs: 700, md: 'auto' },
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 1.5,
+                mx: 'auto',
               }}
             >
-              {weather.time.map((date, index) => (
-                <Box
-                  key={date}
-                  sx={{
-                    flex: 1,
-                    p: { xs: 1.5, sm: 2 },
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    borderRadius: 2,
-                    background:
-                      index === 0
-                        ? 'linear-gradient(135deg, rgba(0,97,167,0.08) 0%, rgba(0,121,146,0.15) 100%)'
-                        : 'transparent',
-                    border: index === 0 ? '1px solid rgba(0,97,167,0.2)' : '1px solid transparent',
-                    transition: 'all 0.2s ease',
-                    '&:hover': {
-                      background:
-                        'linear-gradient(135deg, rgba(0,97,167,0.05) 0%, rgba(0,121,146,0.1) 100%)',
-                      transform: 'translateY(-2px)',
-                    },
-                  }}
-                >
-                  <Typography
-                    variant="body2"
-                    fontWeight={index === 0 ? 700 : 500}
-                    sx={{ color: index === 0 ? '#0061a7' : 'text.primary', mb: 1 }}
-                  >
-                    {index === 0 ? 'Today' : formatDate(date)}
-                  </Typography>
-                  <Box
-                    sx={{
-                      fontSize: { xs: 28, md: 36 },
-                      my: { xs: 0.5, md: 1 },
-                      filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.1))',
-                    }}
-                  >
-                    {getWeatherIcon(weather.weathercode[index])}
-                  </Box>
-                  <Typography variant="body1" sx={{ fontWeight: 600, mt: 1 }}>
-                    {Math.round(weather.temperature_2m_max[index])}°
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {Math.round(weather.temperature_2m_min[index])}°
-                  </Typography>
-                </Box>
-              ))}
+              <SecurityIcon sx={{ color: '#ffffff', fontSize: 20 }} />
             </Box>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              sx={{ color: '#111827', mb: 0.5, fontSize: '1.5rem' }}
+            >
+              {filteredAreas.length}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: '#6b7280', fontWeight: 500, fontSize: '0.8rem' }}
+            >
+              Active Areas
+            </Typography>
           </Paper>
-        ) : (
+
+          {/* Total Events */}
           <Paper
             elevation={0}
             sx={{
-              p: 3,
+              p: 2.5,
+              backgroundColor: '#f8fafc',
+              border: '1px solid #e2e8f0',
               borderRadius: 2,
-              background: 'rgba(244,67,54,0.08)',
-              border: '1px solid rgba(244,67,54,0.2)',
+              textAlign: 'center',
             }}
           >
-            <Typography
-              color="error"
-              sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 2,
+                backgroundColor: '#ffc040',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 1.5,
+                mx: 'auto',
+              }}
             >
-              Failed to load weather data. Please try again later.
+              <EventIcon sx={{ color: '#ffffff', fontSize: 20 }} />
+            </Box>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              sx={{ color: '#111827', mb: 0.5, fontSize: '1.5rem' }}
+            >
+              {events.length}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: '#6b7280', fontWeight: 500, fontSize: '0.8rem' }}
+            >
+              Total Events
             </Typography>
           </Paper>
+
+          {/* Total Users */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2.5,
+              backgroundColor: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: 2,
+              textAlign: 'center',
+            }}
+          >
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 2,
+                backgroundColor: '#ffc040',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 1.5,
+                mx: 'auto',
+              }}
+            >
+              <PeopleIcon sx={{ color: '#ffffff', fontSize: 20 }} />
+            </Box>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              sx={{ color: '#111827', mb: 0.5, fontSize: '1.5rem' }}
+            >
+              {userAnalytics.total}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: '#6b7280', fontWeight: 500, fontSize: '0.8rem' }}
+            >
+              Total Users
+            </Typography>
+          </Paper>
+        </Box>
+      </Paper>
+
+      {/* USER SUMMARY SECTION */}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 2,
+          p: 4,
+          mb: 3,
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          maxWidth: '800px',
+          mx: 'auto',
+        }}
+      >
+        <Box
+          sx={{
+            textAlign: 'center',
+            mb: 3,
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 600,
+              color: '#111827',
+              letterSpacing: '-0.025em',
+            }}
+          >
+            User Summary
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+            gap: 2.5,
+            maxWidth: '500px',
+            mx: 'auto',
+          }}
+        >
+          {/* Total Users */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2.5,
+              backgroundColor: '#f9fafb',
+              border: '1px solid #d1d5db',
+              borderRadius: 2,
+              textAlign: 'center',
+            }}
+          >
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 2,
+                backgroundColor: '#6b7280',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 1.5,
+                mx: 'auto',
+              }}
+            >
+              <PeopleIcon sx={{ color: '#ffffff', fontSize: 20 }} />
+            </Box>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              sx={{ color: '#111827', mb: 0.5, fontSize: '1.5rem' }}
+            >
+              {userAnalytics.total}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: '#6b7280', fontWeight: 500, fontSize: '0.8rem' }}
+            >
+              Total Users
+            </Typography>
+          </Paper>
+
+          {/* Administrators */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2.5,
+              backgroundColor: '#f9fafb',
+              border: '1px solid #d1d5db',
+              borderRadius: 2,
+              textAlign: 'center',
+            }}
+          >
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 2,
+                backgroundColor: '#4b5563',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 1.5,
+                mx: 'auto',
+              }}
+            >
+              <SecurityIcon sx={{ color: '#ffffff', fontSize: 20 }} />
+            </Box>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              sx={{ color: '#111827', mb: 0.5, fontSize: '1.5rem' }}
+            >
+              {userAnalytics.admin}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: '#6b7280', fontWeight: 500, fontSize: '0.8rem' }}
+            >
+              Administrators
+            </Typography>
+          </Paper>
+
+          {/* Viewers */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2.5,
+              backgroundColor: '#f9fafb',
+              border: '1px solid #d1d5db',
+              borderRadius: 2,
+              textAlign: 'center',
+            }}
+          >
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 2,
+                backgroundColor: '#9ca3af',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 1.5,
+                mx: 'auto',
+              }}
+            >
+              <EventIcon sx={{ color: '#ffffff', fontSize: 20 }} />
+            </Box>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              sx={{ color: '#111827', mb: 0.5, fontSize: '1.5rem' }}
+            >
+              {userAnalytics.viewer}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ color: '#6b7280', fontWeight: 500, fontSize: '0.8rem' }}
+            >
+              Viewers
+            </Typography>
+          </Paper>
+        </Box>
+      </Paper>
+
+      {/* WEATHER SECTION */}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: 2,
+          p: 4,
+          backgroundColor: '#ffffff',
+          border: '1px solid #e5e7eb',
+          maxWidth: '900px',
+          mx: 'auto',
+        }}
+      >
+        <Box
+          sx={{
+            textAlign: 'center',
+            mb: 3,
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 600,
+              color: '#111827',
+              letterSpacing: '-0.025em',
+            }}
+          >
+            Weather Forecast
+          </Typography>
+        </Box>
+
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <CircularProgress size={32} thickness={4} sx={{ color: '#111827' }} />
+          </Box>
+        ) : weather ? (
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: 'repeat(2, 1fr)',
+                sm: 'repeat(3, 1fr)',
+                md: 'repeat(5, 1fr)',
+                lg: 'repeat(7, 1fr)',
+              },
+              gap: 2,
+              maxWidth: '700px',
+              mx: 'auto',
+            }}
+          >
+            {weather.time.map((date, index) => (
+              <Card
+                key={date}
+                elevation={0}
+                sx={{
+                  p: 3,
+                  textAlign: 'center',
+                  borderRadius: 2,
+                  backgroundColor: index === 0 ? '#ffc040' : '#f9fafb',
+                  color: index === 0 ? '#ffffff' : '#111827',
+                  border: index === 0 ? '1px solid #ffc040' : '1px solid #e5e7eb',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                  },
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: 600,
+                    mb: 2,
+                    display: 'block',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    color: index === 0 ? '#ffffff' : '#6b7280',
+                  }}
+                >
+                  {index === 0 ? 'Today' : formatDate(date)}
+                </Typography>
+                <Box
+                  sx={{
+                    fontSize: 32,
+                    mb: 2,
+                  }}
+                >
+                  {getWeatherIcon(weather.weathercode[index])}
+                </Box>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 600,
+                    mb: 0.5,
+                  }}
+                >
+                  {Math.round(weather.temperature_2m_max[index])}°
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: index === 0 ? 'rgba(255, 255, 255, 0.7)' : '#9ca3af',
+                    fontWeight: 500,
+                  }}
+                >
+                  {Math.round(weather.temperature_2m_min[index])}°
+                </Typography>
+              </Card>
+            ))}
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              p: 4,
+              textAlign: 'center',
+              backgroundColor: '#f9fafb',
+              borderRadius: 2,
+              border: '1px solid #e5e7eb',
+            }}
+          >
+            <Typography sx={{ color: '#6b7280' }}>
+              Unable to load weather data. Please try again later.
+            </Typography>
+          </Box>
         )}
-      </Box>
+      </Paper>
     </Container>
   );
 }

@@ -81,9 +81,6 @@ export default function Login() {
           <div className={styles.formGroup}>
             <div className={styles.passwordLabelContainer}>
               <label className={styles.loginLabel}>Password</label>
-              <a href="#" className={styles.forgotPassword}>
-                Forgot password?
-              </a>
             </div>
             <div className={styles.passwordWrapper}>
               <input
