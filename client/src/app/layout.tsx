@@ -20,6 +20,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'ProSafe',
   description: 'Live helmet detection powered by YOLO & FastAPI',
+  icons: {
+    icon: '/pro-icon.png',
+    shortcut: '/pro-icon.png',
+    apple: '/pro-icon.png',
+  },
 };
 
 // Root layout

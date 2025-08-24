@@ -16,7 +16,6 @@ import ViolationProbabilityChart from './components/ViolationProbabilityChart';
 import ViolationsByHourChart from './components/ViolationsByHourChart';
 import ViolationsByDayChart from './components/ViolationsByDayChart';
 import SeverityDistributionChart from './components/SeverityDistributionChart';
-import UserSummary from './components/UserSummary';
 
 import styles from './StatisticsPage.module.css';
 
@@ -164,11 +163,6 @@ export default function StatisticsPage() {
           </div>
 
           <div className={styles.chartGrid}>
-            <UserSummary
-              userAnalytics={
-                stats.userAnalytics || { admin: 0, viewer: 0, supervisor: 0, total: 0 }
-              }
-            />
             <ViolationProbabilityChart
               data={
                 stats.violationProbability || {

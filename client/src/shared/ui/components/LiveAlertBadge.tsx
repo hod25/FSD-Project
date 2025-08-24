@@ -1,46 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
+import { useState } from 'react';
 import { Badge, IconButton, Tooltip, Popover, Typography, Box, Stack, Button } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { useRouter } from 'next/navigation';
-
-const SOCKET_SERVER_URL = 'http://localhost:5000';
-
-interface Alert {
-  message: string;
-  timestamp: string;
-}
+import { useLiveAlerts } from '@/shared/hooks/useLiveAlerts';
 
 export default function LiveAlertBadge() {
-  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const { clearAlerts, getRecentAlerts, isConnected } = useLiveAlerts();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    const socket = io(SOCKET_SERVER_URL, {
-      transports: ['websocket'],
-      withCredentials: true,
-    });
-
-    socket.on('connect', () => {
-      console.log('🔌 Connected to socket server for notifications');
-    });
-
-    socket.on('alert', (data: Alert) => {
-      console.log('🚨 New alert received in navbar:', data);
-      setAlerts((prev) => [data, ...prev].slice(0, 5)); // Keep only 5 most recent alerts
-    });
-
-    socket.on('disconnect', () => {
-      console.log('❌ Disconnected from socket server');
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+  const recentAlerts = getRecentAlerts(5); // Get only 5 most recent alerts for the badge
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -50,8 +21,8 @@ export default function LiveAlertBadge() {
     setAnchorEl(null);
   };
 
-  const clearAlerts = () => {
-    setAlerts([]);
+  const handleClearAlerts = () => {
+    clearAlerts();
     handleClose();
   };
 
@@ -65,24 +36,27 @@ export default function LiveAlertBadge() {
 
   return (
     <>
-      <Tooltip title={alerts.length > 0 ? `${alerts.length} new alerts` : 'No new alerts'}>
+      <Tooltip
+        title={recentAlerts.length > 0 ? `${recentAlerts.length} new alerts` : 'No new alerts'}
+      >
         <IconButton
           size="small"
           onClick={handleClick}
           sx={{
-            color: alerts.length > 0 ? '#ff4d4f' : '#707070',
+            color: recentAlerts.length > 0 ? '#ff4d4f' : '#707070',
             '&:hover': {
-              bgcolor: alerts.length > 0 ? 'rgba(255, 77, 79, 0.08)' : 'rgba(255, 180, 0, 0.08)',
-              color: alerts.length > 0 ? '#ff4d4f' : '#ffb400',
+              bgcolor:
+                recentAlerts.length > 0 ? 'rgba(255, 77, 79, 0.08)' : 'rgba(255, 180, 0, 0.08)',
+              color: recentAlerts.length > 0 ? '#ff4d4f' : '#ffb400',
             },
-            animation: alerts.length > 0 ? 'pulse 2s infinite' : 'none',
+            animation: recentAlerts.length > 0 ? 'pulse 2s infinite' : 'none',
           }}
         >
           <Badge
-            badgeContent={alerts.length}
+            badgeContent={recentAlerts.length}
             color="error"
             overlap="circular"
-            variant={alerts.length > 0 ? 'standard' : 'dot'}
+            variant={recentAlerts.length > 0 ? 'standard' : 'dot'}
           >
             <NotificationsIcon fontSize="small" />
           </Badge>
@@ -114,13 +88,13 @@ export default function LiveAlertBadge() {
         <Box sx={{ p: 2 }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
             <Typography variant="subtitle1" fontWeight={600}>
-              Live Alerts
+              Live Alerts ({isConnected ? 'Connected' : 'Disconnected'})
             </Typography>
             <Stack direction="row" spacing={1}>
-              {alerts.length > 0 && (
+              {recentAlerts.length > 0 && (
                 <Button
                   size="small"
-                  onClick={clearAlerts}
+                  onClick={handleClearAlerts}
                   sx={{
                     fontSize: '12px',
                     color: '#ff4d4f',
@@ -145,12 +119,12 @@ export default function LiveAlertBadge() {
           </Stack>
 
           <Box sx={{ maxHeight: 300, overflowY: 'auto', pr: 1 }}>
-            {alerts.length === 0 ? (
+            {recentAlerts.length === 0 ? (
               <Box sx={{ py: 3, textAlign: 'center', color: 'text.secondary' }}>
                 <Typography variant="body2">No new alerts</Typography>
               </Box>
             ) : (
-              alerts.map((alert, index) => (
+              recentAlerts.map((alert, index) => (
                 <Box
                   key={index}
                   sx={{
@@ -170,6 +144,23 @@ export default function LiveAlertBadge() {
                   >
                     {alert.timestamp}
                   </Typography>
+                  {alert.site_location && (
+                    <Typography
+                      variant="caption"
+                      sx={{ color: 'text.secondary', display: 'block', mt: 0.25 }}
+                    >
+                      Site: {alert.site_name || alert.site_location} | Area:{' '}
+                      {alert.area_name || alert.area_location}
+                    </Typography>
+                  )}
+                  {alert.no_hardhat_count && (
+                    <Typography
+                      variant="caption"
+                      sx={{ color: '#ff4d4f', display: 'block', mt: 0.25, fontWeight: 500 }}
+                    >
+                      Violations: {alert.no_hardhat_count}
+                    </Typography>
+                  )}
                 </Box>
               ))
             )}

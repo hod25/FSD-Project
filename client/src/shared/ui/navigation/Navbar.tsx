@@ -6,7 +6,6 @@ import {
   Stack,
   IconButton,
   Typography,
-  Tooltip,
   Button,
   Menu,
   MenuItem,
@@ -14,8 +13,6 @@ import {
 } from '@mui/material';
 import {
   Menu as MenuIcon,
-  Person as PersonIcon,
-  Settings as SettingsIcon,
   Business as BusinessIcon,
   LocationOn as LocationOnIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
@@ -218,19 +215,6 @@ export default function Navbar({ setMobileOpen }: NavbarProps) {
                   </MenuItem>
                 ))}
             </Menu>
-
-            {/* Icons */}
-            <Tooltip title="Profile">
-              <IconButton size="small" sx={navbarStyles.iconButton}>
-                <PersonIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title="Settings">
-              <IconButton size="small" sx={navbarStyles.settingsButton}>
-                <SettingsIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
 
             <LiveAlertBadge />
           </Stack>

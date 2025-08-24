@@ -1,25 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
 import { AlertCircle, RotateCcw, Bell } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/shared/store/store';
-
-const SOCKET_SERVER_URL = 'http://pro-safe.cs.colman.ac.il:5000';
-
-interface Alert {
-  message: string;
-  timestamp: string;
-  site_location?: string;
-  area_location?: string;
-  details?: string;
-  image_url?: string;
-  no_hardhat_count?: number;
-}
+import { useLiveAlerts } from '@/shared/hooks/useLiveAlerts';
 
 export default function LiveCameraPage() {
-  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const { alerts } = useLiveAlerts();
   const [isStreamAvailable, setIsStreamAvailable] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -30,30 +18,6 @@ export default function LiveCameraPage() {
   const videoStreamUrl = currentCameraUrl
     ? `${currentCameraUrl}?site_id=${siteId}&area_id=${areaId}`
     : '';
-
-  useEffect(() => {
-    const socket = io(SOCKET_SERVER_URL, {
-      transports: ['websocket'],
-      withCredentials: true,
-    });
-
-    socket.on('connect', () => {
-      console.log('🔌 Connected to socket server');
-    });
-
-    socket.on('alert', (data: Alert) => {
-      console.log('🚨 New alert received:', data);
-      setAlerts((prev) => [data, ...prev]);
-    });
-
-    socket.on('disconnect', () => {
-      console.log('❌ Disconnected from socket server');
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
 
   useEffect(() => {
     setIsLoading(true);
@@ -358,8 +322,8 @@ export default function LiveCameraPage() {
                     {alert.timestamp}
                   </div>
                   <div style={{ fontSize: '12px', color: '#555' }}>
-                    <strong>Site:</strong> {alert.site_location} | <strong>Area:</strong>{' '}
-                    {alert.area_location}
+                    <strong>Site:</strong> {alert.site_name || alert.site_location} |{' '}
+                    <strong>Area:</strong> {alert.area_name || alert.area_location}
                   </div>
                   {alert.no_hardhat_count !== undefined && (
                     <div style={{ fontSize: '12px', color: '#ff4d4f', marginTop: '4px' }}>

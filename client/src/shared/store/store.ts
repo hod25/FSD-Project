@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
+import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
 import userReducer from './slices/userSlice';
 import locationReducer from './slices/locationSlice';
 import areaReducer from './slices/areaSlice';
@@ -20,32 +21,25 @@ const createNoopStorage = (): WebStorage => {
   };
 };
 
-// ---- Use dynamic import to avoid SSR issues ----
-let storage: WebStorage;
-if (typeof window !== 'undefined') {
-  // Client-side: use localStorage
-  storage = (await import('redux-persist/lib/storage')).default as WebStorage;
-} else {
-  // Server-side: use noop storage
-  storage = createNoopStorage();
-}
+// ---- Use storage that works for both SSR and client ----
+const persistStorage = typeof window !== 'undefined' ? storage : createNoopStorage();
 
 // ---- Redux Persist Configuration ----
 const userPersistConfig = {
   key: 'user',
-  storage,
+  storage: persistStorage,
   whitelist: ['name', 'email', 'access_level', 'site_location', '_id', 'isLoggedIn'],
 };
 
 const locationPersistConfig = {
   key: 'location',
-  storage,
+  storage: persistStorage,
   whitelist: ['name', 'id', 'details'],
 };
 
 const areaPersistConfig = {
   key: 'area',
-  storage,
+  storage: persistStorage,
   whitelist: ['list', 'currentArea', 'currentAreaId', 'currentAreaUrl'],
 };
 
