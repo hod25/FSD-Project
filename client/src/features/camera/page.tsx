@@ -12,6 +12,7 @@ export default function LiveCameraPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const currentCameraUrl = useSelector((state: RootState) => state.area?.currentAreaUrl);
+  const currentAreaName = useSelector((state: RootState) => state.area?.currentArea);
   const siteId = useSelector((state: RootState) => state.user.site_location);
   const areaId = useSelector((state: RootState) => state.area?.currentAreaId);
 
@@ -108,7 +109,7 @@ export default function LiveCameraPage() {
                   boxShadow: '0 0 0 2px rgba(76, 175, 80, 0.2)',
                 }}
               />
-              Main Entrance Camera
+              Live Camera
             </h2>
             <div
               style={{
@@ -146,7 +147,37 @@ export default function LiveCameraPage() {
                 boxShadow: 'inset 0 0 20px rgba(0,0,0,0.1)',
               }}
             >
-              {isLoading ? (
+              {currentAreaName === 'All Areas' ? (
+                <div
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: '#111',
+                    color: '#fff',
+                    padding: '20px',
+                  }}
+                >
+                  <AlertCircle size={64} color="#ffa500" />
+                  <h2 style={{ marginTop: '16px', fontSize: '22px', color: '#fff' }}>
+                    Please Select a Camera Area
+                  </h2>
+                  <p
+                    style={{
+                      marginTop: '8px',
+                      fontSize: '16px',
+                      color: '#aaa',
+                      textAlign: 'center',
+                      maxWidth: '400px',
+                    }}
+                  >
+                    Please select a specific camera area from the dropdown to view the live feed.
+                  </p>
+                </div>
+              ) : isLoading ? (
                 <div
                   style={{
                     width: '100%',

@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useLiveAlerts } from '@/shared/hooks/useLiveAlerts';
 
 export default function LiveAlertBadge() {
-  const { clearAlerts, getRecentAlerts, isConnected } = useLiveAlerts();
+  const { clearAlerts, getRecentAlerts } = useLiveAlerts();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const router = useRouter();
 
@@ -88,7 +88,7 @@ export default function LiveAlertBadge() {
         <Box sx={{ p: 2 }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
             <Typography variant="subtitle1" fontWeight={600}>
-              Live Alerts ({isConnected ? 'Connected' : 'Disconnected'})
+              Live Alerts
             </Typography>
             <Stack direction="row" spacing={1}>
               {recentAlerts.length > 0 && (

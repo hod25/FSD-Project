@@ -10,6 +10,7 @@ import {
 } from '@/shared/services/userService';
 import styles from './page.module.css';
 import { useSelector } from 'react-redux';
+import { FaUserShield, FaEye } from 'react-icons/fa';
 
 type User = {
   _id: string;
@@ -235,7 +236,17 @@ const UserManagementPage = () => {
                         user.access_level === 'admin' ? styles.adminBadge : styles.viewerBadge
                       }`}
                     >
-                      {user.access_level}
+                      {user.access_level === 'admin' ? (
+                        <>
+                          <FaUserShield style={{ marginRight: '6px' }} />
+                          {user.access_level}
+                        </>
+                      ) : (
+                        <>
+                          <FaEye style={{ marginRight: '6px' }} />
+                          {user.access_level}
+                        </>
+                      )}
                     </span>
                   </td>
                   <td>
@@ -278,7 +289,7 @@ const UserManagementPage = () => {
 
       {/* Create User Section */}
       <div className={styles.userBox}>
-        <h2 className={styles.sectionTitle}>Create New User</h2>
+        <h2 className={styles.sectionTitle}>Create New Viewer</h2>
 
         {error && (
           <div className={`${styles.messageContainer} ${styles.errorMessage}`}>{error}</div>
@@ -348,7 +359,7 @@ const UserManagementPage = () => {
             </div>
           </div>
           <button type="submit" className={styles.submitBtn} disabled={loading}>
-            {loading ? 'Creating...' : 'Create User'}
+            {loading ? 'Creating...' : 'Create Viewer'}
           </button>
         </form>
       </div>

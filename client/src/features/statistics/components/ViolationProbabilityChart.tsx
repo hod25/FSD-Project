@@ -33,7 +33,7 @@ const ViolationProbabilityChart: React.FC<ViolationProbabilityChartProps> = ({ d
   if (!data || data.totalViolations === 0) {
     return (
       <div className={styles.container}>
-        <h3 className={styles.title}>🎯 Violation Probability Analysis</h3>
+        <h3 className={styles.title}>Probability Analysis</h3>
         <div className={styles.emptyState}>
           <p>No violation data available for analysis</p>
         </div>
@@ -47,41 +47,33 @@ const ViolationProbabilityChart: React.FC<ViolationProbabilityChartProps> = ({ d
 
   return (
     <div className={styles.container}>
-      <h3 className={styles.title}>🎯 Violation Probability Analysis</h3>
-      
+      <h3 className={styles.title}>Probability Analysis</h3>
+
       <div className={styles.summaryCards}>
         <div className={styles.summaryCard}>
           <h4>Peak Hour</h4>
-          <div className={styles.summaryValue}>
-            {formatHour(data.peakHour.hour)}
-          </div>
+          <div className={styles.summaryValue}>{formatHour(data.peakHour.hour)}</div>
           <div className={styles.summarySubtext}>
             {data.peakHour.count} violations ({data.peakHour.percentage}%)
           </div>
         </div>
-        
+
         <div className={styles.summaryCard}>
           <h4>Peak Day</h4>
-          <div className={styles.summaryValue}>
-            {data.peakDay.day}
-          </div>
+          <div className={styles.summaryValue}>{data.peakDay.day}</div>
           <div className={styles.summarySubtext}>
             {data.peakDay.count} violations ({data.peakDay.percentage}%)
           </div>
         </div>
-        
+
         <div className={styles.summaryCard}>
           <h4>Total Violations</h4>
-          <div className={styles.summaryValue}>
-            {data.totalViolations}
-          </div>
-          <div className={styles.summarySubtext}>
-            Analyzed violations
-          </div>
+          <div className={styles.summaryValue}>{data.totalViolations}</div>
+          <div className={styles.summarySubtext}>Analyzed violations</div>
         </div>
       </div>
     </div>
   );
 };
 
-export default ViolationProbabilityChart; 
+export default ViolationProbabilityChart;

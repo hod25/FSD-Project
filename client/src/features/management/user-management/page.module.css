@@ -2,131 +2,129 @@
 .userManagementContainer {
   min-height: 100vh;
   padding: 2rem;
-  background: #fafafa;
+  background: transparent;
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
 .headerSection {
-  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  background: white;
   border-radius: 12px;
   padding: 2.5rem;
-  color: white;
+  color: #1e293b;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(52, 73, 94, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
 }
 
 .mainTitle {
   font-size: 2.2rem;
-  font-weight: 300;
+  font-weight: 700;
   margin-bottom: 0.5rem;
-  letter-spacing: 0.5px;
+  letter-spacing: -0.025em;
+  color: #1e293b;
 }
 
 .mainSubtitle {
   font-size: 1rem;
-  opacity: 0.85;
-  font-weight: 300;
+  color: #64748b;
+  font-weight: 400;
 }
 
 .userBox {
   background-color: white;
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-  border: 1px solid #e8e8e8;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
   padding: 2rem;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   transition: box-shadow 0.2s ease;
+  position: relative;
 }
 
 .userBox:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.12);
 }
 .roleBadge {
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 6px 12px;
+  border-radius: 6px;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
 }
 
 .adminBadge {
-  background: #ffeaea;
-  color: #c0392b;
-  border: 1px solid #f5c6cb;
+  background: #fed7d7;
+  color: #e53e3e;
+  border: 1px solid rgba(229, 62, 62, 0.2);
 }
 
 .viewerBadge {
-  background: #e3f2fd;
-  color: #1976d2;
-  border: 1px solid #bbdefb;
+  background: #dbeafe;
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .deleteBtn {
   background: #ffffff;
-  color: #e74c3c;
-  border: 1px solid #e74c3c;
-  padding: 6px 12px;
-  border-radius: 4px;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  padding: 8px 16px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-family: inherit;
 }
 
 .deleteBtn:hover {
-  background: #e74c3c;
+  background: #ef4444;
   color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }
 
 .deleteBtn:active {
-  transform: translateY(1px);
+  transform: translateY(0);
 }
 
 .messageContainer {
-  padding: 12px 16px;
-  border-radius: 6px;
+  padding: 16px 20px;
+  border-radius: 8px;
   margin-bottom: 1.5rem;
   font-weight: 500;
   font-size: 14px;
+  display: flex;
+  align-items: center;
 }
 
 .errorMessage {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background: #fed7d7;
+  color: #e53e3e;
+  border-left: 4px solid #e53e3e;
 }
 
 .successMessage {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.userBox::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #34495e, #2c3e50);
+  background: #c6f6d5;
+  color: #38a169;
+  border-left: 4px solid #38a169;
 }
 
 .sectionTitle {
-  color: #2c3e50;
-  font-size: 1.6rem;
-  font-weight: 400;
+  color: #1e293b;
+  font-size: 1.8rem;
+  font-weight: 700;
   margin-bottom: 1.5rem;
   text-align: left;
-  border-bottom: 2px solid #ecf0f1;
-  padding-bottom: 0.75rem;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
 }
 
 .accessDeniedBox {
@@ -191,95 +189,85 @@
 
 .createUserForm input {
   width: 100%;
-  padding: 14px 18px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
   font-size: 15px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   background: white;
-  color: #333;
+  color: #2d3748;
+  font-family: inherit;
 }
 
 .createUserForm input:focus {
-  border-color: #d18700;
-  box-shadow: 0 0 0 3px rgba(209, 135, 0, 0.1);
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
   outline: none;
-  transform: translateY(-2px);
 }
 
 .createUserForm input::placeholder {
-  color: #bbb;
+  color: #a0aec0;
 }
 
 .submitBtn {
-  background: linear-gradient(135deg, #d18700 0%, #e09500 50%, #ffb400 100%);
+  background: #f59e0b;
   color: white;
   border: none;
-  padding: 16px 24px;
-  border-radius: 12px;
-  font-size: 16px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(209, 135, 0, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.submitBtn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px 0 rgba(245, 158, 11, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  font-family: inherit;
+  display: block;
+  margin: 0 auto;
+  width: auto;
+  min-width: 150px;
 }
 
 .submitBtn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(209, 135, 0, 0.4);
+  background: #d97706;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px 0 rgba(245, 158, 11, 0.3);
 }
 
-.submitBtn:hover::before {
-  left: 100%;
+.submitBtn:active {
+  transform: translateY(0);
 }
 
 .submitBtn:disabled {
-  background: linear-gradient(135deg, #cca05c 0%, #b8944f 100%);
+  background: #cbd5e0;
   cursor: not-allowed;
   transform: none;
-  animation: pulse 2s infinite;
-}
-
-.submitBtn:disabled:hover {
-  transform: none;
-  box-shadow: 0 4px 15px rgba(209, 135, 0, 0.3);
+  box-shadow: none;
 }
 
 .userTable {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e8e8e8;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
 }
 
 .userTable th,
 .userTable td {
-  padding: 12px 16px;
+  padding: 16px 20px;
   text-align: left;
   font-size: 14px;
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid #f7fafc;
 }
 
 .userTable th {
-  background: #f8f9fa;
-  color: #495057;
+  background: #f8fafc;
+  color: #4a5568;
   font-weight: 600;
   font-size: 13px;
   text-transform: uppercase;
@@ -438,38 +426,26 @@
   transition: color 0.3s ease;
 }
 
-.statsCard {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 1.5rem;
-  border-radius: 15px;
-  text-align: center;
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-  margin-bottom: 2rem;
-  position: relative;
-  overflow: hidden;
-}
-
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
 .statsItem {
   background: white;
-  border: 1px solid #e8e8e8;
-  color: #2c3e50;
-  padding: 1.5rem;
-  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  color: #1e293b;
+  padding: 2rem;
+  border-radius: 12px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
   transition: all 0.2s ease;
 }
 
 .statsItem:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.12);
   transform: translateY(-2px);
 }
 
@@ -483,23 +459,24 @@
 
 .searchInput {
   width: 100%;
-  padding: 10px 16px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: border-color 0.2s ease;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.2s ease;
   background: white;
-  color: #333;
+  color: #2d3748;
+  font-family: inherit;
 }
 
 .searchInput:focus {
-  border-color: #2c3e50;
+  border-color: #f59e0b;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
 }
 
 .searchInput::placeholder {
-  color: #999;
+  color: #a0aec0;
 }
 
 .searchContainer {
@@ -530,52 +507,6 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-}
-
-.createUserForm input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: border-color 0.2s ease;
-  background: white;
-  color: #333;
-}
-
-.createUserForm input:focus {
-  border-color: #2c3e50;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1);
-}
-
-.createUserForm input::placeholder {
-  color: #999;
-}
-
-.submitBtn {
-  background: #2c3e50;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.submitBtn:hover {
-  background: #34495e;
-}
-
-.submitBtn:disabled {
-  background: #bdc3c7;
-  cursor: not-allowed;
-}
-
-.submitBtn:active {
-  transform: translateY(1px);
 }
 
 .statsNumber {

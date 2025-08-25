@@ -1,382 +1,364 @@
-/* עיצוב מקצועי לניהול משתמשים */
-.userManagementContainer {
-  min-height: 100vh;
+/* Site Management Page - Modern Clean Design */
+.page {
   padding: 2rem;
-  background: #fafafa;
+  background: transparent;
+  min-height: 100vh;
+  position: relative;
+}
+
+.contentWrapper {
+  position: relative;
+  background: transparent;
+  padding: 0;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  text-align: left;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.mainContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  min-height: 70vh;
+}
+
+.leftPanel {
+  border-right: 1px solid rgba(148, 163, 184, 0.2);
+  padding-right: 1.5rem;
+}
+
+.middlePanel {
+  border-right: 1px solid rgba(148, 163, 184, 0.2);
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.rightPanel {
+  padding-left: 1.5rem;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.panelTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.addButton {
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px 0 rgba(22, 163, 74, 0.2);
+}
+
+.addButton:hover {
+  background: #15803d;
+  box-shadow: 0 4px 8px 0 rgba(22, 163, 74, 0.3);
+  transform: translateY(-1px);
+}
+
+.cameraList {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.cameraItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.cameraItem:hover {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.cameraItem.selected {
+  background: #f59e0b;
+  color: white;
+  border-color: #d97706;
+}
+
+.cameraInfo {
+  flex: 1;
+}
+
+.cameraName {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.cameraUrl {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  word-break: break-all;
+}
+
+.selected .cameraUrl {
+  opacity: 0.9;
+}
+
+.existingCameraItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(255, 255, 255, 0.9);
+  transition: all 0.2s ease;
+}
+
+.existingCameraItem:hover {
+  background: rgba(16, 185, 129, 0.05);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.formTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+}
+
+.helpText {
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+  font-style: italic;
+}
+
+.deleteButton {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deleteButton:hover {
+  background: #dc2626;
+  color: white;
+}
+
+.formContainer {
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
-.headerSection {
-  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  border-radius: 12px;
-  padding: 2.5rem;
-  color: white;
-  text-align: center;
-  box-shadow: 0 4px 20px rgba(52, 73, 94, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.mainTitle {
-  font-size: 2.2rem;
-  font-weight: 300;
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.5px;
-}
-
-.mainSubtitle {
-  font-size: 1rem;
-  opacity: 0.85;
-  font-weight: 300;
-}
-
-.userBox {
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-  border: 1px solid #e8e8e8;
-  padding: 2rem;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  transition: box-shadow 0.2s ease;
-}
-
-.userBox:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-.roleBadge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  display: inline-block;
-}
-
-.adminBadge {
-  background: #ffeaea;
-  color: #c0392b;
-  border: 1px solid #f5c6cb;
-}
-
-.viewerBadge {
-  background: #e3f2fd;
-  color: #1976d2;
-  border: 1px solid #bbdefb;
-}
-
-.deleteBtn {
-  background: #ffffff;
-  color: #e74c3c;
-  border: 1px solid #e74c3c;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.deleteBtn:hover {
-  background: #e74c3c;
-  color: white;
-}
-
-.deleteBtn:active {
-  transform: translateY(1px);
-}
-
-.messageContainer {
-  padding: 12px 16px;
-  border-radius: 6px;
-  margin-bottom: 1.5rem;
-  font-weight: 500;
-  font-size: 14px;
-}
-
-.errorMessage {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-.successMessage {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.userBox::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #34495e, #2c3e50);
-}
-
-.sectionTitle {
-  color: #2c3e50;
-  font-size: 1.6rem;
-  font-weight: 400;
-  margin-bottom: 1.5rem;
-  text-align: left;
-  border-bottom: 2px solid #ecf0f1;
-  padding-bottom: 0.75rem;
-}
-
-.accessDeniedBox {
-  background: white;
-  color: #2c3e50;
-  text-align: center;
-  padding: 3rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-  border: 1px solid #e8e8e8;
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-.accessDeniedTitle {
-  font-size: 1.8rem;
-  font-weight: 400;
-  margin-bottom: 1rem;
-  color: #e74c3c;
-}
-
-.accessDeniedText {
-  font-size: 1rem;
-  color: #7f8c8d;
-  line-height: 1.5;
-}
-
-.loadingContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 3rem;
-  color: #2c3e50;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #ecf0f1;
-  border-top: 2px solid #2c3e50;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-right: 0.5rem;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.createUserForm {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.createUserForm input {
-  width: 100%;
-  padding: 14px 18px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  font-size: 15px;
-  transition: all 0.3s ease;
-  background: white;
-  color: #333;
-}
-
-.createUserForm input:focus {
-  border-color: #d18700;
-  box-shadow: 0 0 0 3px rgba(209, 135, 0, 0.1);
-  outline: none;
-  transform: translateY(-2px);
-}
-
-.createUserForm input::placeholder {
-  color: #bbb;
-}
-
-.submitBtn {
-  background: linear-gradient(135deg, #d18700 0%, #e09500 50%, #ffb400 100%);
-  color: white;
-  border: none;
-  padding: 16px 24px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(209, 135, 0, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.submitBtn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.submitBtn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(209, 135, 0, 0.4);
-}
-
-.submitBtn:hover::before {
-  left: 100%;
-}
-
-.submitBtn:disabled {
-  background: linear-gradient(135deg, #cca05c 0%, #b8944f 100%);
-  cursor: not-allowed;
-  transform: none;
-  animation: pulse 2s infinite;
-}
-
-.submitBtn:disabled:hover {
-  transform: none;
-  box-shadow: 0 4px 15px rgba(209, 135, 0, 0.3);
-}
-
-.userTable {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e8e8e8;
-}
-
-.userTable th,
-.userTable td {
-  padding: 12px 16px;
-  text-align: left;
-  font-size: 14px;
-  border-bottom: 1px solid #f5f5f5;
-}
-
-.userTable th {
-  background: #f8f9fa;
-  color: #495057;
-  font-weight: 600;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.userTable tbody tr {
-  transition: background-color 0.2s ease;
-}
-
-.userTable tbody tr:hover {
-  background: #f8f9fa;
-}
-
-.userTable tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.formGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem 2rem;
-  margin-bottom: 2rem;
-}
-
 .formGroup {
   display: flex;
   flex-direction: column;
+  gap: 0.75rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
 
-.inputLabel {
-  font-size: 15px;
+.icon {
+  color: #6b7280;
+}
+
+.input {
+  padding: 0.875rem 1rem;
+  border: 2px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  font-size: 0.875rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(5px);
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.input:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+  outline: none;
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-1px);
+}
+
+.input:hover {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.input:disabled {
+  background: rgba(148, 163, 184, 0.1);
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.saveButton {
+  background: #f59e0b;
+  color: white;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  cursor: pointer;
   font-weight: 600;
-  color: #555;
-  margin-bottom: 5px;
-  position: relative;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px 0 rgba(245, 158, 11, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  align-self: flex-start;
+  margin-top: 1rem;
+}
+
+.saveButton:hover {
+  background: #d97706;
+  box-shadow: 0 4px 8px 0 rgba(245, 158, 11, 0.3);
+  transform: translateY(-1px);
+}
+
+.saveButton:active {
+  transform: translateY(0);
+}
+
+.saveButton:disabled {
+  background: #9ca3af;
+  color: #6b7280;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.saveButton:disabled:hover {
+  background: #9ca3af;
+  transform: none;
+  box-shadow: none;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.emptyState p {
+  margin: 0;
+  font-style: italic;
+}
+
+.accessDenied {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 5px;
+  height: 80vh;
+  flex-direction: column;
+  text-align: center;
 }
 
-.inputLabel::before {
-  content: '';
-  width: 4px;
-  height: 4px;
-  background: #d18700;
-  border-radius: 50%;
+.accessDenied h2 {
+  color: #dc2626;
+  font-size: 2rem;
+  margin-bottom: 1rem;
 }
 
-@media (max-width: 768px) {
-  .userManagementContainer {
-    padding: 1rem;
+.accessDenied p {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .mainContainer {
+    grid-template-columns: 1fr;
     gap: 1.5rem;
   }
 
-  .userBox {
+  .leftPanel, .middlePanel {
+    border-right: none;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    padding-right: 0;
+    padding-bottom: 1.5rem;
+  }
+
+  .rightPanel {
+    padding-left: 0;
+    padding-top: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
     padding: 1.5rem;
-    border-radius: 15px;
   }
 
-  .headerSection {
-    padding: 2rem 1.5rem;
-    border-radius: 15px;
+  .title {
+    font-size: 1.75rem;
   }
 
-  .mainTitle {
-    font-size: 2rem;
+  .mainContainer {
+    padding: 1.5rem;
   }
 
-  .userTable {
-    font-size: 14px;
-  }
-
-  .userTable th,
-  .userTable td {
-    font-size: 13px;
-    padding: 12px 8px;
-  }
-
-  .formGrid {
-    grid-template-columns: 1fr;
-    gap: 1.2rem;
-  }
-
-  .deleteBtn {
-    padding: 8px 16px;
-    font-size: 13px;
-  }
-
-  .statsGrid {
-    grid-template-columns: 1fr;
+  .panelHeader {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 1rem;
-  }
-
-  .statsNumber {
-    font-size: 2rem;
   }
 }
 
