@@ -3,19 +3,18 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
-import { FaFileExcel } from 'react-icons/fa';
 
 import type { RootState } from '@/shared/store/store';
 import FiltersPanel from './components/FiltersPanel';
 import StatsSummary from './components/StatsSummary';
 import EventsOverTimeChart from './components/EventsOverTimeChart';
-import BarChartByLocation from './components/BarChartByLocation';
 import BarChartByArea from './components/BarChartByArea';
 import StatusPieChart from './components/StatusPieChart';
 import ViolationProbabilityChart from './components/ViolationProbabilityChart';
 import ViolationsByHourChart from './components/ViolationsByHourChart';
 import ViolationsByDayChart from './components/ViolationsByDayChart';
 import SeverityDistributionChart from './components/SeverityDistributionChart';
+import LoadingSpinner from './components/LoadingSpinner';
 
 import styles from './StatisticsPage.module.css';
 
@@ -71,8 +70,10 @@ export default function StatisticsPage() {
   });
 
   const [stats, setStats] = useState<StatsResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchStats = async () => {
+    setIsLoading(true);
     try {
       const payload: StatsFilters = {
         ...filters,
@@ -89,6 +90,8 @@ export default function StatisticsPage() {
       setStats(res.data);
     } catch (err) {
       console.error('Failed to fetch stats', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -111,72 +114,100 @@ export default function StatisticsPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.headerRow}>
-        <h1 className={styles.title}>📊 Safety Events Statistics</h1>
-        {stats && (
-          <button onClick={handleExport} className={styles.exportButton}>
-            <FaFileExcel /> Export to Excel
-          </button>
+      <div className={styles.contentWrapper}>
+        <div className={styles.headerRow}>
+          <h1 className={styles.title}>Statistics Dashboard</h1>
+        </div>
+
+        <FiltersPanel
+          filters={filters}
+          setFilters={setFilters}
+          onApply={fetchStats}
+          handleExport={stats ? handleExport : undefined}
+        />
+
+        {isLoading && (
+          <div className={styles.contentWrapper}>
+            <LoadingSpinner size="large" message="Analyzing safety data..." />
+          </div>
+        )}
+
+        {!isLoading && stats && (
+          <>
+            <StatsSummary stats={stats} />
+
+            <div className={styles.chartGrid}>
+              <EventsOverTimeChart
+                data={stats.eventsByDateStatus.map((item) => ({
+                  ...item,
+                  date: new Date(item.date).toLocaleDateString('he-IL'), // dd/mm/yyyy
+                }))}
+              />
+              <StatusPieChart data={stats.statusCounts} />
+
+              <BarChartByArea
+                data={stats.eventsByAreaStatus.map((item) => ({
+                  ...item,
+                  name: areaNameMap[item.areaId] || item.areaId,
+                }))}
+              />
+
+              <ViolationsByHourChart data={stats.violationProbability?.hourlyData || []} />
+              <ViolationsByDayChart data={stats.violationProbability?.dailyData || []} />
+              <SeverityDistributionChart
+                data={
+                  stats.severityDistribution || [
+                    { severity: '1 Person', count: 0, percentage: 0 },
+                    { severity: '2 People', count: 0, percentage: 0 },
+                    { severity: '3 People', count: 0, percentage: 0 },
+                    { severity: '4+ People', count: 0, percentage: 0 },
+                  ]
+                }
+              />
+            </div>
+
+            <div className={styles.chartGrid}>
+              <ViolationProbabilityChart
+                data={
+                  stats.violationProbability || {
+                    hourlyData: [],
+                    dailyData: [],
+                    peakHour: { hour: 0, count: 0, percentage: 0 },
+                    peakDay: { day: '', count: 0, percentage: 0 },
+                    totalViolations: 0,
+                  }
+                }
+              />
+            </div>
+          </>
+        )}
+
+        {!isLoading && !stats && (
+          <div
+            style={{
+              textAlign: 'center',
+              padding: '3rem',
+              color: '#64748b',
+            }}
+          >
+            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📊</div>
+            <h3
+              style={{
+                margin: '0 0 0.5rem 0',
+                color: '#1e293b',
+                fontSize: '1.5rem',
+                fontWeight: '600',
+              }}
+            >
+              Ready to Analyze
+            </h3>
+            <p style={{ margin: 0, fontSize: '1rem' }}>
+              Select your date range and click &quot;Apply&quot; to view comprehensive safety
+              statistics
+            </p>
+          </div>
         )}
       </div>
-
-      <FiltersPanel filters={filters} setFilters={setFilters} onApply={fetchStats} />
-
-      {stats && (
-        <>
-          <StatsSummary stats={stats} />
-          <div className={styles.chartGrid}>
-            <EventsOverTimeChart
-              data={stats.eventsByDateStatus.map((item) => ({
-                ...item,
-                date: new Date(item.date).toLocaleDateString('he-IL'), // dd/mm/yyyy
-              }))}
-            />
-            <StatusPieChart data={stats.statusCounts} />
-
-            <BarChartByLocation
-              data={stats.eventsByLocationStatus.map((item) => ({
-                ...item,
-                name: locationNameMap[item.locationId] || item.locationId,
-              }))}
-            />
-
-            <BarChartByArea
-              data={stats.eventsByAreaStatus.map((item) => ({
-                ...item,
-                name: areaNameMap[item.areaId] || item.areaId,
-              }))}
-            />
-
-            <ViolationsByHourChart data={stats.violationProbability?.hourlyData || []} />
-            <ViolationsByDayChart data={stats.violationProbability?.dailyData || []} />
-            <SeverityDistributionChart
-              data={
-                stats.severityDistribution || [
-                  { severity: '1 Person', count: 0, percentage: 0 },
-                  { severity: '2 People', count: 0, percentage: 0 },
-                  { severity: '3 People', count: 0, percentage: 0 },
-                  { severity: '4+ People', count: 0, percentage: 0 },
-                ]
-              }
-            />
-          </div>
-
-          <div className={styles.chartGrid}>
-            <ViolationProbabilityChart
-              data={
-                stats.violationProbability || {
-                  hourlyData: [],
-                  dailyData: [],
-                  peakHour: { hour: 0, count: 0, percentage: 0 },
-                  peakDay: { day: '', count: 0, percentage: 0 },
-                  totalViolations: 0,
-                }
-              }
-            />
-          </div>
-        </>
-      )}
     </div>
   );
 }

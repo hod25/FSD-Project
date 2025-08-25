@@ -5,7 +5,6 @@
   justify-content: center;
   min-height: 100vh;
   padding: 2rem;
-  background: linear-gradient(135deg, #f8f9fb 0%, #f0f2f5 100%);
 }
 
 .logoContainer {
@@ -15,39 +14,30 @@
 
 .loginBox {
   background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
-  padding: 2.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+  padding: 3rem;
   width: 100%;
-  max-width: 420px;
+  max-width: 480px;
   animation: slideUp 0.6s ease-out;
-  position: relative;
-  overflow: hidden;
-}
-
-.loginBox::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #e09500, #d18700, #ffb400);
+  border: 1px solid #f0f0f0;
 }
 
 .loginTitle {
-  color: #333;
-  font-size: 28px;
+  color: #2d3748;
+  font-size: 32px;
   font-weight: 600;
   margin-bottom: 0.5rem;
   text-align: center;
+  letter-spacing: -0.5px;
 }
 
 .loginSubtitle {
-  color: #707070;
+  color: #718096;
   font-size: 16px;
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
+  font-weight: 400;
 }
 
 .loginForm {
@@ -66,7 +56,7 @@
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.5rem;
 }
 
 .passwordLabelContainer {
@@ -92,21 +82,25 @@
 }
 
 .loginLabel {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
-  color: #555;
-  margin-bottom: 5px;
+  color: #4a5568;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .loginInput {
   width: 100%;
-  padding: 12px 16px;
+  padding: 14px 16px;
   font-size: 15px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #e2e8f0;
   border-radius: 6px;
   background-color: white;
-  color: #000; 
-  transition: all 0.3s ease;
+  color: #2d3748;
+  transition: all 0.2s ease;
+  font-family: inherit;
 }
 
 .loginInput:global(:-webkit-autofill),
@@ -118,13 +112,13 @@
 }
 
 .loginInput:focus {
-  border-color: #d18700;
-  box-shadow: 0 0 0 2px rgba(209, 135, 0, 0.1);
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
   outline: none;
 }
 
 .loginInput::placeholder {
-  color: #bbb;
+  color: #a0aec0;
 }
 
 .passwordWrapper {
@@ -147,37 +141,41 @@
 }
 
 .loginButton {
-  background-color: #d18700;
+  background-color: #f59e0b;
   color: white;
   border: none;
-  padding: 12px;
-  border-radius: 6px;
+  padding: 14px 20px;
+  border-radius: 8px;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  margin-top: 1rem;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
+  margin-top: 1.5rem;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-shadow: 0 2px 4px 0 rgba(245, 158, 11, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
 .loginButton:hover {
-  background-color: #b37300;
-  transform: translateY(-2px);
+  background-color: #d97706;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px 0 rgba(245, 158, 11, 0.3);
 }
 
 .loginButton:active {
-  transform: translateY(1px);
+  transform: translateY(0px);
 }
 
 .loginButton:disabled {
-  background-color: #cca05c;
+  background-color: #cbd5e0;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 .loginIcon {
@@ -185,13 +183,27 @@
 }
 
 .loginError {
-  color: #e53935;
+  color: #e53e3e;
   font-size: 14px;
   margin-top: -0.5rem;
   margin-bottom: 0.5rem;
-  padding: 8px 12px;
-  background-color: rgba(229, 57, 53, 0.1);
-  border-radius: 4px;
+  padding: 12px 16px;
+  background-color: #fed7d7;
+  border-radius: 6px;
+  border-left: 4px solid #e53e3e;
+  display: flex;
+  align-items: center;
+}
+
+.successMessage {
+  color: #38a169;
+  font-size: 14px;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 12px 16px;
+  background-color: #c6f6d5;
+  border-radius: 6px;
+  border-left: 4px solid #38a169;
   display: flex;
   align-items: center;
 }
@@ -241,7 +253,7 @@
 @keyframes slideUp {
   0% {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   100% {
     opacity: 1;
@@ -272,5 +284,4 @@
   .formGrid {
     grid-template-columns: 1fr;
   }
-  
 }

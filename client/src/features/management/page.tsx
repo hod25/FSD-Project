@@ -1,28 +1,5 @@
 'use client';
 
-import {
-  Box,
-  Button,
-  Stack,
-  TextField,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
-  IconButton,
-  Tooltip,
-  MenuItem,
-} from '@mui/material';
-
-import {
-  LocationOn as LocationOnIcon,
-  NotificationsActive as NotificationsActiveIcon,
-  Videocam as VideocamIcon,
-  Delete as DeleteIcon,
-  Add as AddIcon,
-} from '@mui/icons-material';
-
 import { createArea, deleteArea } from '@/shared/services/areaService';
 
 import {
@@ -36,6 +13,9 @@ import { useSelector } from 'react-redux';
 import { selectAreas, selectCurrentAreaName } from '@/shared/store/slices/areaSlice';
 import { selectUserLocationId } from '@/shared/store/slices/userSlice';
 import Swal from 'sweetalert2';
+import { FaMapMarkerAlt, FaVideo, FaPlus, FaTrash } from 'react-icons/fa';
+
+import styles from './page.module.css';
 
 // ----------- Types -----------
 interface Area {
@@ -55,7 +35,6 @@ export default function Page() {
   // ----------- Hooks (must be at the top) -----------
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const user = useSelector((state: any) => state.user);
-  const [isEditMode, setIsEditMode] = useState(false);
   const locationId = useSelector(selectUserLocationId) || '';
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [selectedCameraId, setSelectedCameraId] = useState<string | null>(null);
@@ -98,83 +77,64 @@ export default function Page() {
   // חסימת צפייה למשתמשי viewer
   if (accessLevel === 'viewer') {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '80vh',
-          flexDirection: 'column',
-        }}
-      >
-        <Typography variant="h4" color="error" gutterBottom>
-          Access Denied
-        </Typography>
-        <Typography variant="body1">You do not have permission to view or edit cameras.</Typography>
-      </Box>
+      <div className={styles.accessDenied}>
+        <h2>Access Denied</h2>
+        <p>You do not have permission to view or edit cameras.</p>
+      </div>
     );
   }
 
   const saveSettings = async () => {
+    if (!selectedCameraId || !editLocation.trim()) {
+      alert('Please enter a location name');
+      return;
+    }
+
     try {
-      let areaExists = areas.some((area) => area.name === editLocation);
-      if (!areaExists) {
-        areaExists = false;
+      const selectedCamera = cameras.find((cam) => cam.id === selectedCameraId);
+      
+      if (!selectedCamera) {
+        alert('No camera selected');
+        return;
       }
 
-      const existingCamera = cameras.find((cam) => cam.location === editLocation);
+      // רק יצירת מצלמה חדשה (אין עריכה)
+      // יצירת אזור חדש במסד הנתונים
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const newAreaResponse: any = await createArea({
+        name: editLocation,
+        url: editUrl,
+      });
 
-      if (existingCamera) {
-        // עדכון מצלמה קיימת
-        const updatedCamera: Camera = {
-          ...existingCamera,
-          location: editLocation,
-          url: editUrl,
-        };
-
-        setCameras((prev) =>
-          prev.map((cam) => (cam.id === existingCamera.id ? updatedCamera : cam))
-        );
-
-        setSelectedCameraId(existingCamera.id);
-        alert('Camera updated!');
-      } else {
-        // יצירת מצלמה חדשה
-        const newId = Date.now().toString();
-        const newCamera: Camera = {
-          id: newId,
-          location: editLocation,
-          url: editUrl,
-        };
-
-        // יצירת אזור חדש במסד הנתונים
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const newAreaResponse: any = await createArea({
-          name: editLocation,
-          url: editUrl,
-        });
-
-        // שליפת ה-ID מהאובייקט הפנימי
-        const newAreaId = newAreaResponse.area?._id;
-        // חיבור האזור למיקום
-        if (locationId) {
-          console.log('🔗 Connecting area to location:', locationId, newAreaId);
-          try {
-            const locationData = await fetchLocationById(locationId);
-            await addAreaToLocation(locationId, newAreaId);
-            console.log('✅ Area added to location:', locationData.id);
-          } catch (err) {
-            console.error('❌ Failed to add area to location:', err);
-            alert('Area created, but failed to connect it to the location.');
-          }
+      // שליפת ה-ID מהאובייקט הפנימי
+      const newAreaId = newAreaResponse.area?._id;
+      
+      // חיבור האזור למיקום
+      if (locationId) {
+        console.log('🔗 Connecting area to location:', locationId, newAreaId);
+        try {
+          const locationData = await fetchLocationById(locationId);
+          await addAreaToLocation(locationId, newAreaId);
+          console.log('✅ Area added to location:', locationData.id);
+        } catch (err) {
+          console.error('❌ Failed to add area to location:', err);
+          alert('Area created, but failed to connect it to the location.');
         }
-
-        // עדכון רשימת המצלמות
-        setCameras((prev) => [...prev, newCamera]);
-        setSelectedCameraId(newId);
-        window.location.reload();
-        alert('Camera added!');
       }
+
+      // עדכון המצלמה המקומית
+      const updatedCamera: Camera = {
+        ...selectedCamera,
+        location: editLocation,
+        url: editUrl,
+      };
+
+      setCameras((prev) =>
+        prev.map((cam) => (cam.id === selectedCameraId ? updatedCamera : cam))
+      );
+
+      window.location.reload();
+      alert('Camera added successfully!');
     } catch (error) {
       console.error('🔥 Error saving settings:', error);
       alert('Failed to save settings, please try again.');
@@ -190,7 +150,8 @@ export default function Page() {
     };
     setCameras((prev) => [...prev, newCamera]);
     setSelectedCameraId(newId);
-    setIsEditMode(false);
+    setEditLocation('');
+    setEditUrl('');
   };
 
   const handleDeleteClick = async (cameraId: string) => {
@@ -257,131 +218,128 @@ export default function Page() {
 
   // ----------- JSX -----------
   return (
-    <Box
-      sx={{
-        bgcolor: '#fff',
-        borderRadius: 3,
-        boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-        p: { xs: 3, md: 4 },
-        maxWidth: 1100,
-        mx: 'auto',
-        mt: 4,
-      }}
-    >
-      <Stack direction="row" spacing={4} alignItems="flex-start">
-        {/* Left Panel - Camera List */}
-        <Box
-          sx={{
-            width: '40%',
-            borderRight: '1px solid #ddd',
-            pr: 3,
-            maxHeight: '80vh',
-            overflowY: 'auto',
-          }}
-        >
-          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h6" fontWeight="bold">
-              Cameras
-            </Typography>
-            <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={addCamera}>
-              Add
-            </Button>
-          </Stack>
+    <div className={styles.page}>
+      <div className={styles.contentWrapper}>
+        <div className={styles.headerRow}>
+          <h1 className={styles.title}>Site Management</h1>
+        </div>
 
-          <List>
-            {cameras.length === 0 ? (
-              <Typography variant="body2" color="text.secondary">
-                No Cameras available
-              </Typography>
-            ) : (
-              cameras
-                .filter((cam) => cam.location.trim() !== '' || cam.id === selectedCameraId)
-                .map((cam) => (
-                  <ListItem
-                    key={cam.id}
-                    onClick={() => {
-                      setSelectedCameraId(cam.id);
-                      setIsEditMode(true);
-                    }}
-                    divider
-                    sx={{
-                      cursor: 'pointer',
-                      bgcolor: selectedCameraId === cam.id ? '#FB9C00' : 'transparent',
-                      transition: 'background-color 0.3s ease',
-                    }}
-                  >
-                    <ListItemText
-                      primary={cam.location || '(No Location)'}
-                      secondary={cam.url || ''}
-                    />
-                    <ListItemSecondaryAction>
-                      <Tooltip title="Delete">
-                        <IconButton edge="end" onClick={() => handleDeleteClick(cam.id)}>
-                          <DeleteIcon color="error" />
-                        </IconButton>
-                      </Tooltip>
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                ))
-            )}
-          </List>
-        </Box>
+        <div className={styles.mainContainer}>
+          {/* Left Panel - Add New Camera */}
+          <div className={styles.leftPanel}>
+            <div className={styles.panelHeader}>
+              <h3 className={styles.panelTitle}>Add New Camera</h3>
+              <button className={styles.addButton} onClick={addCamera}>
+                <FaPlus /> Add
+              </button>
+            </div>
 
-        {/* Right Panel - Camera Form */}
-        <Box sx={{ width: '60%', pl: 3 }}>
-          <Stack spacing={3} component="form" onSubmit={(e) => e.preventDefault()}>
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <NotificationsActiveIcon color="primary" />
-              <Typography variant="h5" fontWeight="bold">
-                Site Management
-              </Typography>
-            </Stack>
+            <div className={styles.cameraList}>
+              {cameras.filter((cam) => cam.location.trim() === '').length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>Click &quot;Add&quot; to create a new camera</p>
+                </div>
+              ) : (
+                cameras
+                  .filter((cam) => cam.location.trim() === '')
+                  .map((cam) => (
+                    <div
+                      key={cam.id}
+                      className={`${styles.cameraItem} ${
+                        selectedCameraId === cam.id ? styles.selected : ''
+                      }`}
+                    >
+                      <div className={styles.cameraInfo}>
+                        <div className={styles.cameraName}>New Camera</div>
+                        <div className={styles.cameraUrl}>Enter details to save</div>
+                      </div>
+                    </div>
+                  ))
+              )}
+            </div>
+          </div>
 
-            <Stack spacing={1}>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <LocationOnIcon color="action" />
-                <Typography variant="subtitle2" color="text.secondary">
+          {/* Middle Panel - Existing Cameras */}
+          <div className={styles.middlePanel}>
+            <div className={styles.panelHeader}>
+              <h3 className={styles.panelTitle}>Existing Cameras</h3>
+            </div>
+
+            <div className={styles.cameraList}>
+              {cameras.filter((cam) => cam.location.trim() !== '').length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>No cameras saved yet</p>
+                </div>
+              ) : (
+                cameras
+                  .filter((cam) => cam.location.trim() !== '')
+                  .map((cam) => (
+                    <div key={cam.id} className={styles.existingCameraItem}>
+                      <div className={styles.cameraInfo}>
+                        <div className={styles.cameraName}>{cam.location}</div>
+                        <div className={styles.cameraUrl}>{cam.url || 'No URL'}</div>
+                      </div>
+                      <button
+                        className={styles.deleteButton}
+                        onClick={() => handleDeleteClick(cam.id)}
+                        title="Delete"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  ))
+              )}
+            </div>
+          </div>
+
+          {/* Right Panel - Camera Form */}
+          <div className={styles.rightPanel}>
+            <div className={styles.formContainer}>
+              <h3 className={styles.formTitle}>Camera Details</h3>
+              
+              <div className={styles.formGroup}>
+                <label className={styles.label}>
+                  <FaMapMarkerAlt className={styles.icon} />
                   Camera Location
-                </Typography>
-              </Stack>
-              <TextField
-                fullWidth
-                placeholder="Location"
-                value={editLocation}
-                onChange={(e) => setEditLocation(e.target.value)}
-                disabled={isEditMode || !selectedCameraId}
-              >
-                {areas.map((area) => (
-                  <MenuItem key={area.id} value={area.name}>
-                    {area.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Stack>
+                </label>
+                <input
+                  type="text"
+                  className={styles.input}
+                  placeholder="Enter location name"
+                  value={editLocation}
+                  onChange={(e) => setEditLocation(e.target.value)}
+                  disabled={!selectedCameraId}
+                />
+              </div>
 
-            <Stack spacing={1}>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <VideocamIcon color="action" />
-                <Typography variant="subtitle2" color="text.secondary">
+              <div className={styles.formGroup}>
+                <label className={styles.label}>
+                  <FaVideo className={styles.icon} />
                   Camera URL
-                </Typography>
-              </Stack>
-              <TextField
-                fullWidth
-                type="url"
-                placeholder="https://camera.example.com/stream"
-                value={editUrl}
-                onChange={(e) => setEditUrl(e.target.value)}
-                disabled={!selectedCameraId}
-              />
-            </Stack>
+                </label>
+                <input
+                  type="url"
+                  className={styles.input}
+                  placeholder="https://camera.example.com/stream"
+                  value={editUrl}
+                  onChange={(e) => setEditUrl(e.target.value)}
+                  disabled={!selectedCameraId}
+                />
+              </div>
 
-            <Button variant="contained" color="primary" onClick={saveSettings}>
-              {isEditMode ? 'Update' : 'Save'} {/* ✅ */}
-            </Button>
-          </Stack>
-        </Box>
-      </Stack>
-    </Box>
+              <button className={styles.saveButton} onClick={saveSettings} disabled={!selectedCameraId || !editLocation.trim()}>
+                Add Camera
+              </button>
+              
+              {!selectedCameraId && (
+                <p className={styles.helpText}>
+                  Click &quot;Add&quot; button to create a new camera first
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

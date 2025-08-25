@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import styles from './page.module.css';
 import { FiSave } from 'react-icons/fi';
-import { FaEnvelope, FaUserEdit } from 'react-icons/fa';
+import { FaEnvelope, FaUserEdit, FaPhone, FaLock } from 'react-icons/fa';
 import { Typography } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { selectUserName } from '@/shared/store/slices/userSlice';
@@ -170,7 +170,10 @@ export default function Profile() {
             />
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.loginLabel}>Phone Number</label>
+            <label className={styles.loginLabel}>
+              <FaPhone className="me-2" />
+              Phone Number
+            </label>
             <input
               type="tel"
               name="phone"
@@ -182,7 +185,10 @@ export default function Profile() {
             />
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.loginLabel}>New Password</label>
+            <label className={styles.loginLabel}>
+              <FaLock className="me-2" />
+              New Password
+            </label>
             <input
               type="password"
               name="password"

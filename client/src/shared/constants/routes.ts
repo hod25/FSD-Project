@@ -1,6 +1,14 @@
 'use client';
 
-import { Home, CameraAlt, Assessment, Event, Business, Person } from '@mui/icons-material';
+import {
+  Home,
+  CameraAlt,
+  Assessment,
+  Event,
+  Business,
+  Person,
+  ManageAccounts,
+} from '@mui/icons-material';
 
 export interface MenuItem {
   id: string;
@@ -20,6 +28,11 @@ export const menuItems: MenuItem[] = [
     path: '/connected/site-management',
     icon: Business,
   },
-  { id: 'profile', label: 'Profile', path: '/connected/profile', icon: Person },
-  { id: 'user-management', label: 'User Management', path: '/connected/user-management', icon: Person }, 
+  { id: 'profile', label: 'My Profile', path: '/connected/profile', icon: Person },
+  {
+    id: 'user-management',
+    label: 'User Management',
+    path: '/connected/user-management',
+    icon: ManageAccounts,
+  },
 ];
