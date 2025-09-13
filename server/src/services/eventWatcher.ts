@@ -58,7 +58,16 @@ export function startEventWatcher() {
             <h3 style="color: #333; margin-top: 0;">Event Details</h3>
             <p><strong>Site:</strong> ${location.name || newEvent.site_location}</p>
             <p><strong>Area:</strong> ${newEvent.area_location}</p>
-            <p><strong>Time:</strong> ${new Date(newEvent.time_).toLocaleString()}</p>
+            <p><strong>Time:</strong> ${new Date(newEvent.time_).toLocaleString("en-US", {
+              timeZone: "Asia/Jerusalem",
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false
+            })}</p>
             <p><strong>Status:</strong> ${newEvent.status}</p>
             <p><strong>Details:</strong> ${newEvent.details}</p>
             ${newEvent.no_hardhat_count ? `<p><strong>People without hardhats:</strong> ${newEvent.no_hardhat_count}</p>` : ''}

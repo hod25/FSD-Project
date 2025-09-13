@@ -486,7 +486,10 @@ export default function EventsPage() {
                       letterSpacing: '-0.5px',
                     }}
                   >
-                    {new Date(event.time_).getDate()}
+                    {new Date(event.time_).toLocaleDateString('en-US', { 
+                      day: 'numeric',
+                      timeZone: 'Asia/Jerusalem'
+                    })}
                   </div>
                   <div
                     style={{
@@ -498,7 +501,10 @@ export default function EventsPage() {
                       marginTop: '2px',
                     }}
                   >
-                    {new Date(event.time_).toLocaleString('en-US', { month: 'short' })}
+                    {new Date(event.time_).toLocaleString('en-US', { 
+                      month: 'short',
+                      timeZone: 'Asia/Jerusalem'
+                    })}
                   </div>
                   <div
                     style={{
@@ -531,6 +537,7 @@ export default function EventsPage() {
                     {new Date(event.time_).toLocaleTimeString('en-US', {
                       hour: '2-digit',
                       minute: '2-digit',
+                      timeZone: 'Asia/Jerusalem',
                     })}
                   </div>
                 </div>

@@ -74,8 +74,11 @@ const appPromise = (async () => {
 
   // ===== Real-Time Alert Endpoint =====
   app.post("/api/alert", upload.single("image"), async (req, res) => {
-    const { message, timestamp, site_location, area_location, details } = req.body;
+    const { message, site_location, area_location, details } = req.body;
     const filename = req.file?.filename;
+
+    // Generate current Israel time as proper Date object
+    const israelTime = new Date();
 
     const image_url = filename
       ? `http://pro-safe.cs.colman.ac.il:5000/static/alert_images/${filename}`
@@ -85,9 +88,21 @@ const appPromise = (async () => {
       ? parseInt(req.body.no_hardhat_count, 10)
       : 0;
 
-    console.log("🚨 Alert Received:", message, timestamp);
+    console.log("🚨 Alert Received:", message, israelTime);
 
-    sendAlert({ message, timestamp, site_location, area_location, details, image_url, no_hardhat_count });
+    // Format timestamp for live alerts display
+    const formattedTimestamp = israelTime.toLocaleString("en-US", {
+      timeZone: "Asia/Jerusalem",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false
+    });
+
+    sendAlert({ message, timestamp: formattedTimestamp, site_location, area_location, details, image_url, no_hardhat_count });
 
     try {
       const saved = await EventModel.create({
@@ -96,7 +111,7 @@ const appPromise = (async () => {
         status: "Not Handled",
         details,
         image_url,
-        time_: timestamp,
+        time_: israelTime,
         no_hardhat_count
       });
 
